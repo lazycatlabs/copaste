@@ -5,8 +5,6 @@ struct ClipboardPanelView: View {
     @Environment(ClipboardSession.self) private var session
     @Bindable var model: ClipboardViewModel
     let perform: (ClipAction, ClipItem) -> Void
-    /// A single click copies the entry and keeps the window open.
-    let copy: (ClipItem) -> Void
     @FocusState private var searchFocused: Bool
 
     var body: some View {
@@ -43,6 +41,19 @@ struct ClipboardPanelView: View {
                 .focused($searchFocused)
                 .onChange(of: model.query) { model.selectedID = nil }
                 .accessibilityIdentifier("panel.search")
+            Menu {
+                Picker(L(.dateFilterTitle), selection: $model.dateFilter) {
+                    ForEach(DateFilter.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.inline)
+            } label: {
+                Label(model.dateFilter.title, systemImage: "calendar")
+            }
+            .menuStyle(.button)
+            .buttonStyle(.borderless)
+            .fixedSize()
+            .onChange(of: model.dateFilter) { model.selectedID = nil }
+            .accessibilityIdentifier("panel.dateFilter")
             Menu {
                 Picker(L(.filterAllTypes), selection: $model.kind) {
                     Label(L(.filterAllTypes), systemImage: "square.grid.2x2").tag(ClipKind?.none)
@@ -104,11 +115,9 @@ struct ClipboardPanelView: View {
             .frame(height: Metrics.Panel.rowHeight * TextScale.shared.factor)
             .background(isSelected ? Color.primary.opacity(Opacity.fill) : .clear, in: .rect(cornerRadius: Radius.md))
             .contentShape(.rect)
-            .onTapGesture(count: 2) { perform(.paste, item) }
-            .onTapGesture {
-                model.selectedID = item.id
-                copy(item)
-            }
+            // Double-click copies and closes the window; a single click only selects.
+            .onTapGesture(count: 2) { perform(.copy, item) }
+            .onTapGesture { model.selectedID = item.id }
             .contextMenu {
                 ForEach(ClipAction.available(for: item)) { action in
                     Button(action.title(for: item), systemImage: action.symbolName) { perform(action, item) }

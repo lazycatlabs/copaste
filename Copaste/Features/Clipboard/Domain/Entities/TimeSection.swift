@@ -29,3 +29,37 @@ nonisolated enum TimeSection: Hashable, Sendable {
         }
     }
 }
+
+/// The clipboard window's date filter: entries first copied (created) in this period.
+nonisolated enum DateFilter: String, CaseIterable, Sendable {
+    case anyTime, today, yesterday, last7Days, last30Days, thisYear
+
+    /// The period, or nil for any time.
+    func interval(now: Date, calendar: Calendar = .current) -> DateInterval? {
+        let startOfToday = calendar.startOfDay(for: now)
+        let start: Date?
+        var end = now
+        switch self {
+        case .anyTime: return nil
+        case .today: start = startOfToday
+        case .yesterday:
+            start = calendar.date(byAdding: .day, value: -1, to: startOfToday)
+            end = startOfToday
+        case .last7Days: start = calendar.date(byAdding: .day, value: -6, to: startOfToday)
+        case .last30Days: start = calendar.date(byAdding: .day, value: -29, to: startOfToday)
+        case .thisYear: start = calendar.dateInterval(of: .year, for: now)?.start
+        }
+        return start.map { DateInterval(start: $0, end: max($0, end)) }
+    }
+
+    var title: String {
+        switch self {
+        case .anyTime: L(.dateFilterAnyTime)
+        case .today: L(.sectionToday)
+        case .yesterday: L(.sectionYesterday)
+        case .last7Days: L(.dateFilterLast7Days)
+        case .last30Days: L(.dateFilterLast30Days)
+        case .thisYear: L(.dateFilterThisYear)
+        }
+    }
+}

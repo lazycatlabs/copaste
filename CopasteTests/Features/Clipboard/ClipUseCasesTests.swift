@@ -51,6 +51,25 @@ struct ClipUseCasesTests {
         #expect(ClipUseCases.filter([link, image], kind: nil, query: "invoice").first?.kind == .image)
     }
 
+    @Test func filtersByCreationDate() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .gmt
+        let today = ClipItem(kind: .text, hash: "t", firstCopied: now, lastCopied: now)
+        let yesterday = now.addingTimeInterval(-86_400)
+        // Created yesterday but copied again today: the filter goes by creation.
+        let older = ClipItem(kind: .text, hash: "y", firstCopied: yesterday, lastCopied: now)
+        let lastMonth = ClipItem(kind: .text, hash: "m", firstCopied: now.addingTimeInterval(-20 * 86_400), lastCopied: now)
+        let items = [today, older, lastMonth]
+        let filter = { (created: DateFilter) in
+            ClipUseCases.filter(items, kind: nil, query: "", created: created, now: now, calendar: calendar).map(\.hash)
+        }
+        #expect(filter(.today) == ["t"])
+        #expect(filter(.yesterday) == ["y"])
+        #expect(filter(.last7Days) == ["t", "y"])
+        #expect(filter(.last30Days).count == 3)
+        #expect(filter(.anyTime).count == 3)
+    }
+
     @Test func sectionsPutPinnedFirstThenByDay() {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = .gmt
