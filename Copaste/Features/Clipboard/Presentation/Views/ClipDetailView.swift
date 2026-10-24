@@ -43,7 +43,7 @@ struct ClipPreviewView: View {
     private var text: some View {
         ScrollView {
             Text(String((item.text ?? "").prefix(Metrics.Clipboard.previewTextLimit)))
-                .font(.callout.monospaced())
+                .font(.scaled(.callout, design: .monospaced))
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -66,7 +66,7 @@ struct ClipPreviewView: View {
                 RoundedRectangle(cornerRadius: Radius.lg).fill(Color(color))
                     .overlay(RoundedRectangle(cornerRadius: Radius.lg).strokeBorder(.primary.opacity(Opacity.border)))
                     .frame(width: Metrics.Panel.colorPreview, height: Metrics.Panel.colorPreview)
-                Text(color.hex).font(.title3.monospaced())
+                Text(color.hex).font(.scaled(.title3, design: .monospaced))
             }
             .frame(maxWidth: .infinity)
         }
@@ -79,7 +79,7 @@ struct ClipPreviewView: View {
                     ClipIconView(item: ClipItem(kind: .file, files: [file], hash: "", firstCopied: .now, lastCopied: .now))
                     VStack(alignment: .leading) {
                         Text(file.name)
-                        Text(file.path).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                        Text(file.path).font(.scaled(.caption)).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
                     }
                 }
             }
@@ -101,7 +101,7 @@ struct ClipInfoView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text(.infoTitle).font(.caption).foregroundStyle(.secondary)
+            Text(.infoTitle).font(.scaled(.caption)).foregroundStyle(.secondary)
             VStack(spacing: 0) {
                 ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
                     HStack(spacing: Spacing.md) {
@@ -111,7 +111,7 @@ struct ClipInfoView: View {
                         if row.isSource, item.sourceBundleID != nil { AppIconView(bundleID: item.sourceBundleID) }
                         Text(row.value).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
                     }
-                    .font(.caption)
+                    .font(.scaled(.caption))
                     .padding(.horizontal, Spacing.md)
                     .padding(.vertical, Spacing.sm)
                     .background(index.isMultiple(of: 2) ? Color.primary.opacity(Opacity.hover) : .clear)

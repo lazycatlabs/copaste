@@ -41,10 +41,10 @@ struct ClipRowView: View {
 
     var body: some View {
         HStack(spacing: Spacing.lg) {
-            ClipIconView(item: item)
-            Text(highlighted).lineLimit(1).truncationMode(.tail)
+            ClipIconView(item: item, size: Metrics.rowIcon * TextScale.shared.factor)
+            Text(highlighted).font(.scaled(.body)).lineLimit(1).truncationMode(.tail)
             Spacer(minLength: 0)
-            if item.pinned { Image(systemName: "pin.fill").font(.caption).foregroundStyle(.secondary) }
+            if item.pinned { Image(systemName: "pin.fill").font(.scaled(.caption)).foregroundStyle(.secondary) }
         }
         .accessibilityElement(children: .combine)
     }

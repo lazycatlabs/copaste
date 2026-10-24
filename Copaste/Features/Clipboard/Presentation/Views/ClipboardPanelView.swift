@@ -38,7 +38,7 @@ struct ClipboardPanelView: View {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
             TextField(L(.searchPlaceholder), text: $model.query)
                 .textFieldStyle(.plain)
-                .font(.system(size: Metrics.Panel.searchFont))
+                .font(.system(size: Metrics.Panel.searchFont * TextScale.shared.factor))
                 .focused($searchFocused)
                 .onChange(of: model.query) { model.selectedID = nil }
                 .accessibilityIdentifier("panel.search")
@@ -73,7 +73,7 @@ struct ClipboardPanelView: View {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(sections, id: \.0) { section, items in
                         Text(section.title)
-                            .font(.caption.weight(.medium))
+                            .font(.scaled(.caption, weight: .medium))
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, Spacing.md)
                             .padding(.top, Spacing.lg)
@@ -99,7 +99,7 @@ struct ClipboardPanelView: View {
     private func row(_ item: ClipItem, isSelected: Bool) -> some View {
         ClipRowView(item: item, query: model.query)
             .padding(.horizontal, Spacing.md)
-            .frame(height: Metrics.Panel.rowHeight)
+            .frame(height: Metrics.Panel.rowHeight * TextScale.shared.factor)
             .background(isSelected ? Color.primary.opacity(Opacity.fill) : .clear, in: .rect(cornerRadius: Radius.md))
             .contentShape(.rect)
             .onTapGesture(count: 2) { perform(.paste, item) }
@@ -132,7 +132,7 @@ struct ClipboardPanelView: View {
     private var footer: some View {
         HStack(spacing: Spacing.md) {
             Image(systemName: session.isPaused ? "pause.circle.fill" : "list.clipboard.fill").foregroundStyle(.tint)
-            Text(session.isPaused ? L(.statusPaused) : L(.appName)).font(.callout).foregroundStyle(.secondary)
+            Text(session.isPaused ? L(.statusPaused) : L(.appName)).font(.scaled(.callout)).foregroundStyle(.secondary)
             Spacer()
             if let item = model.selected(in: session) {
                 let primary: ClipAction = session.settings.pasteDirectly ? .paste : .copy
@@ -163,7 +163,7 @@ struct ClipboardPanelView: View {
     private var toast: some View {
         if let message = model.toast {
             Label(message, systemImage: "checkmark.circle.fill")
-                .font(.callout)
+                .font(.scaled(.callout))
                 .lineLimit(1)
                 .padding(.horizontal, Spacing.xxl)
                 .padding(.vertical, Spacing.md)

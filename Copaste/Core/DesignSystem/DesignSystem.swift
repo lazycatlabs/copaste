@@ -113,7 +113,7 @@ struct KeyCap: View {
 
     var body: some View {
         Text(text)
-            .font(.caption.monospaced())
+            .font(.scaled(.caption, design: .monospaced))
             .padding(.horizontal, Spacing.xs)
             .padding(.vertical, Spacing.xxs)
             .background(Color.primary.opacity(Opacity.fill), in: .rect(cornerRadius: Radius.xs))

@@ -42,6 +42,11 @@ private struct SessionSettings: View {
     @State private var confirmsClear = false
 
     var body: some View {
+        Section(L(.settingsAppearance)) {
+            Picker(L(.settingsTextSize), selection: Bindable(TextScale.shared).size) {
+                ForEach(TextSize.allCases) { Text($0.title).tag($0) }
+            }
+        }
         Section(L(.settingsHistory)) {
             Picker(L(.settingsKeepHistory), selection: $session.settings.retention) {
                 ForEach(Retention.allCases, id: \.self) { Text($0.title).tag($0) }
