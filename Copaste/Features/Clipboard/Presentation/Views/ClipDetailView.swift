@@ -1,7 +1,5 @@
 import SwiftUI
-#if os(macOS)
 import AppKit
-#endif
 
 /// An entry's content and its information (type, source, counts, dates).
 struct ClipDetailView: View {
@@ -28,7 +26,7 @@ struct ClipPreviewView: View {
             image(session.blobURL(item.blob))
         case .link:
             if let preview = session.blobURL(item.link?.image).flatMap(ImageCache.image) {
-                Image(platformImage: preview).resizable().scaledToFit().clipShape(.rect(cornerRadius: Radius.md))
+                Image(nsImage: preview).resizable().scaledToFit().clipShape(.rect(cornerRadius: Radius.md))
                     .frame(maxWidth: .infinity)
             } else {
                 text
@@ -54,7 +52,7 @@ struct ClipPreviewView: View {
     @ViewBuilder
     private func image(_ url: URL?) -> some View {
         if let image = url.flatMap(ImageCache.image) {
-            Image(platformImage: image).resizable().scaledToFit().clipShape(.rect(cornerRadius: Radius.sm))
+            Image(nsImage: image).resizable().scaledToFit().clipShape(.rect(cornerRadius: Radius.sm))
                 .frame(maxWidth: .infinity)
         } else {
             Label(L(.previewUnavailable), systemImage: "photo.badge.exclamationmark").foregroundStyle(.secondary)
@@ -110,7 +108,7 @@ struct ClipInfoView: View {
                         Text(row.label).foregroundStyle(.secondary)
                             .frame(width: Metrics.Detail.infoLabelWidth, alignment: .leading)
                         Spacer(minLength: 0)
-                        if row.isSource { SourceIcon(bundleID: item.sourceBundleID) }
+                        if row.isSource, item.sourceBundleID != nil { AppIconView(bundleID: item.sourceBundleID) }
                         Text(row.value).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
                     }
                     .font(.caption)
@@ -172,19 +170,5 @@ struct ClipInfoView: View {
             if size > 0 { rows.append(Row(label: L(.infoSize), value: size.formatted(.byteCount(style: .file)))) }
             return rows
         }
-    }
-}
-
-/// The icon of the app an entry was copied from (macOS only; iOS doesn't tell apps where a copy came from).
-private struct SourceIcon: View {
-    let bundleID: String?
-
-    var body: some View {
-        #if os(macOS)
-        if let bundleID, let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
-            Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
-                .resizable().frame(width: Metrics.appIcon, height: Metrics.appIcon)
-        }
-        #endif
     }
 }

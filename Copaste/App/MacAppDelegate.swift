@@ -1,9 +1,8 @@
-#if os(macOS)
 import AppKit
 import Carbon.HIToolbox
 import SwiftUI
 
-/// Copaste on macOS lives in the menu bar: a global shortcut (⇧⌘V) opens the floating clipboard window.
+/// Copaste lives in the menu bar: a global shortcut (⇧⌘V unless changed in Settings) opens the floating clipboard window.
 final class MacAppDelegate: NSObject, NSApplicationDelegate {
     let container = AppContainer()
     private(set) lazy var panel = ClipboardPanelController(container: container)
@@ -11,8 +10,15 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         panel.showSettings = { [weak self] in self?.showSettings() }
-        hotKey = GlobalHotKey(keyCode: kVK_ANSI_V, modifiers: cmdKey | shiftKey) { [weak self] in self?.panel.toggle() }
+        registerHotKey()
+        HotKeyStore.shared.onChange = { [weak self] in self?.registerHotKey() }
         if container.session == nil { showWelcome() }
+    }
+
+    private func registerHotKey() {
+        hotKey?.unregister()
+        let binding = HotKeyStore.shared.binding
+        hotKey = GlobalHotKey(keyCode: Int(binding.keyCode), modifiers: binding.carbonModifiers) { [weak self] in self?.panel.toggle() }
     }
 
     func showSettings() {
@@ -33,13 +39,16 @@ struct MacMenu: View {
     let delegate: MacAppDelegate
 
     var body: some View {
-        Button(L(.menuOpenHistory)) { delegate.panel.show() }
+        Button(L(.menuOpenHistory(HotKeyStore.shared.binding.displayText))) { delegate.panel.show() }
         if let session = delegate.container.session {
             Toggle(L(.menuPause), isOn: Binding(get: { session.isPaused }, set: { session.isPaused = $0 }))
         }
+        Divider()
+        Button(L(.supportFeedback)) { SupportLinks.feedback().map { _ = NSWorkspace.shared.open($0) } }
+        Button(L(.supportBugReport)) { SupportLinks.bugReport().map { _ = NSWorkspace.shared.open($0) } }
+        Button(L(.supportWebsite)) { NSWorkspace.shared.open(SupportLinks.website) }
         Divider()
         Button(L(.menuSettings)) { delegate.showSettings() }.keyboardShortcut(",")
         Button(L(.menuQuit)) { NSApp.terminate(nil) }.keyboardShortcut("q")
     }
 }
-#endif

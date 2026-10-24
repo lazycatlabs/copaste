@@ -1,6 +1,23 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "aboutVersion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versi"
+          }
+        }
+      }
+    },
     "actionAnnotate": {
       "extractionState": "manual",
       "localizations": {
@@ -239,6 +256,23 @@
         }
       }
     },
+    "actionReset": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atur Ulang"
+          }
+        }
+      }
+    },
     "actionRevealInFinder": {
       "extractionState": "manual",
       "localizations": {
@@ -269,23 +303,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Simpan ke File…"
-          }
-        }
-      }
-    },
-    "actionShare": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Share"
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bagikan"
           }
         }
       }
@@ -426,6 +443,40 @@
         }
       }
     },
+    "bugReportBody": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What happened?\n\n\nWhat did you expect?\n\n\nSteps to reproduce:\n1. \n\n—\nCopaste %1$@\n%2$@"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apa yang terjadi?\n\n\nApa yang Anda harapkan?\n\n\nLangkah untuk mengulanginya:\n1. \n\n—\nCopaste %1$@\n%2$@"
+          }
+        }
+      }
+    },
+    "bugReportSubject": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copaste Bug Report"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laporan Bug Copaste"
+          }
+        }
+      }
+    },
     "emptyMessage": {
       "extractionState": "manual",
       "localizations": {
@@ -439,23 +490,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Salin sesuatu dan akan muncul di sini."
-          }
-        }
-      }
-    },
-    "emptyMessageIOS": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy something in another app, then open Copaste or tap Paste."
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salin sesuatu di aplikasi lain, lalu buka Copaste atau ketuk Tempel."
           }
         }
       }
@@ -490,6 +524,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Terjadi kesalahan"
+          }
+        }
+      }
+    },
+    "feedbackSubject": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copaste Feedback"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masukan untuk Copaste"
           }
         }
       }
@@ -976,13 +1027,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open Clipboard History  ⇧⌘V"
+            "value": "Open Clipboard History  %@"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buka Riwayat Clipboard  ⇧⌘V"
+            "value": "Buka Riwayat Clipboard  %@"
           }
         }
       }
@@ -1293,6 +1344,23 @@
         }
       }
     },
+    "settingsAbout": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tentang"
+          }
+        }
+      }
+    },
     "settingsAccessibilityNeeded": {
       "extractionState": "manual",
       "localizations": {
@@ -1323,23 +1391,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tambah Aplikasi…"
-          }
-        }
-      }
-    },
-    "settingsCaptureOnOpen": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Read the clipboard when Copaste opens"
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Baca clipboard saat Copaste dibuka"
           }
         }
       }
@@ -1391,6 +1442,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hapus Riwayat"
+          }
+        }
+      }
+    },
+    "settingsCopySound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When copying"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saat menyalin"
           }
         }
       }
@@ -1531,6 +1599,23 @@
         }
       }
     },
+    "settingsPasteSound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When pasting"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saat menempel"
+          }
+        }
+      }
+    },
     "settingsPasting": {
       "extractionState": "manual",
       "localizations": {
@@ -1578,6 +1663,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buka riwayat clipboard"
+          }
+        }
+      }
+    },
+    "settingsSounds": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sounds"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suara"
           }
         }
       }
@@ -1667,6 +1769,40 @@
         }
       }
     },
+    "shortcutPressKeys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press keys…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tekan tombol…"
+          }
+        }
+      }
+    },
+    "soundNone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidak ada"
+          }
+        }
+      }
+    },
     "statusPaused": {
       "extractionState": "manual",
       "localizations": {
@@ -1684,6 +1820,57 @@
         }
       }
     },
+    "supportBugReport": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report a Bug"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laporkan Bug"
+          }
+        }
+      }
+    },
+    "supportFeedback": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Feedback"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirim Masukan"
+          }
+        }
+      }
+    },
+    "supportWebsite": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Situs Web"
+          }
+        }
+      }
+    },
     "textFileName": {
       "extractionState": "manual",
       "localizations": {
@@ -1697,6 +1884,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Teks.txt"
+          }
+        }
+      }
+    },
+    "toastAnnotated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annotated image saved and copied"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gambar beranotasi disimpan dan disalin"
+          }
+        }
+      }
+    },
+    "toastCopied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” copied — ready to paste"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” disalin — siap ditempel"
           }
         }
       }

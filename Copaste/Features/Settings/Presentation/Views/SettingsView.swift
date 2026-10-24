@@ -1,11 +1,10 @@
-import SwiftUI
-#if os(macOS)
 import AppKit
+import Carbon.HIToolbox
 import ServiceManagement
+import SwiftUI
 import UniformTypeIdentifiers
-#endif
 
-/// Vault, history, text recognition, pasting and ignored apps.
+/// Vault, history, text recognition, pasting, sounds, ignored apps and support.
 struct SettingsView: View {
     @Environment(AppContainer.self) private var container
 
@@ -15,9 +14,9 @@ struct SettingsView: View {
             if let session = container.session {
                 SessionSettings(session: session)
             }
+            AboutSection()
         }
         .formStyle(.grouped)
-        .navigationTitle(L(.settingsTitle))
     }
 
     private var vaultSection: some View {
@@ -29,11 +28,9 @@ struct SettingsView: View {
             }
             HStack {
                 VaultFolderButton(title: L(.vaultChange))
-                #if os(macOS)
                 if let root = container.session?.root {
                     Button(L(.vaultReveal)) { NSWorkspace.shared.activateFileViewerSelecting([root]) }
                 }
-                #endif
             }
             Text(.vaultHint).font(.caption).foregroundStyle(.secondary)
         }
@@ -50,9 +47,6 @@ private struct SessionSettings: View {
                 ForEach(Retention.allCases, id: \.self) { Text($0.title).tag($0) }
             }
             Toggle(L(.settingsLinkPreviews), isOn: $session.settings.fetchLinkPreviews)
-            #if os(iOS)
-            Toggle(L(.settingsCaptureOnOpen), isOn: $session.settings.captureOnOpen)
-            #endif
         }
         Section {
             Toggle(L(.settingsTextRecognition), isOn: $session.settings.textRecognition)
@@ -64,9 +58,12 @@ private struct SessionSettings: View {
         } footer: {
             Text(.settingsTextRecognitionFooter)
         }
-        #if os(macOS)
-        MacSettings(session: session)
-        #endif
+        PastingSection(session: session)
+        Section(L(.settingsSounds)) {
+            soundPicker(L(.settingsCopySound), selection: $session.settings.copySound)
+            soundPicker(L(.settingsPasteSound), selection: $session.settings.pasteSound)
+        }
+        IgnoredAppsSection(session: session)
         Section {
             Button(L(.settingsClearHistory), role: .destructive) { confirmsClear = true }
                 .confirmationDialog(L(.settingsClearConfirm), isPresented: $confirmsClear) {
@@ -76,10 +73,17 @@ private struct SessionSettings: View {
             Text(.settingsClearFooter)
         }
     }
+
+    /// Choosing a sound plays it, so it can be heard before it's kept.
+    private func soundPicker(_ title: String, selection: Binding<ClipSound>) -> some View {
+        Picker(title, selection: selection) {
+            ForEach(ClipSound.allCases, id: \.self) { Text($0.title).tag($0) }
+        }
+        .onChange(of: selection.wrappedValue) { _, sound in SoundPlayer.play(sound) }
+    }
 }
 
-#if os(macOS)
-private struct MacSettings: View {
+private struct PastingSection: View {
     @Bindable var session: ClipboardSession
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
@@ -93,7 +97,7 @@ private struct MacSettings: View {
                     Button(L(.settingsGrantAccess)) { PasteSimulator.requestAccess() }
                 }
             }
-            LabeledContent(L(.settingsShortcut)) { Text(verbatim: "⇧⌘V") }
+            LabeledContent(L(.settingsShortcut)) { ShortcutRecorder() }
             Toggle(L(.settingsLaunchAtLogin), isOn: $launchAtLogin)
                 .onChange(of: launchAtLogin) { _, enabled in
                     do {
@@ -104,9 +108,65 @@ private struct MacSettings: View {
                     }
                 }
         }
+    }
+}
+
+/// Click, then press the new combination (esc cancels). It needs ⌘, ⌥ or ⌃.
+private struct ShortcutRecorder: View {
+    @State private var isRecording = false
+    @State private var monitor: Any?
+    private var store: HotKeyStore { .shared }
+
+    var body: some View {
+        HStack(spacing: Spacing.sm) {
+            Button { isRecording ? stop() : start() } label: {
+                Text(isRecording ? L(.shortcutPressKeys) : store.binding.displayText)
+                    .font(.callout.monospaced())
+                    .frame(minWidth: Metrics.Settings.shortcutRecorderWidth)
+            }
+            .buttonStyle(.bordered)
+            .tint(isRecording ? .accentColor : nil)
+            .accessibilityIdentifier("settings.shortcut")
+            if store.binding != .standard {
+                Button(L(.actionReset)) { store.set(.standard) }.buttonStyle(.borderless)
+            }
+        }
+        .onDisappear(perform: stop)
+    }
+
+    private func start() {
+        isRecording = true
+        removeMonitor()
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            if Int(event.keyCode) == kVK_Escape {
+                stop()
+            } else if let binding = HotKeyBinding(event: event) {
+                store.set(binding)
+                stop()
+            }
+            return nil
+        }
+    }
+
+    private func stop() {
+        isRecording = false
+        removeMonitor()
+    }
+
+    private func removeMonitor() {
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
+    }
+}
+
+private struct IgnoredAppsSection: View {
+    @Bindable var session: ClipboardSession
+
+    var body: some View {
         Section {
             ForEach(session.settings.ignoredApps, id: \.bundleID) { app in
-                HStack {
+                HStack(spacing: Spacing.md) {
+                    AppIconView(bundleID: app.bundleID, size: Metrics.Settings.ignoredAppIcon)
                     Text(app.name)
                     Spacer()
                     Button(L(.actionRemove), systemImage: "minus.circle") {
@@ -116,9 +176,15 @@ private struct MacSettings: View {
                     .buttonStyle(.borderless)
                 }
             }
-            Button(L(.settingsAddApp), action: addApp)
         } header: {
-            Text(.settingsIgnoredApps)
+            HStack {
+                Text(.settingsIgnoredApps)
+                Spacer()
+                Button(L(.settingsAddApp), systemImage: "plus", action: addApp)
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.borderless)
+                    .accessibilityIdentifier("settings.addIgnoredApp")
+            }
         } footer: {
             Text(.settingsIgnoredAppsFooter)
         }
@@ -128,10 +194,27 @@ private struct MacSettings: View {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.application]
         panel.directoryURL = URL(filePath: "/Applications")
-        guard panel.runModal() == .OK, let url = panel.url, let bundle = Bundle(url: url), let bundleID = bundle.bundleIdentifier,
+        guard panel.runModal() == .OK, let url = panel.url, let bundleID = Bundle(url: url)?.bundleIdentifier,
               !session.settings.ignoredApps.contains(where: { $0.bundleID == bundleID }) else { return }
         let name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
         session.settings.ignoredApps.append(IgnoredApp(bundleID: bundleID, name: name))
     }
 }
-#endif
+
+private struct AboutSection: View {
+    var body: some View {
+        Section(L(.settingsAbout)) {
+            LabeledContent(L(.aboutVersion), value: SupportLinks.appVersion)
+            HStack {
+                if let url = SupportLinks.feedback() {
+                    Link(destination: url) { Label(L(.supportFeedback), systemImage: "bubble.left") }
+                }
+                if let url = SupportLinks.bugReport() {
+                    Link(destination: url) { Label(L(.supportBugReport), systemImage: "ladybug") }
+                }
+                Spacer()
+                Link(destination: SupportLinks.website) { Label(L(.supportWebsite), systemImage: "safari") }
+            }
+        }
+    }
+}
