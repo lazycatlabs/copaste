@@ -1,4 +1,3 @@
-#if os(macOS)
 import SwiftUI
 
 /// The floating clipboard window: search and type filter on top, the history on the left, the selected entry on the right.
@@ -6,6 +5,8 @@ struct ClipboardPanelView: View {
     @Environment(ClipboardSession.self) private var session
     @Bindable var model: ClipboardViewModel
     let perform: (ClipAction, ClipItem) -> Void
+    /// A single click copies the entry and keeps the window open.
+    let copy: (ClipItem) -> Void
     @FocusState private var searchFocused: Bool
 
     var body: some View {
@@ -22,7 +23,11 @@ struct ClipboardPanelView: View {
         }
         .frame(width: Metrics.Panel.size.width, height: Metrics.Panel.size.height)
         .background(.regularMaterial)
+        .overlay(alignment: .bottom) { toast }
         .overlay(alignment: .bottomTrailing) { actionsMenu }
+        // The panel has a (hidden) title bar; without this its height would push the search field down.
+        .ignoresSafeArea()
+        .animation(.snappy, value: model.toast)
         .onAppear { searchFocused = true }
     }
 
@@ -98,9 +103,12 @@ struct ClipboardPanelView: View {
             .background(isSelected ? Color.primary.opacity(Opacity.fill) : .clear, in: .rect(cornerRadius: Radius.md))
             .contentShape(.rect)
             .onTapGesture(count: 2) { perform(.paste, item) }
-            .onTapGesture { model.selectedID = item.id }
+            .onTapGesture {
+                model.selectedID = item.id
+                copy(item)
+            }
             .contextMenu {
-                ForEach(ClipAction.available(for: item, isMac: true)) { action in
+                ForEach(ClipAction.available(for: item)) { action in
                     Button(action.title(for: item), systemImage: action.symbolName) { perform(action, item) }
                 }
             }
@@ -149,13 +157,32 @@ struct ClipboardPanelView: View {
         .foregroundStyle(.primary)
     }
 
+    // MARK: Toast
+
+    @ViewBuilder
+    private var toast: some View {
+        if let message = model.toast {
+            Label(message, systemImage: "checkmark.circle.fill")
+                .font(.callout)
+                .lineLimit(1)
+                .padding(.horizontal, Spacing.xxl)
+                .padding(.vertical, Spacing.md)
+                .background(.thickMaterial, in: .capsule)
+                .overlay(Capsule().strokeBorder(.primary.opacity(Opacity.fill)))
+                .shadow(radius: Spacing.md)
+                .padding(.bottom, Spacing.hero + Spacing.xl)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .accessibilityIdentifier("panel.toast")
+        }
+    }
+
     // MARK: Actions (⌘K)
 
     @ViewBuilder
     private var actionsMenu: some View {
         if model.showsActions, let item = model.selected(in: session) {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(ClipAction.available(for: item, isMac: true)) { action in
+                ForEach(ClipAction.available(for: item)) { action in
                     Button {
                         model.showsActions = false
                         perform(action, item)
@@ -184,4 +211,3 @@ struct ClipboardPanelView: View {
         }
     }
 }
-#endif

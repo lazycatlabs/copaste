@@ -51,6 +51,9 @@ enum Metrics {
         static let actionsWidth: CGFloat = 260
         /// Pressing ⌘1…⌘9 pastes one of the first nine visible entries.
         static let quickPasteCount = 9
+        static let toastDuration: TimeInterval = 1.8
+        /// Longer entry titles are cut short in the toast.
+        static let toastTitleLength = 40
     }
 
     enum Detail {
@@ -63,6 +66,8 @@ enum Metrics {
         static let windowSize = CGSize(width: 520, height: 600)
         static let welcomeSize = CGSize(width: 460, height: 420)
         static let heroIcon: CGFloat = 48
+        static let ignoredAppIcon: CGFloat = 20
+        static let shortcutRecorderWidth: CGFloat = 80
     }
 
     enum Annotate {
