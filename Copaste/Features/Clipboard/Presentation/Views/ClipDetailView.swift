@@ -93,6 +93,7 @@ struct ClipPreviewView: View {
 /// The "Information" table under the preview.
 struct ClipInfoView: View {
     let item: ClipItem
+    @Environment(ClipboardSession.self) private var session
 
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -145,6 +146,13 @@ struct ClipInfoView: View {
         return rows
     }
 
+    /// The stored image's size on disk.
+    private var imageFileSize: Int64? {
+        guard let url = session.blobURL(item.blob),
+              let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize else { return nil }
+        return Int64(size)
+    }
+
     private var kindRows: [Row] {
         switch item.kind {
         case .text:
@@ -162,6 +170,7 @@ struct ClipInfoView: View {
             return [Row(label: "HEX", value: color.hex), Row(label: "RGB", value: color.rgb), Row(label: "HSL", value: color.hsl)]
         case .image:
             var rows = [Row(label: L(.infoDimensions), value: "\(item.pixelWidth ?? 0) × \(item.pixelHeight ?? 0)")]
+            if let size = imageFileSize { rows.append(Row(label: L(.infoSize), value: size.formatted(.byteCount(style: .file)))) }
             if let text = item.recognizedText {
                 rows.append(Row(label: L(.infoRecognizedText), value: text.replacingOccurrences(of: "\n", with: " ")))
             }
