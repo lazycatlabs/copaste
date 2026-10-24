@@ -1,0 +1,52 @@
+import Foundation
+
+/// How long unpinned entries are kept.
+nonisolated enum Retention: String, Codable, CaseIterable, Sendable {
+    case day, week, month, threeMonths, year, forever
+
+    func cutoff(from now: Date, calendar: Calendar = .current) -> Date? {
+        switch self {
+        case .day: calendar.date(byAdding: .day, value: -1, to: now)
+        case .week: calendar.date(byAdding: .day, value: -7, to: now)
+        case .month: calendar.date(byAdding: .month, value: -1, to: now)
+        case .threeMonths: calendar.date(byAdding: .month, value: -3, to: now)
+        case .year: calendar.date(byAdding: .year, value: -1, to: now)
+        case .forever: nil
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .day: L(.retentionDay)
+        case .week: L(.retentionWeek)
+        case .month: L(.retentionMonth)
+        case .threeMonths: L(.retentionThreeMonths)
+        case .year: L(.retentionYear)
+        case .forever: L(.retentionForever)
+        }
+    }
+}
+
+/// An app whose copies are never recorded (password managers, for example).
+nonisolated struct IgnoredApp: Codable, Hashable, Sendable {
+    var bundleID: String
+    var name: String
+}
+
+/// Vault-wide settings, stored in `.copaste/config.json`. New fields need defaults: old files are merged with these.
+nonisolated struct AppSettings: Codable, Equatable, Sendable {
+    var retention: Retention = .threeMonths
+    var textRecognition = true
+    var accurateRecognition = false
+    var fetchLinkPreviews = true
+    /// macOS: paste into the app in front when an entry is chosen, instead of only copying it.
+    var pasteDirectly = true
+    /// iOS: read the clipboard each time Copaste opens.
+    var captureOnOpen = true
+    var ignoredApps: [IgnoredApp] = [
+        IgnoredApp(bundleID: "com.apple.Passwords", name: "Passwords"),
+        IgnoredApp(bundleID: "com.apple.keychainaccess", name: "Keychain Access"),
+        IgnoredApp(bundleID: "com.1password.1password", name: "1Password"),
+        IgnoredApp(bundleID: "com.bitwarden.desktop", name: "Bitwarden"),
+    ]
+}
