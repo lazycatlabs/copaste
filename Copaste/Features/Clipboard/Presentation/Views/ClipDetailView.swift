@@ -8,9 +8,12 @@ struct ClipDetailView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xl) {
             ClipPreviewView(item: item)
-                .frame(maxWidth: .infinity, maxHeight: Metrics.Detail.previewMaxHeight, alignment: .topLeading)
-            Spacer(minLength: 0)
-            ClipInfoView(item: item)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .frame(height: Metrics.Detail.previewHeight, alignment: .topLeading)
+            ScrollView {
+                ClipInfoView(item: item)
+            }
+            .scrollIndicators(.automatic)
         }
     }
 }
@@ -27,7 +30,7 @@ struct ClipPreviewView: View {
         case .link:
             if let preview = session.blobURL(item.link?.image).flatMap(ImageCache.image) {
                 Image(nsImage: preview).resizable().scaledToFit().clipShape(.rect(cornerRadius: Radius.md))
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 text
             }
@@ -53,7 +56,7 @@ struct ClipPreviewView: View {
     private func image(_ url: URL?) -> some View {
         if let image = url.flatMap(ImageCache.image) {
             Image(nsImage: image).resizable().scaledToFit().clipShape(.rect(cornerRadius: Radius.sm))
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             Label(L(.previewUnavailable), systemImage: "photo.badge.exclamationmark").foregroundStyle(.secondary)
         }
@@ -68,7 +71,7 @@ struct ClipPreviewView: View {
                     .frame(width: Metrics.Panel.colorPreview, height: Metrics.Panel.colorPreview)
                 Text(color.hex).font(.scaled(.title3, design: .monospaced))
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 

@@ -60,7 +60,8 @@ struct ClipboardPanelView: View {
             .accessibilityIdentifier("panel.filter")
         }
         .padding(.horizontal, Spacing.xxl)
-        .padding(.vertical, Spacing.xl)
+        .padding(.top, Spacing.xl + Spacing.sm)
+        .padding(.bottom, Spacing.xl)
     }
 
     // MARK: List
@@ -131,7 +132,7 @@ struct ClipboardPanelView: View {
 
     private var footer: some View {
         HStack(spacing: Spacing.md) {
-            Image(systemName: session.isPaused ? "pause.circle.fill" : "list.clipboard.fill").foregroundStyle(.tint)
+            AppIconImage(size: Metrics.appIcon * TextScale.shared.factor)
             Text(session.isPaused ? L(.statusPaused) : L(.appName)).font(.scaled(.callout)).foregroundStyle(.secondary)
             Spacer()
             if let item = model.selected(in: session) {

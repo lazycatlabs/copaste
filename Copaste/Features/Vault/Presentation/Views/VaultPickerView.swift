@@ -9,9 +9,7 @@ struct VaultPickerView: View {
 
     var body: some View {
         VStack(spacing: Spacing.section) {
-            Image(systemName: "list.clipboard.fill")
-                .font(.system(size: Metrics.Settings.heroIcon))
-                .foregroundStyle(.tint)
+            AppIconImage(size: Metrics.Settings.heroIcon)
             VStack(spacing: Spacing.md) {
                 Text(.appName).font(.largeTitle.bold())
                 Text(.vaultIntro).multilineTextAlignment(.center).foregroundStyle(.secondary)

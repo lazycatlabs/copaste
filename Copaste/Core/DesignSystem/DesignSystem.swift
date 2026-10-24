@@ -57,7 +57,8 @@ enum Metrics {
     }
 
     enum Detail {
-        static let previewMaxHeight: CGFloat = 230
+        /// About half the clipboard window; the information below scrolls.
+        static let previewHeight: CGFloat = Panel.size.height / 2
         static let infoLabelWidth: CGFloat = 110
         static let colorFormatWidth: CGFloat = 46
     }
@@ -65,7 +66,7 @@ enum Metrics {
     enum Settings {
         static let windowSize = CGSize(width: 520, height: 600)
         static let welcomeSize = CGSize(width: 460, height: 420)
-        static let heroIcon: CGFloat = 48
+        static let heroIcon: CGFloat = 72
         static let ignoredAppIcon: CGFloat = 20
         static let shortcutRecorderWidth: CGFloat = 80
     }
