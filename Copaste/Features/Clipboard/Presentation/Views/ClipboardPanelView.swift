@@ -21,11 +21,12 @@ struct ClipboardPanelView: View {
             Divider()
             footer
         }
-        .frame(width: Metrics.Panel.size.width, height: Metrics.Panel.size.height)
-        .background(.regularMaterial)
         .overlay(alignment: .bottom) { toast }
         .overlay(alignment: .bottomTrailing) { actionsMenu }
-        // The panel has a (hidden) title bar; without this its height would push the search field down.
+        .frame(width: Metrics.Panel.size.width, height: Metrics.Panel.size.height)
+        .background(.regularMaterial)
+        .clipShape(.rect(cornerRadius: Metrics.Panel.cornerRadius))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.Panel.cornerRadius).strokeBorder(.primary.opacity(Opacity.fill)))
         .ignoresSafeArea()
         .animation(.snappy, value: model.toast)
         .onAppear { searchFocused = true }

@@ -44,6 +44,7 @@ enum Metrics {
     /// The floating clipboard window on macOS.
     enum Panel {
         static let size = CGSize(width: 780, height: 500)
+        static let cornerRadius: CGFloat = 26
         static let listWidth: CGFloat = 290
         static let rowHeight: CGFloat = 38
         static let searchFont: CGFloat = 20

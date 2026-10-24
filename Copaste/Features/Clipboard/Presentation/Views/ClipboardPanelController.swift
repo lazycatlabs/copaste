@@ -52,6 +52,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
                                          y: visible.midY - Metrics.Panel.size.height / 2 + visible.height / 8))
         }
         panel.makeKeyAndOrderFront(nil)
+        panel.invalidateShadow()
         installKeyMonitor()
     }
 
@@ -66,14 +67,12 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     }
 
     private func makePanel() -> FloatingPanel {
+        // Borderless, so the SwiftUI content draws the whole rounded shape; the shadow follows it.
         let panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: Metrics.Panel.size),
-                                  styleMask: [.nonactivatingPanel, .titled, .fullSizeContentView],
+                                  styleMask: [.nonactivatingPanel, .borderless],
                                   backing: .buffered, defer: false)
-        panel.titleVisibility = .hidden
-        panel.titlebarAppearsTransparent = true
-        for button in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
-            panel.standardWindowButton(button)?.isHidden = true
-        }
+        panel.isOpaque = false
+        panel.hasShadow = true
         panel.isMovableByWindowBackground = true
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
