@@ -1,10 +1,6 @@
 import Foundation
 import UniformTypeIdentifiers
-#if os(macOS)
 import AppKit
-#else
-import UIKit
-#endif
 
 /// What Copaste puts back on the clipboard.
 nonisolated enum PasteboardPayload: Sendable {
@@ -13,9 +9,8 @@ nonisolated enum PasteboardPayload: Sendable {
     case files([URL])
 }
 
-/// The system clipboard. On macOS it is watched for changes; iOS doesn't allow that, so it is read when Copaste opens.
+/// The system clipboard, watched for changes.
 final class SystemPasteboard {
-    #if os(macOS)
     /// Markers apps such as password managers set on secrets and throwaway data (nspasteboard.org).
     private static let privateTypes: Set<NSPasteboard.PasteboardType> = [
         .init("org.nspasteboard.ConcealedType"), .init("org.nspasteboard.TransientType"),
@@ -23,7 +18,14 @@ final class SystemPasteboard {
     ]
 
     var onCapture: ((Capture) -> Void)?
-    private var changeCount = NSPasteboard.general.changeCount
+    private let pasteboard: NSPasteboard
+    private var changeCount: Int
+
+    /// Tests pass a private pasteboard so they never touch what the user copied.
+    init(pasteboard: NSPasteboard = .general) {
+        self.pasteboard = pasteboard
+        changeCount = pasteboard.changeCount
+    }
     private var timer: Timer?
 
     func startMonitoring() {
@@ -34,7 +36,6 @@ final class SystemPasteboard {
     }
 
     private func poll() {
-        let pasteboard = NSPasteboard.general
         guard pasteboard.changeCount != changeCount else { return }
         changeCount = pasteboard.changeCount
         guard let content = Self.read(pasteboard) else { return }
@@ -65,7 +66,6 @@ final class SystemPasteboard {
     }
 
     func write(_ payload: PasteboardPayload) {
-        let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         switch payload {
         case let .text(text): pasteboard.setString(text, forType: .string)
@@ -75,61 +75,6 @@ final class SystemPasteboard {
         // Our own write isn't a new copy.
         changeCount = pasteboard.changeCount
     }
-    #else
-    private static let changeCountKey = "pasteboardChangeCount"
-
-    /// The clipboard's content if it changed since Copaste last looked. Reading it may show iOS's paste prompt.
-    func readIfChanged() -> CapturedContent? {
-        let pasteboard = UIPasteboard.general
-        let defaults = UserDefaults.standard
-        guard pasteboard.changeCount != defaults.integer(forKey: Self.changeCountKey) else { return nil }
-        defaults.set(pasteboard.changeCount, forKey: Self.changeCountKey)
-        if pasteboard.hasImages, let image = pasteboard.image { return Self.content(of: image) }
-        if pasteboard.hasURLs, let url = pasteboard.url { return .text(url.absoluteString) }
-        if pasteboard.hasStrings, let string = pasteboard.string, !string.isEmpty { return .text(string) }
-        return nil
-    }
-
-    /// Content handed over by a `PasteButton`, which never shows the paste prompt.
-    static func content(from providers: [NSItemProvider]) async -> CapturedContent? {
-        for provider in providers {
-            if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier),
-               let data = await data(of: provider, as: .image), let image = UIImage(data: data) {
-                return content(of: image)
-            }
-            if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier),
-               let data = await data(of: provider, as: .url), let url = URL(dataRepresentation: data, relativeTo: nil) {
-                return .text(url.absoluteString)
-            }
-            if let data = await data(of: provider, as: .utf8PlainText), let text = String(data: data, encoding: .utf8), !text.isEmpty {
-                return .text(text)
-            }
-        }
-        return nil
-    }
-
-    private static func content(of image: UIImage) -> CapturedContent? {
-        guard let png = image.pngData() else { return nil }
-        let size = image.pixelSize
-        return .image(png: png, width: Int(size.width), height: Int(size.height))
-    }
-
-    private static func data(of provider: NSItemProvider, as type: UTType) async -> Data? {
-        await withCheckedContinuation { continuation in
-            _ = provider.loadDataRepresentation(for: type) { data, _ in continuation.resume(returning: data) }
-        }
-    }
-
-    func write(_ payload: PasteboardPayload) {
-        let pasteboard = UIPasteboard.general
-        switch payload {
-        case let .text(text): pasteboard.string = text
-        case let .image(url): pasteboard.image = UIImage(contentsOfFile: url.path)
-        case let .files(urls): pasteboard.urls = urls
-        }
-        UserDefaults.standard.set(pasteboard.changeCount, forKey: Self.changeCountKey)
-    }
-    #endif
 
     private static func clipFile(_ url: URL) -> ClipFile {
         let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize.map(Int64.init)

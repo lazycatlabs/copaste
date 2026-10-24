@@ -1,7 +1,5 @@
 import SwiftUI
-#if os(macOS)
 import AppKit
-#endif
 
 /// The list's icon for an entry: a thumbnail for images, a favicon for links, a swatch for colours.
 struct ClipIconView: View {
@@ -12,7 +10,7 @@ struct ClipIconView: View {
     var body: some View {
         Group {
             if let image = thumbnail {
-                Image(platformImage: image).resizable().scaledToFill()
+                Image(nsImage: image).resizable().scaledToFill()
             } else if let color = item.color {
                 RoundedRectangle(cornerRadius: Radius.xs).fill(Color(color))
                     .overlay(RoundedRectangle(cornerRadius: Radius.xs).strokeBorder(.primary.opacity(Opacity.border)))
@@ -26,16 +24,12 @@ struct ClipIconView: View {
         .accessibilityLabel(item.kind.title)
     }
 
-    private var thumbnail: PlatformImage? {
+    private var thumbnail: NSImage? {
         switch item.kind {
         case .image: return session.blobURL(item.blob).flatMap(ImageCache.image)
         case .link: return session.blobURL(item.link?.favicon).flatMap(ImageCache.image)
         case .file:
-            #if os(macOS)
             return item.files?.first.map { NSWorkspace.shared.icon(forFile: $0.path) }
-            #else
-            return nil
-            #endif
         default: return nil
         }
     }

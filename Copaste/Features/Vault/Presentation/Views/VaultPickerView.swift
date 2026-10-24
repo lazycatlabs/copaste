@@ -1,8 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
-#if os(macOS)
 import AppKit
-#endif
 
 /// First run: choose the folder that holds the clipboard history. A folder inside iCloud Drive, Google Drive
 /// or OneDrive shares the history between devices.
@@ -27,7 +25,7 @@ struct VaultPickerView: View {
     }
 }
 
-/// Picks a folder (an open panel on macOS, Files on iOS) and opens it as the vault.
+/// Picks a folder and opens it as the vault.
 struct VaultFolderButton: View {
     let title: String
     var onPicked: () -> Void = {}
@@ -38,11 +36,6 @@ struct VaultFolderButton: View {
         @Bindable var container = container
         Button(title, action: pick)
             .accessibilityIdentifier("vault.choose")
-            #if os(iOS)
-            .fileImporter(isPresented: $isImporting, allowedContentTypes: [.folder]) { result in
-                if case let .success(url) = result { open(url) }
-            }
-            #endif
             .alert(L(.errorTitle),
                    isPresented: Binding(get: { container.errorMessage != nil }, set: { _ in container.errorMessage = nil })) {
                 Button(L(.actionOK)) {}
@@ -52,7 +45,6 @@ struct VaultFolderButton: View {
     }
 
     private func pick() {
-        #if os(macOS)
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -62,9 +54,6 @@ struct VaultFolderButton: View {
         NSApp.activate()
         guard panel.runModal() == .OK, let url = panel.url else { return }
         open(url)
-        #else
-        isImporting = true
-        #endif
     }
 
     private func open(_ url: URL) {

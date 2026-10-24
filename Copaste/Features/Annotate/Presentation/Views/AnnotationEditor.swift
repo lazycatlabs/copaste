@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 /// Draw on an image (pen, highlighter, rectangle, arrow), then keep the result as a new clipboard entry.
 struct AnnotationEditor: View {
-    let image: PlatformImage
+    let image: NSImage
     /// Called with the annotated image as PNG, and its size in pixels.
     let onDone: (Data, Int, Int) -> Void
     let onCancel: () -> Void
@@ -66,7 +66,7 @@ struct AnnotationEditor: View {
 
     private var canvas: some View {
         ZStack {
-            Image(platformImage: image).resizable()
+            Image(nsImage: image).resizable()
             Canvas { context, size in
                 for mark in marks + [current].compactMap({ $0 }) { mark.draw(in: context, size: size) }
             }
@@ -100,11 +100,9 @@ struct AnnotationEditor: View {
         HStack {
             Button(L(.actionCancel), action: onCancel).keyboardShortcut(.cancelAction)
             Spacer()
-            #if os(macOS)
             Button(L(.actionSaveToFile)) {
                 if let (png, _, _) = render() { FileExporter.save(png, name: L(.annotatedFileName), type: .png) }
             }
-            #endif
             Button(L(.annotateDone)) {
                 if let (png, width, height) = render() { onDone(png, width, height) }
             }
@@ -117,17 +115,13 @@ struct AnnotationEditor: View {
     private func render() -> (Data, Int, Int)? {
         let pixels = image.pixelSize
         let content = ZStack {
-            Image(platformImage: image).resizable()
+            Image(nsImage: image).resizable()
             Canvas { context, size in for mark in marks { mark.draw(in: context, size: size) } }
         }
         .frame(width: pixels.width, height: pixels.height)
         let renderer = ImageRenderer(content: content)
         renderer.scale = 1
-        #if os(macOS)
         let output = renderer.nsImage
-        #else
-        let output = renderer.uiImage
-        #endif
         guard let png = output?.pngRepresentation else { return nil }
         return (png, Int(pixels.width), Int(pixels.height))
     }

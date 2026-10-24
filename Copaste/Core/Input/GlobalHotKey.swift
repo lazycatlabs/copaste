@@ -1,4 +1,3 @@
-#if os(macOS)
 import Carbon.HIToolbox
 
 /// A system-wide keyboard shortcut (works while another app is in front), via Carbon's hot key API,
@@ -45,4 +44,3 @@ final class GlobalHotKey {
     /// "CPST", identifying Copaste's hot keys to Carbon.
     private static let signature: OSType = 0x4350_5354
 }
-#endif

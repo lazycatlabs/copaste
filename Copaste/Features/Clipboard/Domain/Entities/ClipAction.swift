@@ -1,23 +1,22 @@
 import Foundation
 
-/// What can be done with an entry. Which ones apply depends on its kind and the platform.
+/// What can be done with an entry. Which ones apply depends on its kind.
 nonisolated enum ClipAction: String, CaseIterable, Identifiable, Sendable {
-    case paste, copy, open, composeEmail, copyHex, copyRGB, copyHSL, annotate, saveToFile, revealInFinder, share
+    case paste, copy, open, composeEmail, copyHex, copyRGB, copyHSL, annotate, saveToFile, revealInFinder
     case pin, delete
 
     var id: String { rawValue }
 
-    static func available(for item: ClipItem, isMac: Bool) -> [ClipAction] {
-        var actions: [ClipAction] = isMac ? [.paste, .copy] : [.copy]
+    static func available(for item: ClipItem) -> [ClipAction] {
+        var actions: [ClipAction] = [.paste, .copy]
         switch item.kind {
         case .link: actions.append(.open)
         case .email: actions.append(.composeEmail)
         case .color: actions += [.copyHex, .copyRGB, .copyHSL]
-        case .image: actions += isMac ? [.annotate, .saveToFile] : [.annotate]
-        case .file: actions += isMac ? [.open, .revealInFinder] : []
-        case .text: actions += isMac ? [.saveToFile] : []
+        case .image: actions += [.annotate, .saveToFile]
+        case .file: actions += [.open, .revealInFinder]
+        case .text: actions.append(.saveToFile)
         }
-        if !isMac { actions.append(.share) }
         return actions + [.pin, .delete]
     }
 
@@ -31,7 +30,6 @@ nonisolated enum ClipAction: String, CaseIterable, Identifiable, Sendable {
         case .annotate: "pencil.tip.crop.circle"
         case .saveToFile: "square.and.arrow.down"
         case .revealInFinder: "folder"
-        case .share: "square.and.arrow.up"
         case .pin: "pin"
         case .delete: "trash"
         }
@@ -49,13 +47,12 @@ nonisolated enum ClipAction: String, CaseIterable, Identifiable, Sendable {
         case .annotate: L(.actionAnnotate)
         case .saveToFile: L(.actionSaveToFile)
         case .revealInFinder: L(.actionRevealInFinder)
-        case .share: L(.actionShare)
         case .pin: item.pinned ? L(.actionUnpin) : L(.actionPin)
         case .delete: L(.actionDelete)
         }
     }
 
-    /// The macOS shortcut shown next to the action, and handled by the clipboard window.
+    /// The shortcut shown next to the action, and handled by the clipboard window.
     var shortcut: String? {
         switch self {
         case .paste: "↩"

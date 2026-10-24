@@ -1,4 +1,3 @@
-#if os(macOS)
 import AppKit
 import UniformTypeIdentifiers
 
@@ -17,4 +16,3 @@ enum FileExporter {
         }
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if os(macOS)
 import AppKit
 import ApplicationServices
 import Carbon.HIToolbox
@@ -22,4 +21,3 @@ enum PasteSimulator {
         }
     }
 }
-#endif
