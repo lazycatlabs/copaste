@@ -168,13 +168,16 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         }
     }
 
-    /// Copies without closing the window, and says so.
+    /// Copies without closing the window; the session's toast says so (see `showToast`).
     private func copyInPlace(_ item: ClipItem) {
         model.keepInPlace(item)
         session?.copy(item)
-        let title = item.title.isEmpty ? item.kind.title : item.title
-        let short = title.count > Metrics.Panel.toastTitleLength ? title.prefix(Metrics.Panel.toastTitleLength) + "…" : title
-        model.showToast(L(.toastCopied(String(short))))
+    }
+
+    var isVisible: Bool { panel?.isVisible == true }
+
+    func showToast(_ message: String) {
+        model.showToast(message)
     }
 
     private func copyColor(_ item: ClipItem, format: (ColorValue) -> String) {

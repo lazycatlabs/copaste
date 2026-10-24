@@ -57,6 +57,12 @@ enum Metrics {
         static let toastTitleLength = 40
     }
 
+    /// The on-screen toast after copying or pasting.
+    enum Toast {
+        static let bottomOffset: CGFloat = 80
+        static let fadeDuration: TimeInterval = 0.25
+    }
+
     enum Detail {
         /// About half the clipboard window; the information below scrolls.
         static let previewHeight: CGFloat = Panel.size.height / 2
@@ -119,5 +125,22 @@ struct KeyCap: View {
             .padding(.horizontal, Spacing.xs)
             .padding(.vertical, Spacing.xxs)
             .background(Color.primary.opacity(Opacity.fill), in: .rect(cornerRadius: Radius.xs))
+    }
+}
+
+/// The capsule confirmation used in the clipboard window and on screen ("“…” copied — ready to paste").
+struct ToastLabel: View {
+    let message: String
+
+    var body: some View {
+        Label(message, systemImage: "checkmark.circle.fill")
+            .font(.scaled(.callout))
+            .lineLimit(1)
+            .padding(.horizontal, Spacing.xxl)
+            .padding(.vertical, Spacing.md)
+            .background(.thickMaterial, in: .capsule)
+            .overlay(Capsule().strokeBorder(.primary.opacity(Opacity.fill)))
+            .shadow(radius: Spacing.md)
+            .accessibilityIdentifier("toast")
     }
 }

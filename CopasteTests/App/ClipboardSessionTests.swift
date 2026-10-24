@@ -42,3 +42,23 @@ struct ClipboardViewModelTests {
         #expect(model.visibleItems(of: session).first?.text == "older")
     }
 }
+
+@MainActor
+struct ClipboardToastTests {
+    @Test func copyAndPasteAnnounceUnlessToastsAreOff() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let session = ClipboardSession(root: root, pasteboard: SystemPasteboard(pasteboard: NSPasteboard(name: .init(UUID().uuidString))))
+        var messages: [String] = []
+        session.onToast = { messages.append($0) }
+
+        session.handle(Capture(content: .text("hello")))
+        let item = try #require(session.items.first)
+        session.preparePaste(item)
+        #expect(messages == [L(.toastCopied("hello")), L(.toastPasted("hello"))])
+
+        session.settings.showToasts = false
+        session.copy(item)
+        #expect(messages.count == 2)
+    }
+}

@@ -61,6 +61,7 @@ S = {
     "previewUnavailable": ("Preview unavailable", "Pratinjau tidak tersedia"),
     "errorTitle": ("Something went wrong", "Terjadi kesalahan"),
     "toastCopied": ("“%@” copied — ready to paste", "“%@” disalin — siap ditempel"),
+    "toastPasted": ("“%@” pasted", "“%@” ditempel"),
     "toastAnnotated": ("Annotated image saved and copied", "Gambar beranotasi disimpan dan disalin"),
 
     # Information
@@ -145,6 +146,7 @@ S = {
     "settingsClearFooter": ("Pinned entries are kept.", "Entri yang disematkan tetap disimpan."),
     "settingsAppearance": ("Appearance", "Tampilan"),
     "settingsTextSize": ("Text size", "Ukuran teks"),
+    "settingsShowToasts": ("Show a toast when copying and pasting", "Tampilkan toast saat menyalin dan menempel"),
     "textSizeSmall": ("Small", "Kecil"),
     "textSizeDefault": ("Default", "Bawaan"),
     "textSizeLarge": ("Large", "Besar"),

@@ -10,6 +10,13 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         panel.showSettings = { [weak self] in self?.showSettings() }
+        container.onToast = { [weak self] message in
+            // Next turn of the run loop: pasting hides the window first, so the toast goes on screen instead.
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if self.panel.isVisible { self.panel.showToast(message) } else { ToastPresenter.shared.show(message) }
+            }
+        }
         registerHotKey()
         HotKeyStore.shared.onChange = { [weak self] in self?.registerHotKey() }
         if container.session == nil { showWelcome() }

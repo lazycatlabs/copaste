@@ -164,14 +164,7 @@ struct ClipboardPanelView: View {
     @ViewBuilder
     private var toast: some View {
         if let message = model.toast {
-            Label(message, systemImage: "checkmark.circle.fill")
-                .font(.scaled(.callout))
-                .lineLimit(1)
-                .padding(.horizontal, Spacing.xxl)
-                .padding(.vertical, Spacing.md)
-                .background(.thickMaterial, in: .capsule)
-                .overlay(Capsule().strokeBorder(.primary.opacity(Opacity.fill)))
-                .shadow(radius: Spacing.md)
+            ToastLabel(message: message)
                 .padding(.bottom, Spacing.hero + Spacing.xl)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .accessibilityIdentifier("panel.toast")

@@ -1849,6 +1849,23 @@
         }
       }
     },
+    "settingsShowToasts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show a toast when copying and pasting"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tampilkan toast saat menyalin dan menempel"
+          }
+        }
+      }
+    },
     "settingsSounds": {
       "extractionState": "manual",
       "localizations": {
@@ -2185,6 +2202,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "“%@” disalin — siap ditempel"
+          }
+        }
+      }
+    },
+    "toastPasted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” pasted"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” ditempel"
           }
         }
       }

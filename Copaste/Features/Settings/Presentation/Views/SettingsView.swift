@@ -46,6 +46,7 @@ private struct SessionSettings: View {
             Picker(L(.settingsTextSize), selection: Bindable(TextScale.shared).size) {
                 ForEach(TextSize.allCases) { Text($0.title).tag($0) }
             }
+            Toggle(L(.settingsShowToasts), isOn: $session.settings.showToasts)
         }
         Section(L(.settingsHistory)) {
             Picker(L(.settingsKeepHistory), selection: $session.settings.retention) {

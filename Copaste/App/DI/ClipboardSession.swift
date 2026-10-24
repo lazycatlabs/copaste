@@ -15,6 +15,8 @@ final class ClipboardSession {
     var isPaused = false
     /// Shown as an alert. A failed save must never be silent.
     var errorMessage: String?
+    /// Receives "“…” copied" / "“…” pasted" confirmations when toasts are on; the app decides where to show them.
+    @ObservationIgnored var onToast: ((String) -> Void)?
 
     @ObservationIgnored let repository: ClipRepository
     @ObservationIgnored let pasteboard: SystemPasteboard
@@ -49,8 +51,9 @@ final class ClipboardSession {
     func handle(_ capture: Capture) {
         guard !isPaused else { return }
         if let bundleID = capture.sourceBundleID, settings.ignoredApps.contains(where: { $0.bundleID == bundleID }) { return }
-        record(capture)
+        guard let item = record(capture) else { return }
         SoundPlayer.play(settings.copySound)
+        announce(L(.toastCopied(toastTitle(item))))
     }
 
     /// Adds an entry from another clipboard manager, dated when it was first copied there.
@@ -121,6 +124,7 @@ final class ClipboardSession {
         write(item, as: text)
         save(ClipUseCases.markCopied(item))
         SoundPlayer.play(settings.copySound)
+        announce(L(.toastCopied(toastTitle(item))))
     }
 
     /// Puts the entry on the clipboard and counts a paste; the platform layer sends the keystroke.
@@ -128,6 +132,17 @@ final class ClipboardSession {
         write(item)
         save(ClipUseCases.markPasted(item))
         SoundPlayer.play(settings.pasteSound)
+        announce(L(.toastPasted(toastTitle(item))))
+    }
+
+    /// The entry's title, cut short for a toast.
+    func toastTitle(_ item: ClipItem) -> String {
+        let title = item.title.isEmpty ? item.kind.title : item.title
+        return title.count > Metrics.Panel.toastTitleLength ? title.prefix(Metrics.Panel.toastTitleLength) + "…" : title
+    }
+
+    private func announce(_ message: String) {
+        if settings.showToasts { onToast?(message) }
     }
 
     private func write(_ item: ClipItem, as text: String? = nil) {
