@@ -1,0 +1,40 @@
+# SwiftLint for Copaste. CI fails on errors; warnings are shown but don't block a PR.
+included:
+  - Copaste
+  - CopasteTests
+excluded:
+  - build
+  - DerivedData
+
+disabled_rules:
+  - trailing_comma            # Multi-line literals here end with a comma on purpose (cleaner diffs).
+  - void_function_in_ternary
+
+line_length:
+  warning: 140
+  error: 220
+  ignores_comments: true
+  ignores_urls: true
+
+identifier_name:
+  min_length: 1               # h/m/s, x/y and i are clearer than spelled-out names in maths and loops.
+  max_length: 60
+
+type_body_length:
+  warning: 400
+  error: 800
+
+file_length:
+  warning: 600
+  error: 1200
+
+function_body_length:
+  warning: 80
+  error: 160
+
+large_tuple:
+  warning: 4
+  error: 5
+
+cyclomatic_complexity:
+  ignores_case_statements: true   # A switch over an enum is one decision, not one per case.
