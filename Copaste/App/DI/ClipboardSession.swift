@@ -1,9 +1,7 @@
 import OSLog
 import Foundation
 import Observation
-#if os(macOS)
 import AppKit
-#endif
 
 /// The open vault's clipboard history: what every screen reads, and the one place entries change.
 @Observable
@@ -19,19 +17,18 @@ final class ClipboardSession {
     var errorMessage: String?
 
     @ObservationIgnored let repository: ClipRepository
-    @ObservationIgnored let pasteboard = SystemPasteboard()
+    @ObservationIgnored let pasteboard: SystemPasteboard
 
-    init(root: URL, repository: ClipRepository? = nil) {
+    init(root: URL, repository: ClipRepository? = nil, pasteboard: SystemPasteboard = SystemPasteboard()) {
+        self.pasteboard = pasteboard
         self.root = root
         let repository = repository ?? FileClipRepository(root: root)
         self.repository = repository
         settings = repository.loadSettings()
         items = repository.loadAll()
         pruneExpired()
-        #if os(macOS)
         pasteboard.onCapture = { [weak self] capture in self?.handle(capture) }
         pasteboard.startMonitoring()
-        #endif
     }
 
     /// Picks up entries other devices added to the synced vault.
@@ -48,24 +45,24 @@ final class ClipboardSession {
 
     // MARK: Recording
 
-    #if os(iOS)
-    /// iOS can't watch the clipboard, so it is read when Copaste comes to the front.
-    func captureFromPasteboard() {
-        guard let content = pasteboard.readIfChanged() else { return }
-        handle(Capture(content: content))
-    }
-    #endif
-
+    /// A copy made in another app: recorded unless recording is paused or the app is ignored.
     func handle(_ capture: Capture) {
         guard !isPaused else { return }
         if let bundleID = capture.sourceBundleID, settings.ignoredApps.contains(where: { $0.bundleID == bundleID }) { return }
+        record(capture)
+        SoundPlayer.play(settings.copySound)
+    }
+
+    @discardableResult
+    private func record(_ capture: Capture) -> ClipItem? {
         var (item, isNew) = ClipUseCases.record(capture, in: items, device: DeviceInfo.name)
         if isNew, case let .image(png, _, _) = capture.content {
-            guard let path = persist({ try repository.writeBlob(png, name: "\(item.id.uuidString).png") }) else { return }
+            guard let path = persist({ try repository.writeBlob(png, name: "\(item.id.uuidString).png") }) else { return nil }
             item.blob = path
         }
         save(item)
         if isNew { enrich(item, capture: capture) }
+        return item
     }
 
     /// Fetches a link's preview and reads text in images, after the entry is already saved.
@@ -88,11 +85,13 @@ final class ClipboardSession {
     }
 
     /// Adds an image made in Copaste (an annotated copy) as a new entry, and puts it on the clipboard.
-    func addImage(_ png: Data, width: Int, height: Int) {
-        handle(Capture(content: .image(png: png, width: width, height: height), sourceName: "Copaste", sourceBundleID: nil))
-        if let item = items.first(where: { $0.hash == ClipUseCases.hash(of: .image(png: png, width: width, height: height)) }) {
-            write(item)
-        }
+    /// Works while recording is paused: the user asked for this entry.
+    @discardableResult
+    func addImage(_ png: Data, width: Int, height: Int) -> ClipItem? {
+        guard let item = record(Capture(content: .image(png: png, width: width, height: height), sourceName: "Copaste")) else { return nil }
+        write(item)
+        SoundPlayer.play(settings.copySound)
+        return item
     }
 
     // MARK: Using entries
@@ -101,12 +100,14 @@ final class ClipboardSession {
     func copy(_ item: ClipItem, as text: String? = nil) {
         write(item, as: text)
         save(ClipUseCases.markCopied(item))
+        SoundPlayer.play(settings.copySound)
     }
 
     /// Puts the entry on the clipboard and counts a paste; the platform layer sends the keystroke.
     func preparePaste(_ item: ClipItem) {
         write(item)
         save(ClipUseCases.markPasted(item))
+        SoundPlayer.play(settings.pasteSound)
     }
 
     private func write(_ item: ClipItem, as text: String? = nil) {
@@ -159,11 +160,7 @@ final class ClipboardSession {
             return try write()
         } catch {
             Log.storage.error("Vault write failed: \(error.localizedDescription, privacy: .public)")
-            #if os(macOS)
             NSApp.presentError(error)
-            #else
-            errorMessage = error.localizedDescription
-            #endif
             return nil
         }
     }

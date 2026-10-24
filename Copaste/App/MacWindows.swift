@@ -1,4 +1,3 @@
-#if os(macOS)
 import AppKit
 import SwiftUI
 
@@ -18,7 +17,10 @@ enum MacWindows {
         }()
         window.title = title
         window.contentView = NSHostingView(rootView: content())
+        // A menu bar app isn't the active app, so asking to activate may be refused; ordering the window
+        // front regardless keeps it from opening behind the app the user was in.
         NSApp.activate()
+        window.orderFrontRegardless()
         window.makeKeyAndOrderFront(nil)
     }
 
@@ -26,4 +28,3 @@ enum MacWindows {
         windows[id]?.close()
     }
 }
-#endif

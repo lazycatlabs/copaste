@@ -1,4 +1,3 @@
-#if os(macOS)
 import AppKit
 import Carbon.HIToolbox
 import SwiftUI
@@ -29,14 +28,23 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         if panel?.isVisible == true { hide() } else { show() }
     }
 
-    func show() {
+    /// - Parameters:
+    ///   - selecting: the entry to select, e.g. one just made in the annotation editor.
+    ///   - toast: a confirmation to show once the window is open.
+    func show(selecting id: UUID? = nil, toast: String? = nil) {
         guard let session else { return showSettings() }
         model.reset()
+        model.selectedID = id
+        if let toast { model.showToast(toast) }
         Task { await session.reload() }
         let panel = panel ?? makePanel()
         self.panel = panel
-        let view = ClipboardPanelView(model: model) { [weak self] action, item in self?.perform(action, on: item) }
-            .environment(session)
+        let view = ClipboardPanelView(model: model) { [weak self] action, item in
+            self?.perform(action, on: item)
+        } copy: { [weak self] item in
+            self?.copyInPlace(item)
+        }
+        .environment(session)
         panel.contentView = NSHostingView(rootView: view)
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
         if let visible = screen?.visibleFrame {
@@ -124,7 +132,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
             model.showsActions.toggle()
             return true
         }
-        let available = ClipAction.available(for: selected, isMac: true)
+        let available = ClipAction.available(for: selected)
         let action: ClipAction? = switch key {
         case "p": .pin
         case "o": available.first { $0 == .open || $0 == .composeEmail }
@@ -158,8 +166,16 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
             model.moveSelection(by: 1, in: session)
             if model.selectedID == item.id { model.moveSelection(by: -1, in: session) }
             session.delete(item)
-        case .share: break
         }
+    }
+
+    /// Copies without closing the window, and says so.
+    private func copyInPlace(_ item: ClipItem) {
+        model.keepInPlace(item)
+        session?.copy(item)
+        let title = item.title.isEmpty ? item.kind.title : item.title
+        let short = title.count > Metrics.Panel.toastTitleLength ? title.prefix(Metrics.Panel.toastTitleLength) + "…" : title
+        model.showToast(L(.toastCopied(String(short))))
     }
 
     private func copyColor(_ item: ClipItem, format: (ColorValue) -> String) {
@@ -190,9 +206,11 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         guard let image = session.blobURL(item.blob).flatMap(ImageCache.image) else { return }
         hide()
         MacWindows.show(id: "annotate", title: L(.actionAnnotate), size: Metrics.Annotate.windowSize) {
-            AnnotationEditor(image: image) { png, width, height in
-                session.addImage(png, width: width, height: height)
+            AnnotationEditor(image: image) { [weak self] png, width, height in
+                let saved = session.addImage(png, width: width, height: height)
                 MacWindows.close(id: "annotate")
+                // Show the result, so it's clear the annotated copy was saved and is on the clipboard.
+                self?.show(selecting: saved?.id, toast: L(.toastAnnotated))
             } onCancel: {
                 MacWindows.close(id: "annotate")
             }
@@ -208,4 +226,3 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         }
     }
 }
-#endif
