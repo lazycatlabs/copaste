@@ -1,0 +1,47 @@
+import Foundation
+
+/// Clipboard entries as one JSON file each in the vault, with images beside them in `blobs/`.
+nonisolated final class FileClipRepository: ClipRepository {
+    private let store: JSONFileStore
+
+    init(root: URL) {
+        store = JSONFileStore(root: root)
+    }
+
+    func loadAll() -> [ClipItem] {
+        store.readAll(ClipItem.self, in: VaultLayout.items)
+    }
+
+    func save(_ item: ClipItem) throws {
+        try store.write(item, to: path(of: item))
+    }
+
+    func delete(_ item: ClipItem) throws {
+        for blob in [item.blob, item.link?.favicon, item.link?.image].compactMap({ $0 }) {
+            try store.remove(blob)
+        }
+        try store.remove(path(of: item))
+    }
+
+    func writeBlob(_ data: Data, name: String) throws -> String {
+        let path = "\(VaultLayout.blobs)/\(name)"
+        try store.writeData(data, to: path)
+        return path
+    }
+
+    func blobURL(_ path: String) -> URL {
+        store.root.appending(path: path)
+    }
+
+    func loadSettings() -> AppSettings {
+        store.read(VaultLayout.config, default: AppSettings())
+    }
+
+    func saveSettings(_ settings: AppSettings) throws {
+        try store.write(settings, to: VaultLayout.config)
+    }
+
+    private func path(of item: ClipItem) -> String {
+        "\(VaultLayout.items)/\(item.id.uuidString).json"
+    }
+}
