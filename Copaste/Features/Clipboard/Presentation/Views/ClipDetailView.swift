@@ -115,7 +115,7 @@ struct ClipInfoView: View {
                         if row.isSource, item.sourceBundleID != nil { AppIconView(bundleID: item.sourceBundleID) }
                         Text(row.value).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
                     }
-                    .font(.scaled(.caption))
+                    .font(.scaled(.callout))
                     .padding(.horizontal, Spacing.md)
                     .padding(.vertical, Spacing.sm)
                     .background(index.isMultiple(of: 2) ? Color.primary.opacity(Opacity.hover) : .clear)

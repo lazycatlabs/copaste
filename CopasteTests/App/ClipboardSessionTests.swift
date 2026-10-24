@@ -24,26 +24,6 @@ struct ClipboardSessionTests {
 }
 
 @MainActor
-struct ClipboardViewModelTests {
-    @Test func copiedEntryKeepsItsPlaceWhileTheWindowIsOpen() throws {
-        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
-        defer { try? FileManager.default.removeItem(at: root) }
-        let session = ClipboardSession(root: root, pasteboard: SystemPasteboard(pasteboard: NSPasteboard(name: .init(UUID().uuidString))))
-        session.handle(Capture(content: .text("older")))
-        session.handle(Capture(content: .text("newer")))
-        let model = ClipboardViewModel()
-        let older = try #require(session.items.first { $0.text == "older" })
-        model.keepInPlace(older)
-        session.copy(older)
-        #expect(model.visibleItems(of: session).map(\.text) == ["newer", "older"])
-        model.selectedID = older.id
-        #expect(model.selected(in: session)?.copyCount == 2)
-        model.reset()
-        #expect(model.visibleItems(of: session).first?.text == "older")
-    }
-}
-
-@MainActor
 struct ClipboardToastTests {
     @Test func copyAndPasteAnnounceUnlessToastsAreOff() throws {
         let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)

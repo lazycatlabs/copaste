@@ -76,8 +76,8 @@ Copaste/
 - Menu bar app (`LSUIElement`), sandbox off. The clipboard is polled every 0.5 s. The floating window is a
   non-activating `NSPanel`, so the previous app stays in front and receives ⌘V (needs Accessibility; without it
   Copaste only copies). Keyboard shortcuts are handled by a local key monitor in `ClipboardPanelController`.
-- A single click on an entry copies it and shows a toast; the entry keeps its place until the window closes
-  (`ClipboardViewModel.keepInPlace`). Double-click or ↩ pastes.
+- A single click on an entry selects it; double-click copies it and closes the window (a toast confirms on screen).
+  ↩ pastes, ⌘↩ copies.
 - The global shortcut (default ⇧⌘V) is recorded in Settings and re-registered through `HotKeyStore.onChange`.
 - Copy and paste sounds are the system alert sounds (`ClipSound`, played by `SoundPlayer`).
 - Tests must never touch the real clipboard: give `ClipboardSession` a `SystemPasteboard(pasteboard:)` with a private

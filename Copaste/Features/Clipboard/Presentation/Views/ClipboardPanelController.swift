@@ -39,12 +39,8 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         Task { await session.reload() }
         let panel = panel ?? makePanel()
         self.panel = panel
-        let view = ClipboardPanelView(model: model) { [weak self] action, item in
-            self?.perform(action, on: item)
-        } copy: { [weak self] item in
-            self?.copyInPlace(item)
-        }
-        .environment(session)
+        let view = ClipboardPanelView(model: model) { [weak self] action, item in self?.perform(action, on: item) }
+            .environment(session)
         panel.contentView = NSHostingView(rootView: view)
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
         if let visible = screen?.visibleFrame {
@@ -168,14 +164,9 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         }
     }
 
-    /// Copies without closing the window; the session's toast says so (see `showToast`).
-    private func copyInPlace(_ item: ClipItem) {
-        model.keepInPlace(item)
-        session?.copy(item)
-    }
-
     var isVisible: Bool { panel?.isVisible == true }
 
+    /// A toast inside the window, for copies made while it's open.
     func showToast(_ message: String) {
         model.showToast(message)
     }
