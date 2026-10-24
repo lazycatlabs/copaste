@@ -27,6 +27,16 @@ nonisolated enum Retention: String, Codable, CaseIterable, Sendable {
     }
 }
 
+/// One of the Mac's system alert sounds (`/System/Library/Sounds`), or silence.
+nonisolated enum ClipSound: String, Codable, CaseIterable, Sendable {
+    case none, pop, tink, glass, ping, purr, bottle, frog, funk, hero, morse, submarine, blow, basso, sosumi
+
+    /// The system sound's name, as `NSSound(named:)` takes it.
+    var soundName: String? { self == .none ? nil : rawValue.capitalized }
+
+    var title: String { soundName ?? L(.soundNone) }
+}
+
 /// An app whose copies are never recorded (password managers, for example).
 nonisolated struct IgnoredApp: Codable, Hashable, Sendable {
     var bundleID: String
@@ -39,10 +49,11 @@ nonisolated struct AppSettings: Codable, Equatable, Sendable {
     var textRecognition = true
     var accurateRecognition = false
     var fetchLinkPreviews = true
-    /// macOS: paste into the app in front when an entry is chosen, instead of only copying it.
+    /// Paste into the app in front when an entry is chosen, instead of only copying it.
     var pasteDirectly = true
-    /// iOS: read the clipboard each time Copaste opens.
-    var captureOnOpen = true
+    /// A sound when something is copied, and when Copaste pastes.
+    var copySound = ClipSound.none
+    var pasteSound = ClipSound.none
     var ignoredApps: [IgnoredApp] = [
         IgnoredApp(bundleID: "com.apple.Passwords", name: "Passwords"),
         IgnoredApp(bundleID: "com.apple.keychainaccess", name: "Keychain Access"),
