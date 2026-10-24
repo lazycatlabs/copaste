@@ -1,13 +1,13 @@
 import AppKit
 
 extension NSImage {
-    var pngRepresentation: Data? {
+    nonisolated var pngRepresentation: Data? {
         guard let tiff = tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) else { return nil }
         return rep.representation(using: .png, properties: [:])
     }
 
     /// Size in pixels (not points), as shown in the clip's details.
-    var pixelSize: CGSize {
+    nonisolated var pixelSize: CGSize {
         guard let rep = representations.first else { return size }
         return CGSize(width: rep.pixelsWide, height: rep.pixelsHigh)
     }

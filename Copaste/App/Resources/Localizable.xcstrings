@@ -596,6 +596,171 @@
         }
       }
     },
+    "importAction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impor"
+          }
+        }
+      }
+    },
+    "importConfirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Import %lld item from Raycast?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Import %lld items from Raycast?"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impor %lld item dari Raycast?"
+          }
+        }
+      }
+    },
+    "importConfirmMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raycast's files aren't changed. Items keep the date Raycast saved them."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File Raycast tidak diubah. Item memakai tanggal saat Raycast menyimpannya."
+          }
+        }
+      }
+    },
+    "importDone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added %1$lld entries, skipped %2$lld already here or unreadable."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menambahkan %1$lld entri, melewati %2$lld yang sudah ada atau tidak terbaca."
+          }
+        }
+      }
+    },
+    "importFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brings in the images and rich-text copies Raycast keeps. Raycast encrypts the rest of its history (plain text, copy counts, source apps), so those can't be moved. Entries already here are skipped."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mengimpor gambar dan salinan teks berformat yang disimpan Raycast. Sisa riwayat Raycast (teks biasa, jumlah salin, aplikasi sumber) dienkripsi sehingga tidak bisa dipindahkan. Entri yang sudah ada dilewati."
+          }
+        }
+      }
+    },
+    "importFromRaycast": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from Raycast…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impor dari Raycast…"
+          }
+        }
+      }
+    },
+    "importNothing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to import from Raycast."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidak ada yang bisa diimpor dari Raycast."
+          }
+        }
+      }
+    },
+    "importProgress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importing %1$lld of %2$lld…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mengimpor %1$lld dari %2$lld…"
+          }
+        }
+      }
+    },
+    "importTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impor"
+          }
+        }
+      }
+    },
     "infoAddress": {
       "extractionState": "manual",
       "localizations": {

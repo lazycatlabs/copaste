@@ -69,6 +69,7 @@ private struct SessionSettings: View {
             soundPicker(L(.settingsPasteSound), selection: $session.settings.pasteSound)
         }
         IgnoredAppsSection(session: session)
+        RaycastImportSection(session: session)
         Section {
             Button(L(.settingsClearHistory), role: .destructive) { confirmsClear = true }
                 .confirmationDialog(L(.settingsClearConfirm), isPresented: $confirmsClear) {

@@ -53,15 +53,35 @@ final class ClipboardSession {
         SoundPlayer.play(settings.copySound)
     }
 
+    /// Adds an entry from another clipboard manager, dated when it was first copied there.
+    /// Content already in the history is left alone, so an import can be run again safely.
+    /// - Returns: whether a new entry was added.
     @discardableResult
-    private func record(_ capture: Capture) -> ClipItem? {
-        var (item, isNew) = ClipUseCases.record(capture, in: items, device: DeviceInfo.name)
+    func importClip(_ content: CapturedContent, source: String, copiedAt date: Date) -> Bool {
+        let hash = ClipUseCases.hash(of: content)
+        guard !items.contains(where: { $0.hash == hash }) else { return false }
+        return record(Capture(content: content, sourceName: source), at: date, enrichNow: false) != nil
+    }
+
+    /// Reads text in imported images one at a time, so a large import doesn't load every core at once.
+    func recognizeTextInImages() async {
+        guard settings.textRecognition else { return }
+        for item in items where item.kind == .image && item.recognizedText == nil {
+            guard let url = blobURL(item.blob), let data = try? Data(contentsOf: url),
+                  let text = await TextRecognitionDataSource.recognize(data, accurate: settings.accurateRecognition) else { continue }
+            update(item.id) { $0.recognizedText = text }
+        }
+    }
+
+    @discardableResult
+    private func record(_ capture: Capture, at date: Date = .now, enrichNow: Bool = true) -> ClipItem? {
+        var (item, isNew) = ClipUseCases.record(capture, in: items, device: DeviceInfo.name, now: date)
         if isNew, case let .image(png, _, _) = capture.content {
             guard let path = persist({ try repository.writeBlob(png, name: "\(item.id.uuidString).png") }) else { return nil }
             item.blob = path
         }
         save(item)
-        if isNew { enrich(item, capture: capture) }
+        if isNew, enrichNow { enrich(item, capture: capture) }
         return item
     }
 
