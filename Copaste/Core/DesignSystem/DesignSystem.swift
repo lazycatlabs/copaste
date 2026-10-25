@@ -32,7 +32,7 @@ enum Opacity {
     static let border = 0.25
     static let muted = 0.6
     /// The dark layer over the clipboard window's material in dark mode, so text stays readable on any wallpaper.
-    static let panelDim = 0.70
+    static let panelDim = 0.10
     /// Highlighter strokes in the annotation editor.
     static let highlighter = 0.35
 }
