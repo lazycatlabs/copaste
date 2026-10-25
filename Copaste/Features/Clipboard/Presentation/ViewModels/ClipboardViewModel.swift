@@ -7,6 +7,10 @@ final class ClipboardViewModel {
     var query = ""
     var kind: ClipKind?
     var dateFilter = DateFilter.anyTime
+    /// Only entries in this group; nil for all.
+    var group: UUID?
+    /// Shown while ⌘ is held: which entry ⌘1…⌘9 pastes.
+    var showsQuickPasteKeys = false
     var selectedID: UUID?
     var showsActions = false
     /// A short confirmation shown at the bottom of the window, e.g. after copying an entry.
@@ -14,7 +18,9 @@ final class ClipboardViewModel {
     @ObservationIgnored private var toastTask: Task<Void, Never>?
 
     func sections(of session: ClipboardSession, now: Date = .now) -> [(TimeSection, [ClipItem])] {
-        ClipUseCases.sections(ClipUseCases.filter(session.items, kind: kind, query: query, created: dateFilter, now: now), now: now)
+        let group = session.settings.groups.contains { $0.id == group } ? group : nil
+        let items = ClipUseCases.filter(session.items, kind: kind, query: query, created: dateFilter, group: group, now: now)
+        return ClipUseCases.sections(items, now: now)
     }
 
     /// The entries in the order they are shown, for keyboard navigation and ⌘1…⌘9.
@@ -47,6 +53,7 @@ final class ClipboardViewModel {
         query = ""
         selectedID = nil
         showsActions = false
+        showsQuickPasteKeys = false
         toast = nil
     }
 }

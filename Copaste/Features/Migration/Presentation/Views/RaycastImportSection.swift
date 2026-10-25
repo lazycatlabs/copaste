@@ -9,21 +9,19 @@ struct RaycastImportSection: View {
     @State private var result: String?
 
     var body: some View {
-        Section {
-            if let progress {
-                ProgressView(value: Double(progress.done), total: Double(max(progress.total, 1))) {
-                    Text(.importProgress(progress.done, progress.total)).font(.scaled(.caption))
+        SettingsSection(L(.importTitle), footer: L(.importFooter)) {
+            SettingsRow("Raycast", symbol: "square.and.arrow.down.on.square", subtitle: result) {
+                if let progress {
+                    ProgressView(value: Double(progress.done), total: Double(max(progress.total, 1))) {
+                        Text(.importProgress(progress.done, progress.total)).font(.scaled(.caption))
+                    }
+                    .frame(width: Metrics.Settings.groupNameWidth)
+                } else {
+                    Button(L(.importFromRaycast), action: prepare)
+                        .disabled(!FileManager.default.fileExists(atPath: RaycastClipboardDataSource.folder.path))
+                        .accessibilityIdentifier("settings.importRaycast")
                 }
-            } else {
-                Button(L(.importFromRaycast), action: prepare)
-                    .disabled(!FileManager.default.fileExists(atPath: RaycastClipboardDataSource.folder.path))
-                    .accessibilityIdentifier("settings.importRaycast")
             }
-            if let result { Text(result).font(.scaled(.caption)).foregroundStyle(.secondary) }
-        } header: {
-            Text(.importTitle)
-        } footer: {
-            Text(.importFooter)
         }
         .confirmationDialog(L(.importConfirm(files.count)), isPresented: $confirms) {
             Button(L(.importAction), action: start)

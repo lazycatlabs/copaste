@@ -118,6 +118,13 @@ final class ClipboardSession {
         return item
     }
 
+    /// Puts an image made in Copaste (an annotated copy) on the clipboard without keeping it as an entry.
+    func copyImage(_ png: Data) {
+        pasteboard.write(.png(png))
+        SoundPlayer.play(settings.copySound)
+        announce(L(.toastImageCopied))
+    }
+
     // MARK: Using entries
 
     /// Puts the entry on the clipboard. `text` overrides what is written, e.g. a colour in another format.
@@ -152,6 +159,36 @@ final class ClipboardSession {
         case .file: pasteboard.write(.files((item.files ?? []).map { URL(filePath: $0.path) }))
         default: pasteboard.write(.text(text ?? item.text ?? ""))
         }
+    }
+
+    /// Puts the entry in a group, or takes it out with nil.
+    func setGroup(_ group: UUID?, for item: ClipItem) {
+        update(item.id) { $0.groupID = group }
+    }
+
+    func group(of item: ClipItem) -> ClipGroup? {
+        settings.groups.first { $0.id == item.groupID }
+    }
+
+    /// Adds a group, named "New Group" (or "New Group 2", …) until the user renames it.
+    @discardableResult
+    func addGroup(named name: String? = nil) -> ClipGroup {
+        let base = name ?? L(.groupNewName)
+        var title = base
+        var number = 2
+        while settings.groups.contains(where: { $0.name == title }) {
+            title = "\(base) \(number)"
+            number += 1
+        }
+        let group = ClipGroup(name: title)
+        settings.groups.append(group)
+        return group
+    }
+
+    /// Deletes the group; its entries stay in the history, outside any group.
+    func deleteGroup(_ group: ClipGroup) {
+        for item in items where item.groupID == group.id { setGroup(nil, for: item) }
+        settings.groups.removeAll { $0.id == group.id }
     }
 
     func togglePin(_ item: ClipItem) {

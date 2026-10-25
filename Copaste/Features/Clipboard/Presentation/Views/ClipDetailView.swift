@@ -104,24 +104,17 @@ struct ClipInfoView: View {
     }()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text(.infoTitle).font(.scaled(.caption)).foregroundStyle(.secondary)
-            VStack(spacing: 0) {
-                ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
-                    HStack(spacing: Spacing.md) {
-                        Text(row.label).foregroundStyle(.secondary)
-                            .frame(width: Metrics.Detail.infoLabelWidth, alignment: .leading)
-                        Spacer(minLength: 0)
-                        if row.isSource, item.sourceBundleID != nil { AppIconView(bundleID: item.sourceBundleID) }
-                        Text(row.value).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
-                    }
-                    .font(.scaled(.callout))
-                    .padding(.horizontal, Spacing.md)
-                    .padding(.vertical, Spacing.sm)
-                    .background(index.isMultiple(of: 2) ? Color.primary.opacity(Opacity.hover) : .clear)
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                HStack(spacing: Spacing.md) {
+                    Text(row.label).foregroundStyle(.secondary)
+                        .frame(width: Metrics.Detail.infoLabelWidth * TextScale.shared.factor, alignment: .leading)
+                    if row.isSource, item.sourceBundleID != nil { AppIconView(bundleID: item.sourceBundleID) }
+                    Text(row.value).foregroundStyle(.primary).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
+                    Spacer(minLength: 0)
                 }
+                .font(.scaled(.body))
             }
-            .clipShape(.rect(cornerRadius: Radius.sm))
         }
     }
 
@@ -135,6 +128,7 @@ struct ClipInfoView: View {
         var rows: [Row] = []
         if let source = item.sourceName { rows.append(Row(label: L(.infoSource), value: source, isSource: true)) }
         rows.append(Row(label: L(.infoType), value: item.kind.title))
+        if let group = session.group(of: item) { rows.append(Row(label: L(.infoGroup), value: group.name)) }
         rows += kindRows
         rows.append(Row(label: L(.infoTimesCopied), value: item.copyCount.formatted()))
         rows.append(Row(label: L(.infoTimesPasted), value: item.pasteCount.formatted()))

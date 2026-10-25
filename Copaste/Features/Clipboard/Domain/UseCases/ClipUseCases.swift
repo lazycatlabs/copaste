@@ -62,12 +62,14 @@ nonisolated enum ClipUseCases {
         return items.filter { !$0.pinned && $0.lastCopied < limit }
     }
 
-    static func filter(_ items: [ClipItem], kind: ClipKind?, query: String, created: DateFilter = .anyTime,
+    /// - Parameter group: only entries in this group; nil for all.
+    static func filter(_ items: [ClipItem], kind: ClipKind?, query: String, created: DateFilter = .anyTime, group: UUID? = nil,
                        now: Date = .now, calendar: Calendar = .current) -> [ClipItem] {
         let query = query.trimmingCharacters(in: .whitespaces)
         let period = created.interval(now: now, calendar: calendar)
         return items.filter { item in
             (kind == nil || item.kind == kind)
+                && (group == nil || item.groupID == group)
                 && (period?.contains(item.firstCopied) ?? true)
                 && (query.isEmpty || item.searchableText.localizedStandardContains(query))
         }

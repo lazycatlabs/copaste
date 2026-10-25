@@ -43,6 +43,12 @@ nonisolated struct IgnoredApp: Codable, Hashable, Sendable {
     var name: String
 }
 
+/// A named collection of entries the user puts together, to filter the history by.
+nonisolated struct ClipGroup: Codable, Hashable, Identifiable, Sendable {
+    var id = UUID()
+    var name: String
+}
+
 /// Vault-wide settings, stored in `.copaste/config.json`. New fields need defaults: old files are merged with these.
 nonisolated struct AppSettings: Codable, Equatable, Sendable {
     var retention: Retention = .threeMonths
@@ -58,6 +64,8 @@ nonisolated struct AppSettings: Codable, Equatable, Sendable {
     /// A sound when something is copied, and when Copaste pastes.
     var copySound = ClipSound.none
     var pasteSound = ClipSound.none
+    /// The user's groups, in the order they made them. Entries point at one with `ClipItem.groupID`.
+    var groups: [ClipGroup] = []
     var ignoredApps: [IgnoredApp] = [
         IgnoredApp(bundleID: "com.apple.Passwords", name: "Passwords"),
         IgnoredApp(bundleID: "com.apple.keychainaccess", name: "Keychain Access"),

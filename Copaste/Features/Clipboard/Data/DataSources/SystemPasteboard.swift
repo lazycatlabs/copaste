@@ -6,6 +6,8 @@ import AppKit
 nonisolated enum PasteboardPayload: Sendable {
     case text(String)
     case image(URL)
+    /// An image made in Copaste that isn't saved anywhere.
+    case png(Data)
     case files([URL])
 }
 
@@ -95,6 +97,7 @@ final class SystemPasteboard {
         switch payload {
         case let .text(text): pasteboard.setString(text, forType: .string)
         case let .image(url): if let image = NSImage(contentsOf: url) { pasteboard.writeObjects([image]) }
+        case let .png(data): if let image = NSImage(data: data) { pasteboard.writeObjects([image]) }
         case let .files(urls): pasteboard.writeObjects(urls.map { $0 as NSURL })
         }
         // Our own write isn't a new copy.

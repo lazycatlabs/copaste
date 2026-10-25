@@ -4,181 +4,366 @@ import ServiceManagement
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Vault, history, text recognition, pasting, sounds, ignored apps and support.
-struct SettingsView: View {
-    @Environment(AppContainer.self) private var container
+/// The Settings pages, in sidebar order.
+enum SettingsPage: String, CaseIterable, Identifiable {
+    case general, history, pasting, appearance, shortcuts, groups, privacy, importing, updates, about
 
-    var body: some View {
-        Form {
-            vaultSection
-            if let session = container.session {
-                SessionSettings(session: session)
-            }
-            AboutSection()
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .general: L(.settingsGeneral)
+        case .history: L(.settingsHistory)
+        case .pasting: L(.settingsPasting)
+        case .appearance: L(.settingsAppearance)
+        case .shortcuts: L(.settingsShortcuts)
+        case .groups: L(.settingsGroups)
+        case .privacy: L(.settingsPrivacy)
+        case .importing: L(.importTitle)
+        case .updates: L(.settingsUpdates)
+        case .about: L(.settingsAbout)
         }
-        .formStyle(.grouped)
     }
 
-    private var vaultSection: some View {
-        Section(L(.settingsVault)) {
-            if let root = container.session?.root {
-                LabeledContent(L(.settingsVaultFolder)) {
-                    Text(root.path).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
+    var subtitle: String {
+        switch self {
+        case .general: L(.settingsGeneralSubtitle)
+        case .history: L(.settingsHistorySubtitle)
+        case .pasting: L(.settingsPastingSubtitle)
+        case .appearance: L(.settingsAppearanceSubtitle)
+        case .shortcuts: L(.settingsShortcutsSubtitle)
+        case .groups: L(.settingsGroupsSubtitle)
+        case .privacy: L(.settingsPrivacySubtitle)
+        case .importing: L(.importSubtitle)
+        case .updates: L(.settingsUpdatesSubtitle)
+        case .about: L(.aboutSubtitle)
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .general: "gearshape"
+        case .history: "clock.arrow.circlepath"
+        case .pasting: "doc.on.clipboard"
+        case .appearance: "paintbrush"
+        case .shortcuts: "keyboard"
+        case .groups: "folder"
+        case .privacy: "hand.raised"
+        case .importing: "square.and.arrow.down.on.square"
+        case .updates: "arrow.down.circle"
+        case .about: "info.circle"
+        }
+    }
+
+    /// What the sidebar search matches: the page's name and the settings on it.
+    var searchText: String {
+        let settings: [LocalizedStringResource] = switch self {
+        case .general: [.settingsVault, .settingsVaultFolder, .vaultChange, .settingsLaunchAtLogin]
+        case .history: [.settingsKeepHistory, .settingsLinkPreviews, .settingsUniversalClipboard, .settingsTextRecognition,
+                        .settingsRecognitionMode, .settingsClearHistory]
+        case .pasting: [.settingsPasteDirectly, .settingsSounds, .settingsCopySound, .settingsPasteSound]
+        case .appearance: [.settingsTextSize, .settingsShowToasts, .settingsWindowPosition]
+        case .shortcuts: [.settingsShortcut, .actionPaste, .actionCopy, .actionsTitle, .shortcutQuickPaste]
+        case .groups: [.groupAdd, .groupNewName]
+        case .privacy: [.settingsIgnoredApps, .settingsAddApp]
+        case .importing: [.importFromRaycast]
+        case .updates: [.updateCheck, .changelogTitle, .updateDownload]
+        case .about: [.aboutVersion, .supportFeedback, .supportBugReport, .supportWebsite]
+        }
+        return ([title, subtitle] + settings.map(L)).joined(separator: " ")
+    }
+
+    /// Pages about the open vault's history; without a vault only General and About apply.
+    var needsVault: Bool { ![.general, .updates, .about].contains(self) }
+}
+
+/// Settings: a searchable sidebar of pages, and the chosen page.
+struct SettingsView: View {
+    @Environment(AppContainer.self) private var container
+    @State private var search = ""
+
+    private var pages: [SettingsPage] {
+        let query = search.trimmingCharacters(in: .whitespaces)
+        return SettingsPage.allCases.filter { page in
+            (container.session != nil || !page.needsVault) && (query.isEmpty || page.searchText.localizedStandardContains(query))
+        }
+    }
+
+    var body: some View {
+        @Bindable var navigation = SettingsNavigation.shared
+        NavigationSplitView {
+            List(pages, selection: $navigation.page) { page in
+                Label {
+                    Text(page.title).font(.scaled(.body))
+                } icon: {
+                    Image(systemName: page.symbol).foregroundStyle(Color.accentColor)
+                }
+                .tag(page)
+                .accessibilityIdentifier("settings.nav.\(page.rawValue)")
+            }
+            .searchable(text: $search, placement: .sidebar)
+            .overlay {
+                if pages.isEmpty { ContentUnavailableView.search(text: search) }
+            }
+            .navigationSplitViewColumnWidth(min: Metrics.Settings.sidebarWidth, ideal: Metrics.Settings.sidebarWidth)
+        } detail: {
+            page(pages.contains(navigation.page ?? .general) ? navigation.page ?? .general : pages.first ?? .general)
+        }
+        .onChange(of: search) {
+            // Show the first match, so typing a setting's name opens its page.
+            if let first = pages.first, !pages.contains(navigation.page ?? .general) { navigation.page = first }
+        }
+    }
+
+    @ViewBuilder
+    private func page(_ page: SettingsPage) -> some View {
+        SettingsPageView(page: page) {
+            switch page {
+            case .general: GeneralPage()
+            case .updates: UpdatesPage()
+            case .about: AboutPage()
+            default:
+                if let session = container.session {
+                    switch page {
+                    case .history: HistoryPage(session: session)
+                    case .pasting: PastingPage(session: session)
+                    case .appearance: AppearancePage(session: session)
+                    case .shortcuts: ShortcutsPage()
+                    case .groups: GroupsPage(session: session)
+                    case .privacy: PrivacyPage(session: session)
+                    default: RaycastImportSection(session: session)
+                    }
                 }
             }
-            HStack {
-                VaultFolderButton(title: L(.vaultChange))
-                if let root = container.session?.root {
-                    Button(L(.vaultReveal)) { NSWorkspace.shared.activateFileViewerSelecting([root]) }
+        }
+        .id(page)
+    }
+}
+
+// MARK: - Pages
+
+private struct GeneralPage: View {
+    @Environment(AppContainer.self) private var container
+    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+
+    var body: some View {
+        SettingsSection(L(.settingsVault), footer: L(.vaultHint)) {
+            SettingsRow(L(.settingsVaultFolder), symbol: "folder", subtitle: container.session?.root.path) {
+                HStack {
+                    if let root = container.session?.root {
+                        Button(L(.vaultReveal)) { NSWorkspace.shared.activateFileViewerSelecting([root]) }
+                    }
+                    VaultFolderButton(title: L(.vaultChange))
                 }
             }
-            Text(.vaultHint).font(.caption).foregroundStyle(.secondary)
+        }
+        SettingsSection(L(.settingsStartup)) {
+            SettingsRow(L(.settingsLaunchAtLogin), symbol: "power") {
+                Toggle(L(.settingsLaunchAtLogin), isOn: $launchAtLogin).labelsHidden().toggleStyle(.switch)
+            }
+        }
+        .onChange(of: launchAtLogin) { _, enabled in
+            do {
+                if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
+            } catch {
+                NSApp.presentError(error)
+                launchAtLogin = SMAppService.mainApp.status == .enabled
+            }
         }
     }
 }
 
-private struct SessionSettings: View {
+private struct HistoryPage: View {
     @Bindable var session: ClipboardSession
     @State private var confirmsClear = false
 
     var body: some View {
-        Section(L(.settingsAppearance)) {
-            Picker(L(.settingsTextSize), selection: Bindable(TextScale.shared).size) {
-                ForEach(TextSize.allCases) { Text($0.title).tag($0) }
+        SettingsSection(L(.settingsHistory)) {
+            SettingsRow(L(.settingsKeepHistory), symbol: "calendar.badge.clock") {
+                Picker(L(.settingsKeepHistory), selection: $session.settings.retention) {
+                    ForEach(Retention.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
+                .labelsHidden()
+                .fixedSize()
             }
-            Toggle(L(.settingsShowToasts), isOn: $session.settings.showToasts)
+            SettingsRow(L(.settingsLinkPreviews), symbol: "link") {
+                Toggle(L(.settingsLinkPreviews), isOn: $session.settings.fetchLinkPreviews).labelsHidden().toggleStyle(.switch)
+            }
+            SettingsRow(L(.settingsUniversalClipboard), symbol: "laptopcomputer.and.iphone",
+                        subtitle: L(.settingsUniversalClipboardFooter)) {
+                Toggle(L(.settingsUniversalClipboard), isOn: $session.settings.saveUniversalClipboard).labelsHidden().toggleStyle(.switch)
+            }
         }
-        Section(L(.settingsHistory)) {
-            Picker(L(.settingsKeepHistory), selection: $session.settings.retention) {
-                ForEach(Retention.allCases, id: \.self) { Text($0.title).tag($0) }
+        SettingsSection(L(.settingsTextRecognition), footer: L(.settingsTextRecognitionFooter)) {
+            SettingsRow(L(.settingsTextRecognition), symbol: "text.viewfinder") {
+                Toggle(L(.settingsTextRecognition), isOn: $session.settings.textRecognition).labelsHidden().toggleStyle(.switch)
             }
-            Toggle(L(.settingsLinkPreviews), isOn: $session.settings.fetchLinkPreviews)
-            Toggle(isOn: $session.settings.saveUniversalClipboard) {
-                Text(.settingsUniversalClipboard)
-                Text(.settingsUniversalClipboardFooter)
-            }
-        }
-        Section {
-            Toggle(L(.settingsTextRecognition), isOn: $session.settings.textRecognition)
-            Picker(L(.settingsRecognitionMode), selection: $session.settings.accurateRecognition) {
-                Text(.recognitionFast).tag(false)
-                Text(.recognitionAccurate).tag(true)
+            SettingsRow(L(.settingsRecognitionMode), symbol: "gauge.with.dots.needle.67percent") {
+                Picker(L(.settingsRecognitionMode), selection: $session.settings.accurateRecognition) {
+                    Text(.recognitionFast).tag(false)
+                    Text(.recognitionAccurate).tag(true)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .fixedSize()
             }
             .disabled(!session.settings.textRecognition)
-        } footer: {
-            Text(.settingsTextRecognitionFooter)
         }
-        PastingSection(session: session)
-        Section(L(.settingsSounds)) {
-            soundPicker(L(.settingsCopySound), selection: $session.settings.copySound)
-            soundPicker(L(.settingsPasteSound), selection: $session.settings.pasteSound)
+        SettingsSection(L(.settingsCleanUp)) {
+            SettingsRow(L(.settingsClearHistory), symbol: "trash", subtitle: L(.settingsClearFooter)) {
+                Button(L(.settingsClearHistory), role: .destructive) { confirmsClear = true }
+                    .confirmationDialog(L(.settingsClearConfirm), isPresented: $confirmsClear) {
+                        Button(L(.settingsClearHistory), role: .destructive) { session.clearUnpinned() }
+                    }
+            }
         }
-        IgnoredAppsSection(session: session)
-        RaycastImportSection(session: session)
-        Section {
-            Button(L(.settingsClearHistory), role: .destructive) { confirmsClear = true }
-                .confirmationDialog(L(.settingsClearConfirm), isPresented: $confirmsClear) {
-                    Button(L(.settingsClearHistory), role: .destructive) { session.clearUnpinned() }
+    }
+}
+
+private struct PastingPage: View {
+    @Bindable var session: ClipboardSession
+
+    var body: some View {
+        SettingsSection(L(.settingsPasting)) {
+            SettingsRow(L(.settingsPasteDirectly), symbol: "doc.on.clipboard", subtitle: pasteDirectlySubtitle) {
+                HStack {
+                    if session.settings.pasteDirectly && !PasteSimulator.isTrusted {
+                        Button(L(.settingsGrantAccess)) { PasteSimulator.requestAccess() }
+                    }
+                    Toggle(L(.settingsPasteDirectly), isOn: $session.settings.pasteDirectly)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .accessibilityIdentifier("settings.pasteDirectly")
                 }
-        } footer: {
-            Text(.settingsClearFooter)
+            }
+        }
+        SettingsSection(L(.settingsSounds)) {
+            SettingsRow(L(.settingsCopySound), symbol: "speaker.wave.2") {
+                soundPicker(L(.settingsCopySound), $session.settings.copySound)
+            }
+            SettingsRow(L(.settingsPasteSound), symbol: "speaker.wave.3") {
+                soundPicker(L(.settingsPasteSound), $session.settings.pasteSound)
+            }
         }
     }
 
+    /// What on and off do, plus the missing permission when it's on but can't send ⌘V.
+    private var pasteDirectlySubtitle: String {
+        let needsAccess = session.settings.pasteDirectly && !PasteSimulator.isTrusted
+        return needsAccess ? L(.settingsPasteDirectlyFooter) + "\n" + L(.settingsAccessibilityNeeded) : L(.settingsPasteDirectlyFooter)
+    }
+
     /// Choosing a sound plays it, so it can be heard before it's kept.
-    private func soundPicker(_ title: String, selection: Binding<ClipSound>) -> some View {
+    private func soundPicker(_ title: String, _ selection: Binding<ClipSound>) -> some View {
         Picker(title, selection: selection) {
             ForEach(ClipSound.allCases, id: \.self) { Text($0.title).tag($0) }
         }
+        .labelsHidden()
+        .fixedSize()
         .onChange(of: selection.wrappedValue) { _, sound in SoundPlayer.play(sound) }
     }
 }
 
-private struct PastingSection: View {
+private struct AppearancePage: View {
     @Bindable var session: ClipboardSession
-    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
     var body: some View {
-        Section(L(.settingsPasting)) {
-            Toggle(L(.settingsPasteDirectly), isOn: $session.settings.pasteDirectly)
-            if session.settings.pasteDirectly && !PasteSimulator.isTrusted {
-                HStack {
-                    Text(.settingsAccessibilityNeeded).font(.caption).foregroundStyle(.secondary)
-                    Spacer()
-                    Button(L(.settingsGrantAccess)) { PasteSimulator.requestAccess() }
+        SettingsSection(L(.settingsTextSize), footer: L(.settingsTextSizeFooter)) {
+            SettingsRow(L(.settingsTextSize), symbol: "textformat.size") {
+                Picker(L(.settingsTextSize), selection: Bindable(TextScale.shared).size) {
+                    ForEach(TextSize.allCases) { Text($0.title).tag($0) }
                 }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .fixedSize()
             }
-            LabeledContent(L(.settingsShortcut)) { ShortcutRecorder() }
-            Toggle(L(.settingsLaunchAtLogin), isOn: $launchAtLogin)
-                .onChange(of: launchAtLogin) { _, enabled in
-                    do {
-                        if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
-                    } catch {
-                        NSApp.presentError(error)
-                        launchAtLogin = SMAppService.mainApp.status == .enabled
-                    }
-                }
+        }
+        SettingsSection(L(.settingsClipboardWindow)) {
+            SettingsRow(L(.settingsShowToasts), symbol: "checkmark.bubble") {
+                Toggle(L(.settingsShowToasts), isOn: $session.settings.showToasts).labelsHidden().toggleStyle(.switch)
+            }
+            SettingsRow(L(.settingsWindowPosition), symbol: "macwindow", subtitle: L(.settingsWindowPositionHint)) {
+                Button(L(.actionCenter)) { PanelPlacement.save(.zero) }.accessibilityIdentifier("settings.centerWindow")
+            }
         }
     }
 }
 
-/// Click, then press the new combination (esc cancels). It needs ⌘, ⌥ or ⌃.
-private struct ShortcutRecorder: View {
-    @State private var isRecording = false
-    @State private var monitor: Any?
-    private var store: HotKeyStore { .shared }
-
+private struct ShortcutsPage: View {
     var body: some View {
-        HStack(spacing: Spacing.sm) {
-            Button { isRecording ? stop() : start() } label: {
-                Text(isRecording ? L(.shortcutPressKeys) : store.binding.displayText)
-                    .font(.callout.monospaced())
-                    .frame(minWidth: Metrics.Settings.shortcutRecorderWidth)
-            }
-            .buttonStyle(.bordered)
-            .tint(isRecording ? .accentColor : nil)
-            .accessibilityIdentifier("settings.shortcut")
-            if store.binding != .standard {
-                Button(L(.actionReset)) { store.set(.standard) }.buttonStyle(.borderless)
+        SettingsSection(L(.settingsShortcuts), footer: L(.settingsShortcutsFooter)) {
+            ForEach(Shortcut.allCases) { shortcut in
+                SettingsRow(shortcut.title, symbol: Self.symbol(of: shortcut)) { ShortcutRecorder(shortcut: shortcut) }
             }
         }
-        .onDisappear(perform: stop)
-    }
-
-    private func start() {
-        isRecording = true
-        removeMonitor()
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            if Int(event.keyCode) == kVK_Escape {
-                stop()
-            } else if let binding = HotKeyBinding(event: event) {
-                store.set(binding)
-                stop()
-            }
-            return nil
+        SettingsSection(L(.settingsFixedShortcuts)) {
+            fixed(L(.shortcutNavigate), symbol: "arrow.up.arrow.down", keys: ["↑", "↓"])
+            fixed(L(.shortcutQuickPaste), symbol: "number", keys: ["⌘", "1…9"])
+            fixed(L(.shortcutSettings), symbol: "gearshape", keys: ["⌘", ","])
+            fixed(L(.shortcutClose), symbol: "escape", keys: ["esc"])
         }
     }
 
-    private func stop() {
-        isRecording = false
-        removeMonitor()
+    private func fixed(_ title: String, symbol: String, keys: [String]) -> some View {
+        SettingsRow(title, symbol: symbol) { KeyCaps(keys: keys) }
     }
 
-    private func removeMonitor() {
-        if let monitor { NSEvent.removeMonitor(monitor) }
-        monitor = nil
+    private static func symbol(of shortcut: Shortcut) -> String {
+        switch shortcut {
+        case .openHistory: "command"
+        case .paste: "doc.on.clipboard"
+        case .copy: "doc.on.doc"
+        case .actions: "ellipsis.circle"
+        case .open: "arrow.up.forward.app"
+        case .annotate: "pencil.tip.crop.circle"
+        case .save: "square.and.arrow.down"
+        case .pin: "pin"
+        case .delete: "trash"
+        }
     }
 }
 
-private struct IgnoredAppsSection: View {
+private struct GroupsPage: View {
     @Bindable var session: ClipboardSession
 
     var body: some View {
-        Section {
+        SettingsSection(L(.settingsGroups), footer: L(.settingsGroupsFooter)) {
+            Button(L(.groupAdd), systemImage: "plus") { session.addGroup() }
+                .buttonStyle(.borderless)
+                .accessibilityIdentifier("settings.addGroup")
+        } content: {
+            if session.settings.groups.isEmpty {
+                SettingsRow(L(.groupsEmpty), symbol: "folder.badge.questionmark") { EmptyView() }
+            }
+            ForEach($session.settings.groups) { $group in
+                let count = session.items.count { $0.groupID == group.id }
+                SettingsRow(L(.groupEntries(count)), symbol: "folder") {
+                    TextField(L(.groupNewName), text: $group.name)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: Metrics.Settings.groupNameWidth)
+                        .accessibilityIdentifier("settings.groupName")
+                    Button(L(.actionDelete), systemImage: "trash") { session.deleteGroup(group) }
+                        .labelStyle(.iconOnly)
+                        .buttonStyle(.borderless)
+                }
+            }
+        }
+    }
+}
+
+private struct PrivacyPage: View {
+    @Bindable var session: ClipboardSession
+
+    var body: some View {
+        SettingsSection(L(.settingsIgnoredApps), footer: L(.settingsIgnoredAppsFooter)) {
+            Button(L(.settingsAddApp), systemImage: "plus", action: addApp)
+                .buttonStyle(.borderless)
+                .accessibilityIdentifier("settings.addIgnoredApp")
+        } content: {
             ForEach(session.settings.ignoredApps, id: \.bundleID) { app in
-                HStack(spacing: Spacing.md) {
-                    AppIconView(bundleID: app.bundleID, size: Metrics.Settings.ignoredAppIcon)
-                    Text(app.name)
+                HStack(spacing: Spacing.xl) {
+                    AppIconView(bundleID: app.bundleID, size: Metrics.Settings.rowIcon)
+                    Text(app.name).font(.scaled(.body, weight: .medium))
                     Spacer()
                     Button(L(.actionRemove), systemImage: "minus.circle") {
                         session.settings.ignoredApps.removeAll { $0.bundleID == app.bundleID }
@@ -186,18 +371,9 @@ private struct IgnoredAppsSection: View {
                     .labelStyle(.iconOnly)
                     .buttonStyle(.borderless)
                 }
+                .padding(.horizontal, Spacing.xxl)
+                .padding(.vertical, Spacing.lg)
             }
-        } header: {
-            HStack {
-                Text(.settingsIgnoredApps)
-                Spacer()
-                Button(L(.settingsAddApp), systemImage: "plus", action: addApp)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.borderless)
-                    .accessibilityIdentifier("settings.addIgnoredApp")
-            }
-        } footer: {
-            Text(.settingsIgnoredAppsFooter)
         }
     }
 
@@ -212,20 +388,70 @@ private struct IgnoredAppsSection: View {
     }
 }
 
-private struct AboutSection: View {
+private struct AboutPage: View {
     var body: some View {
-        Section(L(.settingsAbout)) {
-            LabeledContent(L(.aboutVersion), value: SupportLinks.appVersion)
-            HStack {
-                if let url = SupportLinks.feedback() {
-                    Link(destination: url) { Label(L(.supportFeedback), systemImage: "bubble.left") }
-                }
-                if let url = SupportLinks.bugReport() {
-                    Link(destination: url) { Label(L(.supportBugReport), systemImage: "ladybug") }
-                }
-                Spacer()
-                Link(destination: SupportLinks.website) { Label(L(.supportWebsite), systemImage: "safari") }
+        SettingsSection(L(.settingsAbout)) {
+            SettingsRow(L(.aboutVersion), symbol: "info.circle") {
+                Text(SupportLinks.appVersion).foregroundStyle(.secondary).textSelection(.enabled)
             }
+            if let url = SupportLinks.feedback() {
+                SettingsRow(L(.supportFeedback), symbol: "bubble.left") { Link(L(.supportFeedback), destination: url) }
+            }
+            if let url = SupportLinks.bugReport() {
+                SettingsRow(L(.supportBugReport), symbol: "ladybug") { Link(L(.supportBugReport), destination: url) }
+            }
+            SettingsRow(L(.supportWebsite), symbol: "safari") { Link(L(.supportWebsite), destination: SupportLinks.website) }
         }
+    }
+}
+
+// MARK: - Shortcut recorder
+
+/// Click, then press the new combination (esc cancels). It needs ⌘, ⌥ or ⌃, except ↩ and ⇥ in the clipboard window.
+private struct ShortcutRecorder: View {
+    let shortcut: Shortcut
+    @State private var isRecording = false
+    @State private var monitor: Any?
+    private var store: HotKeyStore { .shared }
+
+    var body: some View {
+        HStack(spacing: Spacing.sm) {
+            if store[shortcut] != shortcut.standard {
+                Button(L(.actionReset)) { store.set(shortcut.standard, for: shortcut) }.buttonStyle(.borderless)
+            }
+            Button { isRecording ? stop() : start() } label: {
+                Text(isRecording ? L(.shortcutPressKeys) : store[shortcut].displayText)
+                    .font(.callout.monospaced())
+                    .frame(minWidth: Metrics.Settings.shortcutRecorderWidth)
+            }
+            .buttonStyle(.bordered)
+            .tint(isRecording ? .accentColor : nil)
+            .accessibilityIdentifier("settings.shortcut.\(shortcut.rawValue)")
+        }
+        .onDisappear(perform: stop)
+    }
+
+    private func start() {
+        isRecording = true
+        removeMonitor()
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            if Int(event.keyCode) == kVK_Escape {
+                stop()
+            } else if let binding = HotKeyBinding(event: event, allowsPlainReturn: !shortcut.isGlobal) {
+                store.set(binding, for: shortcut)
+                stop()
+            }
+            return nil
+        }
+    }
+
+    private func stop() {
+        isRecording = false
+        removeMonitor()
+    }
+
+    private func removeMonitor() {
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
     }
 }

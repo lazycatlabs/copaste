@@ -6,7 +6,7 @@ final class UserDefaultsVaultRepository: VaultRepository {
     private static let bookmarkKey = "vaultBookmark"
     private let defaults: UserDefaults
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = AppDefaults.store) {
         self.defaults = defaults
     }
 

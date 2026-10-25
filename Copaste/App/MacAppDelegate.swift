@@ -4,7 +4,12 @@ import SwiftUI
 
 /// Copaste lives in the menu bar: a global shortcut (⇧⌘V unless changed in Settings) opens the floating clipboard window.
 final class MacAppDelegate: NSObject, NSApplicationDelegate {
-    let container = AppContainer()
+    let container: AppContainer = {
+        #if DEBUG
+        if E2EMode.isActive { return E2EFixtures.makeContainer() }
+        #endif
+        return AppContainer()
+    }()
     private(set) lazy var panel = ClipboardPanelController(container: container)
     private var hotKey: GlobalHotKey?
 
@@ -17,6 +22,9 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
                 if self.panel.isVisible { self.panel.showToast(message) } else { ToastPresenter.shared.show(message) }
             }
         }
+        #if DEBUG
+        if E2EMode.isActive { return E2EFixtures.start(self) }
+        #endif
         registerHotKey()
         HotKeyStore.shared.onChange = { [weak self] in self?.registerHotKey() }
         if container.session == nil { showWelcome() }
@@ -29,7 +37,7 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func showSettings() {
-        MacWindows.show(id: "settings", title: L(.settingsTitle), size: Metrics.Settings.windowSize) {
+        MacWindows.show(id: "settings", title: L(.settingsTitle), size: Metrics.Settings.windowSize, fullSize: true) {
             SettingsView().environment(container)
         }
     }

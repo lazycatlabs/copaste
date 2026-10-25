@@ -67,3 +67,28 @@ struct UniversalClipboardTests {
         #expect(!session.items.contains { $0.text == "not saved" })
     }
 }
+
+@MainActor
+struct ClipGroupTests {
+    @Test func groupsAreSavedAndDeletingOneKeepsItsEntries() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let pasteboard = SystemPasteboard(pasteboard: NSPasteboard(name: .init(UUID().uuidString)))
+        let session = ClipboardSession(root: root, pasteboard: pasteboard)
+        session.importClip(.text("hello"), source: "Test", copiedAt: .now)
+        let item = try #require(session.items.first)
+
+        let work = session.addGroup(named: "Work")
+        #expect(session.addGroup(named: "Work").name == "Work 2")
+        session.setGroup(work.id, for: item)
+
+        let reopened = ClipboardSession(root: root, pasteboard: pasteboard)
+        #expect(reopened.settings.groups.map(\.name) == ["Work", "Work 2"])
+        #expect(reopened.items.first?.groupID == work.id)
+
+        session.deleteGroup(work)
+        #expect(session.settings.groups.map(\.name) == ["Work 2"])
+        #expect(session.items.count == 1)
+        #expect(session.items.first?.groupID == nil)
+    }
+}
