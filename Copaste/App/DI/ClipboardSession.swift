@@ -30,6 +30,7 @@ final class ClipboardSession {
         items = repository.loadAll()
         pruneExpired()
         pasteboard.onCapture = { [weak self] capture in self?.handle(capture) }
+        pasteboard.savesUniversalClipboard = { [weak self] in self?.settings.saveUniversalClipboard ?? false }
         pasteboard.startMonitoring()
     }
 

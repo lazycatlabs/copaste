@@ -2036,6 +2036,40 @@
         }
       }
     },
+    "settingsUniversalClipboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save Universal Clipboard items immediately"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langsung simpan item Universal Clipboard"
+          }
+        }
+      }
+    },
+    "settingsUniversalClipboardFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Items copied on your iPhone, iPad or another Mac are saved as soon as they arrive. Large items such as photos can take a moment to download."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Item yang disalin di iPhone, iPad atau Mac lain langsung disimpan saat tiba. Item besar seperti foto butuh waktu untuk diunduh."
+          }
+        }
+      }
+    },
     "settingsVault": {
       "extractionState": "manual",
       "localizations": {
@@ -2372,6 +2406,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kotak"
+          }
+        }
+      }
+    },
+    "universalClipboardSource": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Universal Clipboard"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Universal Clipboard"
           }
         }
       }

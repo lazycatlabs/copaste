@@ -53,6 +53,10 @@ private struct SessionSettings: View {
                 ForEach(Retention.allCases, id: \.self) { Text($0.title).tag($0) }
             }
             Toggle(L(.settingsLinkPreviews), isOn: $session.settings.fetchLinkPreviews)
+            Toggle(isOn: $session.settings.saveUniversalClipboard) {
+                Text(.settingsUniversalClipboard)
+                Text(.settingsUniversalClipboardFooter)
+            }
         }
         Section {
             Toggle(L(.settingsTextRecognition), isOn: $session.settings.textRecognition)

@@ -42,3 +42,28 @@ struct ClipboardToastTests {
         #expect(messages.count == 2)
     }
 }
+
+@MainActor
+struct UniversalClipboardTests {
+    @Test func savesItemsFromOtherDevicesUnlessTurnedOff() async throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let pasteboard = NSPasteboard(name: .init(UUID().uuidString))
+        let session = ClipboardSession(root: root, pasteboard: SystemPasteboard(pasteboard: pasteboard))
+        func copyFromPhone(_ text: String) {
+            pasteboard.declareTypes([.string, SystemPasteboard.universalClipboardType], owner: nil)
+            pasteboard.setString(text, forType: .string)
+            pasteboard.setData(Data(), forType: SystemPasteboard.universalClipboardType)
+        }
+
+        copyFromPhone("from iPhone")
+        try await Task.sleep(for: .seconds(1.5))
+        #expect(session.items.first?.text == "from iPhone")
+        #expect(session.items.first?.sourceName == L(.universalClipboardSource))
+
+        session.settings.saveUniversalClipboard = false
+        copyFromPhone("not saved")
+        try await Task.sleep(for: .seconds(1.5))
+        #expect(!session.items.contains { $0.text == "not saved" })
+    }
+}

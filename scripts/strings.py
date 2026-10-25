@@ -126,6 +126,12 @@ S = {
     "settingsHistory": ("History", "Riwayat"),
     "settingsKeepHistory": ("Keep history for", "Simpan riwayat selama"),
     "settingsLinkPreviews": ("Fetch link titles, icons and previews", "Ambil judul, ikon dan pratinjau tautan"),
+    "settingsUniversalClipboard": ("Save Universal Clipboard items immediately", "Langsung simpan item Universal Clipboard"),
+    "settingsUniversalClipboardFooter": (
+        "Items copied on your iPhone, iPad or another Mac are saved as soon as they arrive. Large items such as photos can take a moment to download.",
+        "Item yang disalin di iPhone, iPad atau Mac lain langsung disimpan saat tiba. Item besar seperti foto butuh waktu untuk diunduh.",
+    ),
+    "universalClipboardSource": ("Universal Clipboard", "Universal Clipboard"),
     "settingsTextRecognition": ("Text Recognition", "Pengenalan Teks"),
     "settingsRecognitionMode": ("Recognition Mode", "Mode Pengenalan"),
     "settingsTextRecognitionFooter": (
