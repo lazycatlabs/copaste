@@ -3,6 +3,13 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.2.1 — 2026-10-25
+
+### Fixed
+
+- In dark mode the clipboard window was barely darker than in 0.1.1, so the wallpaper could still show through
+  behind the text. Its background is now darker and easier to read on any wallpaper.
+
 ## 0.2.0 — 2026-10-25
 
 ### New
