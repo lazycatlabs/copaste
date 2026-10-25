@@ -26,19 +26,31 @@ nonisolated struct HotKeyBinding: Codable, Equatable, Sendable {
         return carbon
     }
 
-    var displayText: String {
-        var text = ""
-        if flags.contains(.control) { text += "⌃" }
-        if flags.contains(.option) { text += "⌥" }
-        if flags.contains(.shift) { text += "⇧" }
-        if flags.contains(.command) { text += "⌘" }
+    /// One glyph per key, for key caps: ["⇧", "⌘", "V"].
+    var keys: [String] {
+        var keys: [String] = []
+        if flags.contains(.control) { keys.append("⌃") }
+        if flags.contains(.option) { keys.append("⌥") }
+        if flags.contains(.shift) { keys.append("⇧") }
+        if flags.contains(.command) { keys.append("⌘") }
         switch Int(keyCode) {
-        case kVK_Space: text += "Space"
-        case kVK_Return: text += "↩"
-        case kVK_Tab: text += "⇥"
-        default: text += characters.uppercased()
+        case kVK_Space: keys.append("Space")
+        case kVK_Return, kVK_ANSI_KeypadEnter: keys.append("↩")
+        case kVK_Tab: keys.append("⇥")
+        case kVK_Delete: keys.append("⌫")
+        case kVK_ForwardDelete: keys.append("⌦")
+        default: keys.append(characters.uppercased())
         }
-        return text
+        return keys
+    }
+
+    var displayText: String { keys.joined() }
+
+    /// Whether a key press is this combination. The keypad's enter counts as return.
+    func matches(_ event: NSEvent) -> Bool {
+        let code = Int(event.keyCode) == kVK_ANSI_KeypadEnter ? kVK_Return : Int(event.keyCode)
+        let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
+        return code == Int(keyCode) && flags.rawValue == modifiers
     }
 
     init(keyCode: UInt16, characters: String, modifiers: UInt) {
@@ -47,33 +59,93 @@ nonisolated struct HotKeyBinding: Codable, Equatable, Sendable {
         self.modifiers = modifiers
     }
 
-    /// A binding from a key press, or nil without ⌘, ⌥ or ⌃ (a plain key would fire while typing anywhere).
-    init?(event: NSEvent) {
+    /// A binding from a key press, or nil without ⌘, ⌥ or ⌃ (a plain key would fire while typing).
+    /// `allowsPlainReturn` lets ↩ and ⇥ through on their own, for the clipboard window, where they don't type text.
+    init?(event: NSEvent, allowsPlainReturn: Bool = false) {
         let flags = event.modifierFlags.intersection([.command, .option, .control, .shift])
-        guard !flags.subtracting(.shift).isEmpty, Int(event.keyCode) != kVK_Escape else { return nil }
+        let plainAllowed = allowsPlainReturn && [kVK_Return, kVK_ANSI_KeypadEnter, kVK_Tab].contains(Int(event.keyCode))
+        guard !flags.subtracting(.shift).isEmpty || plainAllowed, Int(event.keyCode) != kVK_Escape else { return nil }
         self.init(keyCode: event.keyCode, characters: (event.charactersIgnoringModifiers ?? "").lowercased(), modifiers: flags.rawValue)
     }
 }
 
-/// The global shortcut that opens the clipboard window. Stored per Mac, not in the vault.
+/// The shortcuts that can be changed in Settings: the global one that opens the clipboard window,
+/// and the ones the clipboard window handles.
+nonisolated enum Shortcut: String, CaseIterable, Identifiable, Sendable {
+    case openHistory, paste, copy, actions, open, annotate, save, pin, delete
+
+    var id: String { rawValue }
+
+    /// Only the global shortcut works while another app is in front.
+    var isGlobal: Bool { self == .openHistory }
+
+    var standard: HotKeyBinding {
+        switch self {
+        case .openHistory: .standard
+        case .paste: Self.binding(kVK_Return, "\r", [])
+        case .copy: Self.binding(kVK_Return, "\r", .command)
+        case .actions: Self.binding(kVK_ANSI_K, "k", .command)
+        case .open: Self.binding(kVK_ANSI_O, "o", .command)
+        case .annotate: Self.binding(kVK_ANSI_E, "e", .command)
+        case .save: Self.binding(kVK_ANSI_S, "s", .command)
+        case .pin: Self.binding(kVK_ANSI_P, "p", .command)
+        case .delete: Self.binding(kVK_Delete, "", .command)
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .openHistory: L(.settingsShortcut)
+        case .paste: L(.actionPaste)
+        case .copy: L(.actionCopy)
+        case .actions: L(.actionsTitle)
+        case .open: L(.actionOpen)
+        case .annotate: L(.actionAnnotate)
+        case .save: L(.actionSaveToFile)
+        case .pin: L(.shortcutPin)
+        case .delete: L(.actionDelete)
+        }
+    }
+
+    /// The global shortcut keeps the key it was stored under before the others could be changed.
+    fileprivate var storageKey: String { self == .openHistory ? "globalShortcut" : "shortcut.\(rawValue)" }
+
+    private static func binding(_ keyCode: Int, _ characters: String, _ flags: NSEvent.ModifierFlags) -> HotKeyBinding {
+        HotKeyBinding(keyCode: UInt16(keyCode), characters: characters, modifiers: flags.rawValue)
+    }
+}
+
+/// The shortcuts as set in Settings. Stored per Mac, not in the vault.
 @Observable
 final class HotKeyStore {
     static let shared = HotKeyStore()
-    private static let storageKey = "globalShortcut"
 
-    private(set) var binding: HotKeyBinding
-    /// Called after a change, to register the new combination.
+    private var bindings: [Shortcut: HotKeyBinding] = [:]
+    /// Called after a change, to register the new global combination.
     @ObservationIgnored var onChange: (() -> Void)?
     @ObservationIgnored private let defaults: UserDefaults
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = AppDefaults.store) {
         self.defaults = defaults
-        binding = defaults.data(forKey: Self.storageKey).flatMap { try? JSONDecoder().decode(HotKeyBinding.self, from: $0) } ?? .standard
+        for shortcut in Shortcut.allCases {
+            bindings[shortcut] = defaults.data(forKey: shortcut.storageKey)
+                .flatMap { try? JSONDecoder().decode(HotKeyBinding.self, from: $0) }
+        }
     }
 
-    func set(_ binding: HotKeyBinding) {
-        self.binding = binding
-        defaults.set(try? JSONEncoder().encode(binding), forKey: Self.storageKey)
+    /// The global shortcut that opens the clipboard window.
+    var binding: HotKeyBinding { self[.openHistory] }
+
+    subscript(shortcut: Shortcut) -> HotKeyBinding { bindings[shortcut] ?? shortcut.standard }
+
+    func set(_ binding: HotKeyBinding, for shortcut: Shortcut = .openHistory) {
+        bindings[shortcut] = binding
+        defaults.set(try? JSONEncoder().encode(binding), forKey: shortcut.storageKey)
         onChange?()
+    }
+
+    /// The window shortcut a key press triggers, if any.
+    func shortcut(for event: NSEvent) -> Shortcut? {
+        Shortcut.allCases.first { !$0.isGlobal && self[$0].matches(event) }
     }
 }

@@ -52,16 +52,16 @@ nonisolated enum ClipAction: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// The shortcut shown next to the action, and handled by the clipboard window.
-    var shortcut: String? {
+    /// The shortcut that runs the action in the clipboard window (changeable in Settings).
+    var shortcut: Shortcut? {
         switch self {
-        case .paste: "↩"
-        case .copy: "⌘↩"
-        case .open, .composeEmail: "⌘O"
-        case .annotate: "⌘E"
-        case .saveToFile: "⌘S"
-        case .pin: "⌘P"
-        case .delete: "⌘⌫"
+        case .paste: .paste
+        case .copy: .copy
+        case .open, .composeEmail: .open
+        case .annotate: .annotate
+        case .saveToFile: .save
+        case .pin: .pin
+        case .delete: .delete
         default: nil
         }
     }
