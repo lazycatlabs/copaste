@@ -15,10 +15,10 @@ protocol-driven repositories, async/await, Swift Testing.
 | Platform | macOS 26.0+ only. iOS support was removed; don't add `#if os(iOS)` code back unless asked. |
 | Swift | Swift 6, `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, approachable concurrency. Pure value types are `nonisolated`. |
 | Project | Xcode project with synchronized folders (new files are picked up automatically). No Swift packages. |
-| Targets | `Copaste` (app), `CopasteTests` (Swift Testing, macOS host) |
+| Targets | `Copaste` (app), `CopasteTests` (Swift Testing, macOS host), `CopasteUITests` (XCUITest E2E, `CopasteE2E` scheme) |
 | Localization | `Copaste/App/Resources/Localizable.xcstrings`, **generated** from `scripts/strings.py` (English, Indonesian) |
-| Storage | The user's vault folder (JSON, one file per entry). `UserDefaults` only for per-Mac preferences: the vault bookmark and the global shortcut (`HotKeyStore`). |
-| Network | Only LinkPresentation, to fetch a copied link's title, favicon and preview image. |
+| Storage | The user's vault folder (JSON, one file per entry). `UserDefaults` (through `AppDefaults.store`) only for per-Mac preferences: the vault bookmark, shortcuts (`HotKeyStore`), text size and the clipboard window position (`PanelPlacement`). |
+| Network | LinkPresentation, to fetch a copied link's title, favicon and preview image; and GitHub's releases API when Settings › Updates is opened (`GitHubReleasesDataSource`). |
 | Support | Feedback and bug reports go to `admin@lazycatlabs.com` (`SupportLinks`); website `https://copaste.lazycatlabs.com`. |
 | Commits | Conventional Commits, one commit per change. No AI co-author lines. |
 
@@ -29,7 +29,11 @@ python3 scripts/strings.py
 swiftlint
 xcodebuild -project Copaste.xcodeproj -scheme Copaste -destination 'platform=macOS' build
 xcodebuild -project Copaste.xcodeproj -scheme Copaste -destination 'platform=macOS' test
+scripts/e2e.sh   # E2E UI tests; screenshots in e2e-output/ (git-ignored). Drives the real mouse; quits a running Copaste.
 ```
+
+E2E runs launch the app with `-e2e` (Debug only, see `AppDefaults.swift` / `E2EFixtures.swift`): a throwaway vault with
+sample entries, a private clipboard and separate preferences, plus commands sent as distributed notifications.
 
 ## 3. Layout
 
