@@ -1,6 +1,23 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "aboutSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version, feedback and help."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versi, masukan dan bantuan."
+          }
+        }
+      }
+    },
     "aboutVersion": {
       "extractionState": "manual",
       "localizations": {
@@ -48,6 +65,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Batal"
+          }
+        }
+      }
+    },
+    "actionCenter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Center"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ke Tengah"
           }
         }
       }
@@ -375,6 +409,23 @@
         }
       }
     },
+    "annotateTextPlaceholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type here"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ketik di sini"
+          }
+        }
+      }
+    },
     "annotateTool": {
       "extractionState": "manual",
       "localizations": {
@@ -477,19 +528,87 @@
         }
       }
     },
+    "changelogInstalled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terpasang"
+          }
+        }
+      }
+    },
+    "changelogOnGitHub": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Releases on GitHub"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semua Rilis di GitHub"
+          }
+        }
+      }
+    },
+    "changelogTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changelog"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catatan Perubahan"
+          }
+        }
+      }
+    },
+    "changelogUnavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The changelog can't be loaded right now"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catatan perubahan tidak bisa dimuat sekarang"
+          }
+        }
+      }
+    },
     "dateFilterAnyTime": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Any Time"
+            "value": "Any Day"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kapan Saja"
+            "value": "Hari Apa Saja"
           }
         }
       }
@@ -643,6 +762,154 @@
           "stringUnit": {
             "state": "translated",
             "value": "Semua Tipe"
+          }
+        }
+      }
+    },
+    "groupAdd": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Group"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tambah Grup"
+          }
+        }
+      }
+    },
+    "groupAll": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Groups"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semua Grup"
+          }
+        }
+      }
+    },
+    "groupEntries": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entry"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entries"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld entri"
+          }
+        }
+      }
+    },
+    "groupManage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage Groups…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kelola Grup…"
+          }
+        }
+      }
+    },
+    "groupMoveTo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grup"
+          }
+        }
+      }
+    },
+    "groupNewName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Group"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grup Baru"
+          }
+        }
+      }
+    },
+    "groupNone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Group"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tanpa Grup"
+          }
+        }
+      }
+    },
+    "groupsEmpty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No groups yet"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Belum ada grup"
           }
         }
       }
@@ -829,6 +1096,23 @@
         }
       }
     },
+    "importSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bring in history from another clipboard manager."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bawa riwayat dari pengelola clipboard lain."
+          }
+        }
+      }
+    },
     "importTitle": {
       "extractionState": "manual",
       "localizations": {
@@ -961,6 +1245,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pertama ditempel"
+          }
+        }
+      }
+    },
+    "infoGroup": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grup"
           }
         }
       }
@@ -1498,13 +1799,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Type to filter entries…"
+            "value": "Search your clipboard"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ketik untuk menyaring…"
+            "value": "Cari di clipboard Anda"
           }
         }
       }
@@ -1662,6 +1963,40 @@
         }
       }
     },
+    "settingsAppearanceSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text size, toasts and the clipboard window."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukuran teks, toast dan jendela clipboard."
+          }
+        }
+      }
+    },
+    "settingsCleanUp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Up"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bersihkan"
+          }
+        }
+      }
+    },
     "settingsClearConfirm": {
       "extractionState": "manual",
       "localizations": {
@@ -1713,6 +2048,23 @@
         }
       }
     },
+    "settingsClipboardWindow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard Window"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jendela Clipboard"
+          }
+        }
+      }
+    },
     "settingsCopySound": {
       "extractionState": "manual",
       "localizations": {
@@ -1726,6 +2078,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saat menyalin"
+          }
+        }
+      }
+    },
+    "settingsFixedShortcuts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always Available"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selalu Tersedia"
+          }
+        }
+      }
+    },
+    "settingsGeneral": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umum"
+          }
+        }
+      }
+    },
+    "settingsGeneralSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where your history is kept, and starting Copaste."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempat riwayat disimpan, dan saat Copaste dimulai."
           }
         }
       }
@@ -1747,6 +2150,57 @@
         }
       }
     },
+    "settingsGroups": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groups"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grup"
+          }
+        }
+      }
+    },
+    "settingsGroupsFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put an entry in a group from its right-click menu or Actions (⌘K). Then pick the group in the clipboard window's group filter. Deleting a group keeps its entries."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masukkan entri ke grup lewat menu klik kanan atau Aksi (⌘K). Lalu pilih grupnya di filter grup jendela clipboard. Menghapus grup tidak menghapus entrinya."
+          }
+        }
+      }
+    },
+    "settingsGroupsSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collections of entries to filter the history by."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kumpulan entri untuk menyaring riwayat."
+          }
+        }
+      }
+    },
     "settingsHistory": {
       "extractionState": "manual",
       "localizations": {
@@ -1760,6 +2214,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Riwayat"
+          }
+        }
+      }
+    },
+    "settingsHistorySubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What Copaste keeps, and for how long."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apa yang disimpan Copaste, dan berapa lama."
           }
         }
       }
@@ -1855,13 +2326,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste into the app in front"
+            "value": "Paste after choosing an entry"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tempel langsung ke aplikasi yang aktif"
+            "value": "Langsung tempel setelah memilih entri"
+          }
+        }
+      }
+    },
+    "settingsPasteDirectlyFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On: ↩, double-click or ⌘1…9 pastes into the app you were in. Off: they only copy, and you press ⌘V yourself. ⌘↩ always only copies."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktif: ↩, klik dua kali atau ⌘1…9 menempel ke aplikasi yang tadi Anda pakai. Nonaktif: hanya menyalin, lalu Anda tekan ⌘V sendiri. ⌘↩ selalu hanya menyalin."
           }
         }
       }
@@ -1900,6 +2388,57 @@
         }
       }
     },
+    "settingsPastingSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How entries reach your apps, and the sounds."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cara entri sampai ke aplikasi Anda, dan suaranya."
+          }
+        }
+      }
+    },
+    "settingsPrivacy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privasi"
+          }
+        }
+      }
+    },
+    "settingsPrivacySubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps whose copies are never recorded."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikasi yang salinannya tidak pernah direkam."
+          }
+        }
+      }
+    },
     "settingsRecognitionMode": {
       "extractionState": "manual",
       "localizations": {
@@ -1934,6 +2473,57 @@
         }
       }
     },
+    "settingsShortcuts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcuts"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pintasan"
+          }
+        }
+      }
+    },
+    "settingsShortcutsFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click a shortcut, then press the new keys (esc cancels). Shortcuts other than the first work inside the clipboard window."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klik pintasan, lalu tekan tombol baru (esc membatalkan). Pintasan selain yang pertama berlaku di dalam jendela clipboard."
+          }
+        }
+      }
+    },
+    "settingsShortcutsSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keys that open and use the clipboard window."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tombol untuk membuka dan memakai jendela clipboard."
+          }
+        }
+      }
+    },
     "settingsShowToasts": {
       "extractionState": "manual",
       "localizations": {
@@ -1964,6 +2554,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Suara"
+          }
+        }
+      }
+    },
+    "settingsStartup": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startup"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saat Mulai"
           }
         }
       }
@@ -2019,6 +2626,23 @@
         }
       }
     },
+    "settingsTextSizeFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes the text in Copaste's windows. System uses the same sizes as other Mac apps and follows macOS's text size."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mengubah teks di jendela-jendela Copaste. Sistem memakai ukuran yang sama dengan aplikasi Mac lain dan mengikuti ukuran teks macOS."
+          }
+        }
+      }
+    },
     "settingsTitle": {
       "extractionState": "manual",
       "localizations": {
@@ -2070,6 +2694,40 @@
         }
       }
     },
+    "settingsUpdates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pembaruan"
+          }
+        }
+      }
+    },
+    "settingsUpdatesSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New versions, and what changed in each."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versi baru, dan apa yang berubah di tiap versi."
+          }
+        }
+      }
+    },
     "settingsVault": {
       "extractionState": "manual",
       "localizations": {
@@ -2104,6 +2762,91 @@
         }
       }
     },
+    "settingsWindowPosition": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard window position"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posisi jendela clipboard"
+          }
+        }
+      }
+    },
+    "settingsWindowPositionHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag the window by its top or bottom bar. Guides show the screen's center, and the window snaps to it."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seret jendela lewat bilah atas atau bawahnya. Garis bantu menunjukkan tengah layar, dan jendela menempel ke sana."
+          }
+        }
+      }
+    },
+    "shortcutClose": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear search or close"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hapus pencarian atau tutup"
+          }
+        }
+      }
+    },
+    "shortcutNavigate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move the selection"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindahkan pilihan"
+          }
+        }
+      }
+    },
+    "shortcutPin": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin or unpin"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sematkan atau lepas sematan"
+          }
+        }
+      }
+    },
     "shortcutPressKeys": {
       "extractionState": "manual",
       "localizations": {
@@ -2117,6 +2860,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tekan tombol…"
+          }
+        }
+      }
+    },
+    "shortcutQuickPaste": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste entry 1 to 9"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempel entri 1 sampai 9"
+          }
+        }
+      }
+    },
+    "shortcutSettings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buka Pengaturan"
           }
         }
       }
@@ -2229,13 +3006,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Default"
+            "value": "System"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bawaan"
+            "value": "Sistem"
           }
         }
       }
@@ -2325,6 +3102,23 @@
         }
       }
     },
+    "toastImageCopied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annotated image copied — ready to paste"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gambar beranotasi disalin — siap ditempel"
+          }
+        }
+      }
+    },
     "toastPasted": {
       "extractionState": "manual",
       "localizations": {
@@ -2410,6 +3204,23 @@
         }
       }
     },
+    "toolText": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teks"
+          }
+        }
+      }
+    },
     "universalClipboardSource": {
       "extractionState": "manual",
       "localizations": {
@@ -2423,6 +3234,142 @@
           "stringUnit": {
             "state": "translated",
             "value": "Universal Clipboard"
+          }
+        }
+      }
+    },
+    "updateAvailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copaste %@ is available"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copaste %@ tersedia"
+          }
+        }
+      }
+    },
+    "updateBrewHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed with Homebrew? Update with: brew upgrade --cask copaste"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dipasang lewat Homebrew? Perbarui dengan: brew upgrade --cask copaste"
+          }
+        }
+      }
+    },
+    "updateCheck": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Periksa Pembaruan"
+          }
+        }
+      }
+    },
+    "updateChecking": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking for updates…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memeriksa pembaruan…"
+          }
+        }
+      }
+    },
+    "updateCurrent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have version %@."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versi Anda %@."
+          }
+        }
+      }
+    },
+    "updateDownload": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unduh"
+          }
+        }
+      }
+    },
+    "updateFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't check for updates"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidak bisa memeriksa pembaruan"
+          }
+        }
+      }
+    },
+    "updateUpToDate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copaste is up to date"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copaste sudah versi terbaru"
           }
         }
       }
