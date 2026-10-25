@@ -41,6 +41,25 @@ nonisolated final class FileClipRepository: ClipRepository {
         try store.write(settings, to: VaultLayout.config)
     }
 
+    func size(of items: [ClipItem]) -> Int64 {
+        items.reduce(0) { total, item in
+            let paths = [path(of: item), item.blob, item.link?.favicon, item.link?.image].compactMap { $0 }
+            return total + paths.reduce(0) { $0 + Self.fileSize(store.root.appending(path: $1)) }
+        }
+    }
+
+    func totalSize() -> Int64 {
+        let folders = [VaultLayout.items, VaultLayout.blobs, VaultLayout.marker].map { store.root.appending(path: $0) }
+        return folders.reduce(0) { total, folder in
+            let files = FileManager.default.enumerator(at: folder, includingPropertiesForKeys: [.fileSizeKey])
+            return total + (files?.compactMap { $0 as? URL }.reduce(0) { $0 + Self.fileSize($1) } ?? 0)
+        }
+    }
+
+    private static func fileSize(_ url: URL) -> Int64 {
+        Int64((try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
+    }
+
     private func path(of item: ClipItem) -> String {
         "\(VaultLayout.items)/\(item.id.uuidString).json"
     }

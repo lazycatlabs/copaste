@@ -60,7 +60,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         let settings: [LocalizedStringResource] = switch self {
         case .general: [.settingsVault, .settingsVaultFolder, .vaultChange, .settingsLaunchAtLogin]
         case .history: [.settingsKeepHistory, .settingsLinkPreviews, .settingsUniversalClipboard, .settingsTextRecognition,
-                        .settingsRecognitionMode, .settingsClearHistory]
+                        .settingsRecognitionMode, .storageTitle, .storageUsed, .cleanupTitle, .cleanupPeriod]
         case .pasting: [.settingsPasteDirectly, .settingsSounds, .settingsCopySound, .settingsPasteSound]
         case .appearance: [.settingsTextSize, .settingsShowToasts, .settingsWindowPosition]
         case .shortcuts: [.settingsShortcut, .actionPaste, .actionCopy, .actionsTitle, .shortcutQuickPaste]
@@ -175,8 +175,6 @@ private struct GeneralPage: View {
 
 private struct HistoryPage: View {
     @Bindable var session: ClipboardSession
-    @State private var confirmsClear = false
-
     var body: some View {
         SettingsSection(L(.settingsHistory)) {
             SettingsRow(L(.settingsKeepHistory), symbol: "calendar.badge.clock") {
@@ -209,14 +207,8 @@ private struct HistoryPage: View {
             }
             .disabled(!session.settings.textRecognition)
         }
-        SettingsSection(L(.settingsCleanUp)) {
-            SettingsRow(L(.settingsClearHistory), symbol: "trash", subtitle: L(.settingsClearFooter)) {
-                Button(L(.settingsClearHistory), role: .destructive) { confirmsClear = true }
-                    .confirmationDialog(L(.settingsClearConfirm), isPresented: $confirmsClear) {
-                        Button(L(.settingsClearHistory), role: .destructive) { session.clearUnpinned() }
-                    }
-            }
-        }
+        StorageSection(session: session)
+        DeleteEntriesSection(session: session)
     }
 }
 
