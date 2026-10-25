@@ -11,12 +11,18 @@ enum MacWindows {
     private static var windows: [String: NSWindow] = [:]
     private static var closeObserver: Any?
 
-    static func show<Content: View>(id: String, title: String, size: CGSize, @ViewBuilder content: () -> Content) {
+    /// - Parameter fullSize: content under a transparent title bar, as a sidebar window (Settings) wants.
+    static func show<Content: View>(id: String, title: String, size: CGSize, fullSize: Bool = false,
+                                    @ViewBuilder content: () -> Content) {
         let window = windows[id] ?? {
-            let window = NSWindow(contentRect: NSRect(origin: .zero, size: size),
-                                  styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            var style: NSWindow.StyleMask = [.titled, .closable, .miniaturizable, .resizable]
+            if fullSize { style.insert(.fullSizeContentView) }
+            let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: style, backing: .buffered, defer: false)
+            window.titlebarAppearsTransparent = fullSize
+            window.titleVisibility = fullSize ? .hidden : .visible
             window.isReleasedWhenClosed = false
             window.collectionBehavior = [.moveToActiveSpace]
+            window.setAccessibilityIdentifier(id)
             windows[id] = window
             return window
         }()
@@ -25,7 +31,15 @@ enum MacWindows {
         if !window.isVisible { center(window) }
         observeClosing()
         NSApp.setActivationPolicy(.regular)
-        NSApp.activate()
+        focus(window)
+        // The switch to a regular app lands on a later turn of the run loop (and a menu bar menu is still closing),
+        // so an activation asked for now can be dropped and the window opens without the keyboard. Ask again then.
+        DispatchQueue.main.async { focus(window) }
+    }
+
+    private static func focus(_ window: NSWindow) {
+        // The plain `activate()` is only a request, which macOS turns down for a menu bar app the user isn't in.
+        NSApp.activate(ignoringOtherApps: true)
         window.orderFrontRegardless()
         window.makeKeyAndOrderFront(nil)
     }
