@@ -200,9 +200,21 @@ final class ClipboardSession {
         items.removeAll { $0.id == item.id }
     }
 
-    /// Deletes every entry that isn't pinned.
-    func clearUnpinned() {
-        for item in items where !item.pinned { delete(item) }
+    /// Deletes the entries the criteria pick (Settings › History › Delete Entries).
+    func delete(matching criteria: CleanupCriteria) {
+        for item in ClipUseCases.matching(items, criteria) { delete(item) }
+    }
+
+    /// Bytes on disk for these entries and their images, worked out off the main actor.
+    func storageSize(of items: [ClipItem]) async -> Int64 {
+        let repository = repository
+        return await Task.detached { repository.size(of: items) }.value
+    }
+
+    /// Bytes on disk for the whole history, worked out off the main actor.
+    func totalStorageSize() async -> Int64 {
+        let repository = repository
+        return await Task.detached { repository.totalSize() }.value
     }
 
     // MARK: Helpers
