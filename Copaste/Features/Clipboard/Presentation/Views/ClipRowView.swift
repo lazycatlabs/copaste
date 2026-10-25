@@ -38,15 +38,32 @@ struct ClipIconView: View {
 struct ClipRowView: View {
     let item: ClipItem
     var query = ""
+    /// Shown while ⌘ is held: the number ⌘1…⌘9 that pastes this entry.
+    var quickKey: Int?
+    @Environment(ClipboardSession.self) private var session
 
     var body: some View {
         HStack(spacing: Spacing.lg) {
             ClipIconView(item: item, size: Metrics.rowIcon * TextScale.shared.factor)
-            Text(highlighted).font(.scaled(.body)).lineLimit(1).truncationMode(.tail)
+            Text(highlighted).font(.scaled(.body)).foregroundStyle(.primary).lineLimit(1).truncationMode(.tail)
             Spacer(minLength: 0)
-            if item.pinned { Image(systemName: "pin.fill").font(.scaled(.caption)).foregroundStyle(.secondary) }
+            if let group = session.group(of: item) {
+                Text(group.name)
+                    .font(.scaled(.caption, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .padding(.horizontal, Spacing.sm)
+                    .padding(.vertical, Spacing.xxs)
+                    .background(Color.primary.opacity(Opacity.fill), in: .capsule)
+            }
+            if let quickKey {
+                KeyCaps(keys: ["⌘", "\(quickKey)"])
+            } else if item.pinned {
+                Image(systemName: "pin.fill").font(.scaled(.callout)).foregroundStyle(.orange).rotationEffect(.degrees(45))
+            }
         }
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(quickKey == nil ? "row" : "row.quickKey")
     }
 
     /// The title with the search term marked, as in Spotlight.

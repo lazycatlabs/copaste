@@ -36,19 +36,21 @@ final class TextScale {
     static let shared = TextScale()
 
     var size: TextSize {
-        didSet { UserDefaults.standard.set(size.rawValue, forKey: TextSize.storageKey) }
+        didSet { AppDefaults.store.set(size.rawValue, forKey: TextSize.storageKey) }
     }
 
     var factor: CGFloat { size.factor }
 
     private init() {
-        size = TextSize(rawValue: UserDefaults.standard.string(forKey: TextSize.storageKey) ?? "") ?? .standard
+        size = TextSize(rawValue: AppDefaults.store.string(forKey: TextSize.storageKey) ?? "") ?? .standard
     }
 }
 
 extension Font {
-    /// A text style at the size picked in Settings (`.caption`, `.title3`, …), in place of the fixed system style.
+    /// A text style at the size picked in Settings (`.caption`, `.title3`, …). "System" (the default) is the system's own
+    /// style, the size other Mac apps use, which follows macOS's text size setting.
     static func scaled(_ style: TextStyle, design: Design = .default, weight: Weight = .regular) -> Font {
+        if TextScale.shared.size == .standard { return .system(style, design: design, weight: weight) }
         let systemStyle = systemStyles[style] ?? .body
         let size = NSFont.preferredFont(forTextStyle: systemStyle).pointSize * TextScale.shared.factor
         return .system(size: size, weight: weight, design: design)

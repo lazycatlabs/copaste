@@ -31,6 +31,8 @@ enum Opacity {
     static let strong = 0.2
     static let border = 0.25
     static let muted = 0.6
+    /// The dark layer over the clipboard window's material in dark mode, so text stays readable on any wallpaper.
+    static let panelDim = 0.70
     /// Highlighter strokes in the annotation editor.
     static let highlighter = 0.35
 }
@@ -40,6 +42,7 @@ enum Metrics {
     static let rowIcon: CGFloat = 22
     static let appIcon: CGFloat = 16
     static let swatch: CGFloat = 14
+    static let keyCap: CGFloat = 20
 
     /// The floating clipboard window on macOS.
     enum Panel {
@@ -47,7 +50,6 @@ enum Metrics {
         static let cornerRadius: CGFloat = 26
         static let listWidth: CGFloat = 290
         static let rowHeight: CGFloat = 38
-        static let searchFont: CGFloat = 20
         static let colorPreview: CGFloat = 120
         static let actionsWidth: CGFloat = 260
         /// Pressing ⌘1…⌘9 pastes one of the first nine visible entries.
@@ -55,6 +57,9 @@ enum Metrics {
         static let toastDuration: TimeInterval = 1.8
         /// Longer entry titles are cut short in the toast.
         static let toastTitleLength = 40
+        /// Dragging the window's center within this of the screen's center line snaps it there.
+        static let snapDistance: CGFloat = 16
+        static let guideWidth: CGFloat = 1
     }
 
     /// The on-screen toast after copying or pasting.
@@ -66,12 +71,18 @@ enum Metrics {
     enum Detail {
         /// About half the clipboard window; the information below scrolls.
         static let previewHeight: CGFloat = Panel.size.height / 2
-        static let infoLabelWidth: CGFloat = 110
+        static let infoLabelWidth: CGFloat = 120
         static let colorFormatWidth: CGFloat = 46
     }
 
     enum Settings {
-        static let windowSize = CGSize(width: 520, height: 600)
+        static let windowSize = CGSize(width: 860, height: 640)
+        static let sidebarWidth: CGFloat = 210
+        static let pageMaxWidth: CGFloat = 760
+        static let rowIcon: CGFloat = 24
+        /// Where a row's text starts, so the lines between rows line up with it.
+        static let rowTextInset: CGFloat = Spacing.xxl + rowIcon + Spacing.xl
+        static let groupNameWidth: CGFloat = 200
         static let welcomeSize = CGSize(width: 460, height: 420)
         static let heroIcon: CGFloat = 72
         static let ignoredAppIcon: CGFloat = 20
@@ -85,6 +96,11 @@ enum Metrics {
         /// Stroke widths, as a share of the image's width, so a mark looks the same at any zoom.
         static let widths: [CGFloat] = [0.003, 0.006, 0.012]
         static let highlighterScale: CGFloat = 4
+        /// Text marks: font size as a multiple of the stroke width.
+        static let textScale: CGFloat = 4
+        static let textFieldMinWidth: CGFloat = 80
+        /// Wait after closing the editor before reopening the clipboard window (see `ClipboardPanelController.annotate`).
+        static let reopenDelay: TimeInterval = 0.3
         static let arrowHeadAngle = Double.pi / 7
         static let arrowHeadLength: CGFloat = 6
     }
@@ -92,8 +108,10 @@ enum Metrics {
     enum Clipboard {
         /// Seconds between checks of the system clipboard on macOS.
         static let pollInterval: TimeInterval = 0.5
-        /// How long to wait after hiding the window before sending ⌘V, so the previous app is in front again.
-        static let pasteDelay: TimeInterval = 0.12
+        /// Between checks that the previous app is in front again, and after it is, before sending ⌘V.
+        static let pasteDelay: TimeInterval = 0.05
+        /// Gives up waiting for the previous app after this many checks (one second) and sends ⌘V anyway.
+        static let pasteWaitAttempts = 20
         static let previewTextLimit = 4000
     }
 }
@@ -121,10 +139,22 @@ struct KeyCap: View {
 
     var body: some View {
         Text(text)
-            .font(.scaled(.caption, design: .monospaced))
+            .font(.scaled(.subheadline, weight: .medium))
+            .foregroundStyle(.secondary)
             .padding(.horizontal, Spacing.xs)
-            .padding(.vertical, Spacing.xxs)
+            .frame(minWidth: Metrics.keyCap * TextScale.shared.factor, minHeight: Metrics.keyCap * TextScale.shared.factor)
             .background(Color.primary.opacity(Opacity.fill), in: .rect(cornerRadius: Radius.xs))
+    }
+}
+
+/// A combination as one cap per key: ⌘ K.
+struct KeyCaps: View {
+    let keys: [String]
+
+    var body: some View {
+        HStack(spacing: Spacing.xxs) {
+            ForEach(Array(keys.enumerated()), id: \.offset) { KeyCap(text: $0.element) }
+        }
     }
 }
 
