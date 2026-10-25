@@ -260,6 +260,39 @@ final class CopasteE2ETests: XCTestCase {
         screenshot(settings, "23-settings-updates-changelog")
     }
 
+    func test14StorageAndDeletingEntriesByType() {
+        launch(open: "settings")
+        let settings = app.windows["settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: timeout))
+        openSettingsPage("history", in: settings)
+
+        let storage = element("settings.storageUsed")
+        reveal(storage, in: settings)
+        XCTAssertTrue(waitUntil { storage.value as? String != "Calculating…" && (storage.value as? String)?.contains("B") == true },
+                      "Shows the space the history takes")
+
+        // Only colours: the two sample colours match.
+        let type = settings.popUpButtons["settings.cleanupType"]
+        reveal(type, in: settings)
+        type.click()
+        app.menuItems["Color"].click()
+        let matches = element("settings.cleanupMatches")
+        reveal(matches, in: settings)
+        XCTAssertTrue(settings.staticTexts["2 entries match"].waitForExistence(timeout: timeout), "Two colours match")
+        screenshot(settings, "24-settings-storage-and-delete")
+
+        settings.buttons["settings.cleanupDelete"].click()
+        // The confirmation's button, in the Settings window (the Touch Bar has one with the same name).
+        let confirm = settings.buttons["Delete"].firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: timeout))
+        confirm.click()
+        XCTAssertTrue(settings.staticTexts["0 entries match"].waitForExistence(timeout: timeout), "The colours are gone")
+
+        send("panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        XCTAssertFalse(panel.staticTexts["#FF8C3C"].exists, "Deleted entries leave the history")
+    }
+
     // MARK: Helpers
 
     private func openSettingsPage(_ page: String, in settings: XCUIElement) {

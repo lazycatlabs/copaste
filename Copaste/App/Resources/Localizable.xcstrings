@@ -596,6 +596,370 @@
         }
       }
     },
+    "cleanupAnyTime": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Any time"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapan saja"
+          }
+        }
+      }
+    },
+    "cleanupConfirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Delete %lld entry?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Delete %lld entries?"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hapus %lld entri?"
+          }
+        }
+      }
+    },
+    "cleanupConfirmMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This can't be undone."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini tidak bisa dibatalkan."
+          }
+        }
+      }
+    },
+    "cleanupDelete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hapus…"
+          }
+        }
+      }
+    },
+    "cleanupDeleteNow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hapus"
+          }
+        }
+      }
+    },
+    "cleanupFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deletes the entries that match all of these, from the vault on every device that syncs it. Pinned entries are kept unless you include them. This can't be undone."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menghapus entri yang cocok dengan semua pilihan ini, dari vault di setiap perangkat yang menyinkronkannya. Entri yang disematkan tetap disimpan kecuali Anda ikutkan. Ini tidak bisa dibatalkan."
+          }
+        }
+      }
+    },
+    "cleanupGroup": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grup"
+          }
+        }
+      }
+    },
+    "cleanupIncludePinned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include pinned entries"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ikutkan entri yang disematkan"
+          }
+        }
+      }
+    },
+    "cleanupLastDay": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the last 24 hours"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dalam 24 jam terakhir"
+          }
+        }
+      }
+    },
+    "cleanupLastHour": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the last hour"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dalam satu jam terakhir"
+          }
+        }
+      }
+    },
+    "cleanupLastMonth": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the last month"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dalam sebulan terakhir"
+          }
+        }
+      }
+    },
+    "cleanupLastWeek": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the last 7 days"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dalam 7 hari terakhir"
+          }
+        }
+      }
+    },
+    "cleanupMatches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entry matches"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entries match"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld entri cocok"
+          }
+        }
+      }
+    },
+    "cleanupOlderThanMonth": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More than a month ago"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lebih dari sebulan lalu"
+          }
+        }
+      }
+    },
+    "cleanupOlderThanThreeMonths": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More than 3 months ago"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lebih dari 3 bulan lalu"
+          }
+        }
+      }
+    },
+    "cleanupOlderThanWeek": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More than 7 days ago"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lebih dari 7 hari lalu"
+          }
+        }
+      }
+    },
+    "cleanupOlderThanYear": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More than a year ago"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lebih dari setahun lalu"
+          }
+        }
+      }
+    },
+    "cleanupPeriod": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last copied"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terakhir disalin"
+          }
+        }
+      }
+    },
+    "cleanupTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Entries"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hapus Entri"
+          }
+        }
+      }
+    },
+    "cleanupType": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jenis"
+          }
+        }
+      }
+    },
     "dateFilterAnyTime": {
       "extractionState": "manual",
       "localizations": {
@@ -1980,74 +2344,6 @@
         }
       }
     },
-    "settingsCleanUp": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clean Up"
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bersihkan"
-          }
-        }
-      }
-    },
-    "settingsClearConfirm": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete every entry that isn't pinned?"
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hapus semua entri yang tidak disematkan?"
-          }
-        }
-      }
-    },
-    "settingsClearFooter": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pinned entries are kept."
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entri yang disematkan tetap disimpan."
-          }
-        }
-      }
-    },
-    "settingsClearHistory": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear History"
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hapus Riwayat"
-          }
-        }
-      }
-    },
     "settingsClipboardWindow": {
       "extractionState": "manual",
       "localizations": {
@@ -2928,6 +3224,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Perekaman dijeda"
+          }
+        }
+      }
+    },
+    "storageCalculating": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calculating…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menghitung…"
+          }
+        }
+      }
+    },
+    "storageEntries": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entry, including images and link previews"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entries, including images and link previews"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld entri, termasuk gambar dan pratinjau tautan"
+          }
+        }
+      }
+    },
+    "storageTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Penyimpanan"
+          }
+        }
+      }
+    },
+    "storageUsed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used by Copaste"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dipakai Copaste"
           }
         }
       }

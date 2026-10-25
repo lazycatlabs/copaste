@@ -11,4 +11,8 @@ nonisolated protocol ClipRepository: Sendable {
     func blobURL(_ path: String) -> URL
     func loadSettings() -> AppSettings
     func saveSettings(_ settings: AppSettings) throws
+    /// Bytes on disk for these entries and the images they reference.
+    func size(of items: [ClipItem]) -> Int64
+    /// Bytes on disk for the whole history: entries, images and settings.
+    func totalSize() -> Int64
 }
