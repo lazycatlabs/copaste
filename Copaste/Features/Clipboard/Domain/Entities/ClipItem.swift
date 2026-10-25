@@ -68,6 +68,8 @@ nonisolated struct ClipItem: Codable, Identifiable, Hashable, Sendable {
     var link: LinkMetadata?
     /// Text found in an image, so images can be searched.
     var recognizedText: String?
+    /// The group the user put the entry in (`AppSettings.groups`), if any.
+    var groupID: UUID?
 
     /// One line for the list.
     var title: String {

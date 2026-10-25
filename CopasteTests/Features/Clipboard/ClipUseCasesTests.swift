@@ -51,6 +51,15 @@ struct ClipUseCasesTests {
         #expect(ClipUseCases.filter([link, image], kind: nil, query: "invoice").first?.kind == .image)
     }
 
+    @Test func filtersByGroup() {
+        let work = UUID()
+        var inWork = ClipItem(kind: .text, text: "a", hash: "a", firstCopied: now, lastCopied: now)
+        inWork.groupID = work
+        let loose = ClipItem(kind: .text, text: "b", hash: "b", firstCopied: now, lastCopied: now)
+        #expect(ClipUseCases.filter([inWork, loose], kind: nil, query: "", group: work).map(\.text) == ["a"])
+        #expect(ClipUseCases.filter([inWork, loose], kind: nil, query: "", group: nil).count == 2)
+    }
+
     @Test func filtersByCreationDate() {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = .gmt
