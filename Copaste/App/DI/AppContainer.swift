@@ -11,17 +11,20 @@ final class AppContainer {
     var errorMessage: String?
     /// Where copy and paste toasts go; set by the app delegate.
     @ObservationIgnored var onToast: ((String) -> Void)?
+    /// The clipboard sessions watch; E2E runs use a private one.
+    @ObservationIgnored private let makePasteboard: () -> SystemPasteboard
 
-    init(vaults: VaultRepository = UserDefaultsVaultRepository()) {
+    init(vaults: VaultRepository = UserDefaultsVaultRepository(), pasteboard: @escaping () -> SystemPasteboard = { SystemPasteboard() }) {
         self.vaults = vaults
-        if let url = vaults.resolveVault() { session = ClipboardSession(root: url) }
+        makePasteboard = pasteboard
+        if let url = vaults.resolveVault() { session = ClipboardSession(root: url, pasteboard: pasteboard()) }
         session?.onToast = { [weak self] in self?.onToast?($0) }
     }
 
     func open(_ url: URL) {
         do {
             try vaults.prepare(url)
-            session = ClipboardSession(root: url)
+            session = ClipboardSession(root: url, pasteboard: makePasteboard())
         } catch {
             errorMessage = error.localizedDescription
         }
