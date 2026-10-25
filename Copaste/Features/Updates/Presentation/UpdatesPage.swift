@@ -113,7 +113,7 @@ private struct ReleaseNotesView: View {
             }
             if line.hasPrefix("- ") || line.hasPrefix("* ") {
                 return AnyView(HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
-                    Text("•").foregroundStyle(.secondary)
+                    Text(verbatim: "•").foregroundStyle(.secondary)
                     Text(Self.markdown(String(line.dropFirst(2)))).fixedSize(horizontal: false, vertical: true)
                 }
                 .font(.scaled(.body)))
