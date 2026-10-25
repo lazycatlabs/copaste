@@ -3,6 +3,19 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.1.1 — 2026-10-25
+
+### New
+
+- **Universal Clipboard**: items copied on your iPhone, iPad or another Mac are saved as soon as they arrive, marked
+  "Universal Clipboard". Large items such as photos download in the background. Turn it off in Settings › History ›
+  Save Universal Clipboard items immediately.
+
+### Fixed
+
+- Settings (and the annotation and welcome windows) sometimes opened behind other apps, on another Space or on
+  another screen. They now come to the front, in the middle of the screen you're on.
+
 ## 0.1.0 — 2026-10-25
 
 The first release: a clipboard history for macOS, in the menu bar.
