@@ -3,6 +3,39 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.2.0 — 2026-10-25
+
+### New
+
+- **Groups**: put entries in groups and filter the history by group. Create, rename and delete groups in Settings ›
+  Groups; add an entry to a group from its right-click menu or Actions (⌘K); pick a group with the folder filter at
+  the top of the clipboard window. Entries show their group as a tag. Deleting a group keeps its entries.
+- **Move the clipboard window**: drag it by its top or bottom bar. Guides show the centre of the screen and the window
+  snaps to it. Copaste remembers where you put it; Settings › Appearance › Center puts it back.
+- **⌘1…⌘9 hints**: hold ⌘ in the clipboard window to see which entry each number pastes.
+- **Change every shortcut**: Settings › Shortcuts lists all of them. Paste, copy, Actions, open, annotate, save, pin
+  and delete can be re-recorded and reset, as well as the shortcut that opens Copaste.
+- **Text in Annotate**: the new Text tool places a text box where you click. **Copy to Clipboard** (⌘C) puts the
+  edited image on the clipboard without saving it as a new entry.
+- **New Settings**: a sidebar with pages and a search field. Type a setting's name to jump to its page.
+- **Updates and changelog**: Settings › Updates shows whether a newer Copaste is out, with a Download button, and
+  what changed in each version.
+
+### Changed
+
+- New look for the clipboard window: clearer text colours, key caps for each key (⌘ K), a darker background in dark
+  mode, and "Search your clipboard" in the search field. The date filter now reads "Any Day".
+- Text uses the same sizes as other Mac apps by default and follows macOS's text size. Settings › Appearance ›
+  Text size still offers Small, Large and Extra Large.
+- "Paste into the app in front" is now "Paste after choosing an entry", with a note on what it does when on or off.
+
+### Fixed
+
+- After choosing an entry, the app you were in didn't always get the keyboard back, so pasting needed a click on its
+  window first. Copaste now hands the focus back and waits for that app before pasting.
+- Settings and the annotation editor sometimes opened without the keyboard. They now come to the front, ready to type.
+- After "Save as New Entry" in Annotate, the clipboard window now opens again with the new entry selected.
+
 ## 0.1.1 — 2026-10-25
 
 ### New
