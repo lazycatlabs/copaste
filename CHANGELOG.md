@@ -3,6 +3,20 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.3.0 — 2026-10-25
+
+### New
+
+- **Storage used**: Settings › History shows how much space Copaste's history takes on disk (entries, images and
+  link previews) and how many entries it holds, with Show in Finder.
+- **Delete Entries**: delete history in bulk by when entries were last copied (in the last hour, 24 hours, 7 days or
+  month, or more than 7 days, a month, 3 months or a year ago), by type and by group. Pinned entries are kept unless
+  you include them. Copaste shows how many entries match and how much space they take, and asks before deleting.
+
+### Changed
+
+- Delete Entries replaces Clear History. Its standard choices (any time, all types, pinned kept) do the same thing.
+
 ## 0.2.1 — 2026-10-25
 
 ### Fixed
