@@ -71,6 +71,22 @@ struct MultiSelectTests {
         #expect(model.selected(in: session)?.id == visible[0].id)
     }
 
+    @Test func copyingSeveralImagesPutsEveryOneOnTheClipboard() throws {
+        let (session, board, root) = makeSession()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let date = Date.now
+        let images = try ["a", "b"].map { name in
+            let item = ClipItem(kind: .image, blob: "\(name).png", hash: name, firstCopied: date, lastCopied: date)
+            let url = try #require(session.blobURL(item.blob))
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try Data([0]).write(to: url)
+            return item
+        }
+        session.copy(images)
+        let urls = board.readObjects(forClasses: [NSURL.self]) as? [URL]
+        #expect(urls == images.compactMap { session.blobURL($0.blob) })
+    }
+
     @Test func copyingSeveralSkipsImagesWhoseFileIsGone() throws {
         let (session, board, root) = makeSession()
         defer { try? FileManager.default.removeItem(at: root) }
