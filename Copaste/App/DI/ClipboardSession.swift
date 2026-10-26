@@ -144,7 +144,10 @@ final class ClipboardSession {
     }
 
     /// Several entries at once, as one text when they're all text; otherwise each one is its own clipboard item.
+    /// An image whose file is gone is left out, and not counted as copied.
     func copy(_ items: [ClipItem]) {
+        let items = items.filter { payload($0) != nil }
+        guard !items.isEmpty else { return }
         if let text = ClipUseCases.joinedText(items) {
             pasteboard.write(.text(text))
         } else {
@@ -179,7 +182,7 @@ final class ClipboardSession {
 
     private func payload(_ item: ClipItem, as text: String? = nil) -> PasteboardPayload? {
         switch item.kind {
-        case .image: blobURL(item.blob).map(PasteboardPayload.image)
+        case .image: blobURL(item.blob).flatMap { FileManager.default.fileExists(atPath: $0.path) ? .image($0) : nil }
         case .file: .files((item.files ?? []).map { URL(filePath: $0.path) })
         default: .text(text ?? item.text ?? "")
         }

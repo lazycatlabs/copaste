@@ -41,4 +41,47 @@ struct MultiSelectTests {
         model.click(visible[1].id, in: session)
         #expect(model.chosen(in: session).map(\.id) == [visible[1].id])
     }
+
+    @Test func shiftArrowRangeShrinksWhenReversed() {
+        let (session, _, root) = makeSession()
+        defer { try? FileManager.default.removeItem(at: root) }
+        for text in ["one", "two", "three"] { session.handle(Capture(content: .text(text))) }
+        let model = ClipboardViewModel()
+        let visible = model.visibleItems(of: session)
+        model.click(visible[0].id, in: session)
+        model.moveSelection(by: 1, extending: true, in: session)
+        model.moveSelection(by: 1, extending: true, in: session)
+        #expect(model.chosen(in: session).count == 3)
+        model.moveSelection(by: -1, extending: true, in: session)
+        #expect(model.chosen(in: session).map(\.id) == [visible[0].id, visible[1].id])
+        model.moveSelection(by: 1, extending: false, in: session)
+        #expect(model.markedIDs.isEmpty, "A plain arrow ends the range")
+    }
+
+    @Test func unpickingWithCommandKeepsSelectionOnAPickedEntry() {
+        let (session, _, root) = makeSession()
+        defer { try? FileManager.default.removeItem(at: root) }
+        for text in ["one", "two"] { session.handle(Capture(content: .text(text))) }
+        let model = ClipboardViewModel()
+        let visible = model.visibleItems(of: session)
+        model.click(visible[0].id, in: session)
+        model.click(visible[1].id, command: true, in: session)
+        model.click(visible[1].id, command: true, in: session)
+        #expect(model.chosen(in: session).map(\.id) == [visible[0].id])
+        #expect(model.selected(in: session)?.id == visible[0].id)
+    }
+
+    @Test func copyingSeveralSkipsImagesWhoseFileIsGone() throws {
+        let (session, board, root) = makeSession()
+        defer { try? FileManager.default.removeItem(at: root) }
+        var messages: [String] = []
+        session.onToast = { messages.append($0) }
+        session.handle(Capture(content: .text("kept")))
+        let text = try #require(session.items.first)
+        let date = Date.now
+        let missing = ClipItem(kind: .image, blob: "blobs/gone.png", hash: "gone", firstCopied: date, lastCopied: date)
+        session.copy([text, missing])
+        #expect(board.string(forType: .string) == "kept")
+        #expect(messages.last == L(.toastCopiedMany(1)))
+    }
 }

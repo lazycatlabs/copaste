@@ -14,6 +14,9 @@ final class ClipboardViewModel {
     var selectedID: UUID?
     /// Entries picked with ⌘-click, ⇧-click or ⇧↑↓, to paste together. Empty: only the selected entry.
     var markedIDs: Set<UUID> = []
+    /// Where a ⇧ range starts, and the entries the current ⇧ range marked.
+    @ObservationIgnored private var anchorID: UUID?
+    @ObservationIgnored private var rangeIDs: Set<UUID> = []
     var showsActions = false
     /// A short confirmation shown at the bottom of the window, e.g. after copying an entry.
     private(set) var toast: String?
@@ -48,28 +51,53 @@ final class ClipboardViewModel {
         return marked.isEmpty ? selected(in: session).map { [$0] } ?? [] : marked
     }
 
-    /// A click on a row: ⌘ adds or removes it, ⇧ marks everything from the selected entry to it, a plain click selects it alone.
+    /// A click on a row: ⌘ adds or removes it, ⇧ marks the range from where the last click was, a plain click
+    /// selects it alone.
     func click(_ id: UUID, command: Bool = false, shift: Bool = false, in session: ClipboardSession) {
         let current = selected(in: session)?.id
-        if command {
-            if markedIDs.isEmpty, let current { markedIDs.insert(current) }
-            if markedIDs.contains(id), markedIDs.count > 1 { markedIDs.remove(id) } else { markedIDs.insert(id) }
-        } else if shift, let current {
-            let ids = visibleItems(of: session).map(\.id)
-            if let from = ids.firstIndex(of: current), let to = ids.firstIndex(of: id) {
-                markedIDs.formUnion(ids[min(from, to)...max(from, to)])
-            }
-        } else {
+        if shift, let anchor = anchorID ?? current { return markRange(from: anchor, to: id, in: session) }
+        rangeIDs = []
+        anchorID = id
+        guard command else {
             markedIDs = []
+            selectedID = id
+            return
         }
-        selectedID = id
+        if markedIDs.isEmpty, let current { markedIDs.insert(current) }
+        guard markedIDs.contains(id) else {
+            markedIDs.insert(id)
+            selectedID = id
+            return
+        }
+        // Unpicking: the selection moves to an entry that's still picked; one left is a plain selection again.
+        markedIDs.remove(id)
+        selectedID = visibleItems(of: session).first { markedIDs.contains($0.id) }?.id
+        anchorID = selectedID
+        if markedIDs.count == 1 { markedIDs = [] }
     }
 
-    /// ⇧↑↓: moves the selection and marks the entries passed.
-    func extendSelection(by offset: Int, in session: ClipboardSession) {
-        if let current = selected(in: session)?.id { markedIDs.insert(current) }
+    /// ↑↓ moves the selection; with ⇧ it marks the range from where it started, shrinking when the direction reverses.
+    func moveSelection(by offset: Int, extending: Bool, in session: ClipboardSession) {
+        guard extending else {
+            markedIDs = []
+            rangeIDs = []
+            anchorID = nil
+            return moveSelection(by: offset, in: session)
+        }
+        let anchor = anchorID ?? selected(in: session)?.id
         moveSelection(by: offset, in: session)
-        if let selectedID { markedIDs.insert(selectedID) }
+        if let anchor, let selectedID { markRange(from: anchor, to: selectedID, in: session) }
+    }
+
+    /// Replaces the previous ⇧ range with the entries from `anchor` to `id`; entries picked with ⌘ stay picked.
+    private func markRange(from anchor: UUID, to id: UUID, in session: ClipboardSession) {
+        let ids = visibleItems(of: session).map(\.id)
+        guard let from = ids.firstIndex(of: anchor), let to = ids.firstIndex(of: id) else { return }
+        markedIDs.subtract(rangeIDs)
+        rangeIDs = Set(ids[min(from, to)...max(from, to)])
+        markedIDs.formUnion(rangeIDs)
+        anchorID = anchor
+        selectedID = id
     }
 
     func showToast(_ text: String) {
@@ -85,6 +113,8 @@ final class ClipboardViewModel {
         query = ""
         selectedID = nil
         markedIDs = []
+        rangeIDs = []
+        anchorID = nil
         showsActions = false
         showsQuickPasteKeys = false
         toast = nil

@@ -167,10 +167,10 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     /// (↩ paste, ⌘↩ copy, ⌘K actions, …). Returns whether the key was used.
     private func handle(_ event: NSEvent) -> Bool {
         guard let session else { return false }
-        let step = event.modifierFlags.contains(.shift) ? model.extendSelection : model.moveSelection
+        let shift = event.modifierFlags.contains(.shift)
         switch Int(event.keyCode) {
-        case kVK_DownArrow: step(1, session); return true
-        case kVK_UpArrow: step(-1, session); return true
+        case kVK_DownArrow: model.moveSelection(by: 1, extending: shift, in: session); return true
+        case kVK_UpArrow: model.moveSelection(by: -1, extending: shift, in: session); return true
         case kVK_Escape: escape(); return true
         default: break
         }
@@ -207,10 +207,12 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
 
     private func run(_ shortcut: Shortcut, on selected: ClipItem, session: ClipboardSession) {
         if shortcut == .actions { return model.showsActions.toggle() }
+        // ↩ and ⌘↩ use what the footer shows: the picked entries, or the selected one.
         let chosen = model.chosen(in: session)
         if chosen.count > 1, shortcut == .paste || shortcut == .copy {
             return shortcut == .paste ? paste(chosen) : copy(chosen)
         }
+        let selected = chosen.first ?? selected
         if shortcut == .paste { return perform(session.settings.pasteDirectly ? .paste : .copy, on: selected) }
         if let action = ClipAction.available(for: selected).first(where: { $0.shortcut == shortcut }) {
             perform(action, on: selected)
@@ -297,12 +299,15 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         pasteInTurn(items[...], session: session, target: target)
     }
 
-    private func pasteInTurn(_ items: ArraySlice<ClipItem>, session: ClipboardSession, target: NSRunningApplication?) {
+    private func pasteInTurn(_ items: ArraySlice<ClipItem>, session: ClipboardSession, target: NSRunningApplication?,
+                             isFirst: Bool = true) {
         guard let item = items.first else { return }
+        // The user switched to another app partway through: don't paste the rest there.
+        if !isFirst, let target, !target.isActive { return }
         session.preparePaste(item)
         pressCommandV(once: target) {
             DispatchQueue.main.asyncAfter(deadline: .now() + Metrics.Clipboard.multiPasteInterval) {
-                self.pasteInTurn(items.dropFirst(), session: session, target: target)
+                self.pasteInTurn(items.dropFirst(), session: session, target: target, isFirst: false)
             }
         }
     }
