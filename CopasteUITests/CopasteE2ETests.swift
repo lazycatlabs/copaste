@@ -331,6 +331,30 @@ final class CopasteE2ETests: XCTestCase {
                       "The row shows the matching note")
     }
 
+    // MARK: Welcome
+
+    func test17OnboardingShowsOnceBeforeVaultPicker() {
+        launch(open: "welcome")
+        let welcome = app.windows["welcome"]
+        XCTAssertTrue(welcome.waitForExistence(timeout: timeout))
+        XCTAssertTrue(element("onboarding.start").waitForExistence(timeout: timeout), "First launch shows the introduction")
+        XCTAssertTrue(welcome.staticTexts["Welcome to Copaste"].exists)
+        XCTAssertTrue(element("onboarding.credit").exists, "The introduction credits Lazycatlabs")
+        XCTAssertFalse(element("vault.choose").exists)
+        screenshot(welcome, "29-onboarding")
+
+        element("onboarding.start").click()
+        XCTAssertTrue(element("vault.choose").waitForExistence(timeout: timeout), "Get Started leads to the folder picker")
+        XCTAssertTrue(element("onboarding.credit").exists)
+        screenshot(welcome, "30-onboarding-vault-picker")
+
+        // Seen once: the next welcome window goes straight to the folder picker.
+        app.terminate()
+        launch(open: "welcome", keepDefaults: true)
+        XCTAssertTrue(element("vault.choose").waitForExistence(timeout: timeout))
+        XCTAssertFalse(element("onboarding.start").exists, "The introduction isn't shown again")
+    }
+
     // MARK: Helpers
 
     private func openSettingsPage(_ page: String, in settings: XCUIElement) {

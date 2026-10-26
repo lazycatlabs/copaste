@@ -5,7 +5,7 @@ import SwiftUI
 
 /// Sets Copaste up for the E2E tests (`-e2e`): a fresh vault in a temporary folder with sample entries, a private
 /// clipboard, no global shortcut, and commands the tests send as distributed notifications
-/// ("panel", "panel:image", "settings", "annotate", "hide").
+/// ("panel", "panel:image", "settings", "welcome", "annotate", "hide").
 enum E2EFixtures {
     private static var observer: Any?
 
@@ -36,6 +36,7 @@ enum E2EFixtures {
         case "panel": delegate.panel.show()
         case "panel:image": delegate.panel.show(selecting: image?.id)
         case "settings": delegate.showSettings()
+        case "welcome": delegate.showWelcome()
         case "annotate": if let image { delegate.panel.perform(.annotate, on: image) }
         case "hide": delegate.panel.hide()
         // ⌘ pressed or released, through the app's own event queue (the test runner can't press keys system-wide).
