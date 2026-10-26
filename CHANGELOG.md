@@ -3,6 +3,13 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.4.1 — 2026-10-26
+
+### Fixed
+
+- Copying several images at once and pasting with ⌘V now pastes all of them, not only the first. Each image goes on
+  the clipboard as its file, the same as several images copied in Finder.
+
 ## 0.4.0 — 2026-10-26
 
 ### New
