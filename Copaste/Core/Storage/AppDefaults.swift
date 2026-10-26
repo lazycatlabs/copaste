@@ -27,7 +27,7 @@ nonisolated enum E2EMode {
     static var startsFresh: Bool { !arguments.contains("-e2eKeepDefaults") }
     /// Leaves the centering guides on screen after a drag, so a screenshot can show them.
     static var keepsGuides: Bool { arguments.contains("-e2eGuides") }
-    /// What to open at launch: "panel", "panel:image", "settings" or "annotate".
+    /// What to open at launch: "panel", "panel:image", "settings", "welcome" or "annotate".
     static var openCommand: String? {
         arguments.firstIndex(of: "-e2eOpen").flatMap { arguments.indices.contains($0 + 1) ? arguments[$0 + 1] : nil }
     }

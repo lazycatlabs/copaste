@@ -85,10 +85,26 @@ enum Metrics {
         /// Where a row's text starts, so the lines between rows line up with it.
         static let rowTextInset: CGFloat = Spacing.xxl + rowIcon + Spacing.xl
         static let groupNameWidth: CGFloat = 200
-        static let welcomeSize = CGSize(width: 460, height: 420)
+        static let welcomeSize = CGSize(width: 480, height: 540)
         static let heroIcon: CGFloat = 72
         static let ignoredAppIcon: CGFloat = 20
         static let shortcutRecorderWidth: CGFloat = 80
+    }
+
+    /// The introduction in the welcome window.
+    enum Onboarding {
+        static let heroIcon: CGFloat = 96
+        /// The app icon floats up and down by this much on the first page.
+        static let floatOffset: CGFloat = 6
+        static let floatDuration: TimeInterval = 1.6
+        static let keyCap: CGFloat = 52
+        static let keyCapPressedScale: CGFloat = 0.92
+        static let hoverScale: CGFloat = 1.08
+        static let symbol: CGFloat = 36
+        static let featureTile = CGSize(width: 92, height: 76)
+        static let dot: CGFloat = 8
+        static let activeDotWidth: CGFloat = 22
+        static let pageAnimation: TimeInterval = 0.35
     }
 
     enum Annotate {

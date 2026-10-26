@@ -33,7 +33,15 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     private func registerHotKey() {
         hotKey?.unregister()
         let binding = HotKeyStore.shared.binding
-        hotKey = GlobalHotKey(keyCode: Int(binding.keyCode), modifiers: binding.carbonModifiers) { [weak self] in self?.panel.toggle() }
+        hotKey = GlobalHotKey(keyCode: Int(binding.keyCode), modifiers: binding.carbonModifiers) { [weak self] in
+            guard let self else { return }
+            // Before a vault is chosen, the introduction's "try the shortcut" page takes the press.
+            if container.session == nil, MacWindows.isVisible(id: "welcome") {
+                NotificationCenter.default.post(name: Onboarding.shortcutPressed, object: nil)
+            } else {
+                panel.toggle()
+            }
+        }
     }
 
     func showSettings() {

@@ -331,6 +331,45 @@ final class CopasteE2ETests: XCTestCase {
                       "The row shows the matching note")
     }
 
+    // MARK: Welcome
+
+    func test17OnboardingShowsOnceBeforeVaultPicker() {
+        launch(open: "welcome")
+        let welcome = app.windows["welcome"]
+        XCTAssertTrue(welcome.waitForExistence(timeout: timeout))
+        XCTAssertTrue(element("onboarding.page.welcome").waitForExistence(timeout: timeout), "First launch shows the introduction")
+        XCTAssertTrue(welcome.staticTexts["Welcome to Copaste"].exists)
+        XCTAssertTrue(element("onboarding.credit").exists, "The introduction credits Lazycatlabs")
+        XCTAssertFalse(element("vault.choose").exists)
+        screenshot(welcome, "29-onboarding-welcome")
+
+        // The shortcut page lights its key caps when the shortcut is pressed.
+        element("onboarding.next").click()
+        XCTAssertTrue(element("onboarding.page.shortcut").waitForExistence(timeout: timeout))
+        welcome.typeKey("v", modifierFlags: [.command, .shift])
+        XCTAssertTrue(element("onboarding.shortcutDone").waitForExistence(timeout: timeout), "Trying the shortcut is confirmed")
+        screenshot(welcome, "30-onboarding-shortcut-tried")
+
+        // → turns the page too.
+        welcome.typeKey(.rightArrow, modifierFlags: [])
+        XCTAssertTrue(element("onboarding.page.sync").waitForExistence(timeout: timeout), "→ goes to the next page")
+        screenshot(welcome, "31-onboarding-sync")
+        element("onboarding.next").click()
+        XCTAssertTrue(element("onboarding.page.organize").waitForExistence(timeout: timeout))
+        screenshot(welcome, "32-onboarding-organize")
+
+        element("onboarding.start").click()
+        XCTAssertTrue(element("vault.choose").waitForExistence(timeout: timeout), "Get Started leads to the folder picker")
+        XCTAssertTrue(element("onboarding.credit").exists)
+        screenshot(welcome, "33-onboarding-vault-picker")
+
+        // Seen once: the next welcome window goes straight to the folder picker.
+        app.terminate()
+        launch(open: "welcome", keepDefaults: true)
+        XCTAssertTrue(element("vault.choose").waitForExistence(timeout: timeout))
+        XCTAssertFalse(element("onboarding.page.welcome").exists, "The introduction isn't shown again")
+    }
+
     // MARK: Helpers
 
     private func openSettingsPage(_ page: String, in settings: XCUIElement) {
