@@ -3,6 +3,19 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.5.0 — 2026-10-26
+
+### New
+
+- **Welcome tour**: the first time you open Copaste, a short interactive introduction shows what it does before you
+  choose the folder for your history. Try the global shortcut and watch its keys light up, see how the folder syncs
+  between your Macs, and hover over Search, Pin, Groups, Annotate and Notes. Move with Back/Next, the page dots or
+  ← →, or skip straight to choosing the folder. It's shown once per Mac.
+
+### Fixed
+
+- Copaste builds with Xcode 26.6 again (Swift 6.3 rejected a name in the clipboard window's group filter).
+
 ## 0.4.1 — 2026-10-26
 
 ### Fixed
