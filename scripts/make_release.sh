@@ -4,6 +4,7 @@
 #   build/Copaste-<version>.zip   the same app, for `brew install --cask`
 #
 #   scripts/make_release.sh
+#   ADHOC_SIGN=1 scripts/make_release.sh   (CI: no certificate, signed ad hoc)
 #
 # The app is signed with the first "Apple Development" identity (set SIGN_IDENTITY to use another), so macOS keeps
 # the Accessibility permission across updates. Without an identity it falls back to ad-hoc signing.
@@ -15,12 +16,19 @@ BUILD="$ROOT/build"
 DERIVED="$BUILD/DerivedData"
 APP="$DERIVED/Build/Products/Release/Copaste.app"
 
+# ADHOC_SIGN=1 builds and signs ad hoc, without the project's team, e.g. on CI without a certificate.
+SIGNING=()
+[[ "${ADHOC_SIGN:-}" == 1 ]] && SIGNING=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=)
+
 echo "→ Building Copaste (Release)…"
 xcodebuild -project Copaste.xcodeproj -scheme Copaste -configuration Release \
-  -destination 'generic/platform=macOS' -derivedDataPath "$DERIVED" -quiet build
+  -destination 'generic/platform=macOS' -derivedDataPath "$DERIVED" "${SIGNING[@]}" -quiet build
 [[ -d "$APP" ]] || { echo "✗ Build finished but $APP is missing" >&2; exit 1; }
 
-IDENTITY=${SIGN_IDENTITY:-$(security find-identity -v -p codesigning | grep -m1 "Apple Development" | awk '{print $2}')}
+IDENTITY=""
+if [[ "${ADHOC_SIGN:-}" != 1 ]]; then
+  IDENTITY=${SIGN_IDENTITY:-$(security find-identity -v -p codesigning | grep -m1 "Apple Development" | awk '{print $2}')}
+fi
 echo "→ Signing with ${IDENTITY:-ad hoc}…"
 codesign --force --deep --options runtime --timestamp=none --sign "${IDENTITY:--}" "$APP"
 codesign --verify --deep --strict "$APP"

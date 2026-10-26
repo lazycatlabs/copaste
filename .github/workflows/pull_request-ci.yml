@@ -1,0 +1,106 @@
+name: Pull Request Checker
+
+# Runs on every pull request: lint, check the generated strings, then build and run the unit tests.
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      ui_tests:
+        description: Also run the end-to-end UI tests
+        type: boolean
+        default: false
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The project needs the macOS 26 SDK and Swift 6; "latest" includes betas on the runner.
+  XCODE_VERSION: latest
+  # The runner has no signing certificate, so everything is signed ad hoc (the same identity for app and tests).
+  SIGNING: CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=
+
+jobs:
+  lint:
+    name: Lint & strings
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      # SwiftLint fails the job on errors only; warnings show up as annotations on the PR.
+      - name: Install SwiftLint
+        run: command -v swiftlint || brew install swiftlint
+
+      - name: Run SwiftLint
+        run: swiftlint lint --reporter github-actions-logging
+
+      # Localizable.xcstrings is generated from scripts/strings.py and must match it.
+      - name: Check generated strings
+        run: |
+          python3 scripts/strings.py
+          git diff --exit-code -- Copaste/App/Resources/Localizable.xcstrings \
+            || { echo "::error::Localizable.xcstrings is out of date. Run python3 scripts/strings.py and commit it."; exit 1; }
+
+  test:
+    name: Build & unit tests
+    runs-on: macos-26
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version && swift --version
+          command -v xcbeautify || brew install xcbeautify
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Copaste.xcodeproj -scheme Copaste -destination 'platform=macOS' \
+            -only-testing:CopasteTests -resultBundlePath build/UnitTests.xcresult \
+            $SIGNING | xcbeautify --renderer github-actions
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: build/UnitTests.xcresult
+
+  ui-tests:
+    name: End-to-end UI tests
+    # They drive the real app on a desktop session, which is slow and can be flaky on hosted runners,
+    # so they run only when started by hand (Actions › Pull Request Checker › Run workflow › UI tests).
+    if: github.event_name == 'workflow_dispatch' && inputs.ui_tests
+    runs-on: macos-26
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Install xcbeautify
+        run: command -v xcbeautify || brew install xcbeautify
+
+      - name: Run UI tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Copaste.xcodeproj -scheme CopasteE2E -destination 'platform=macOS' \
+            -only-testing:CopasteUITests -resultBundlePath build/UITests.xcresult \
+            $SIGNING | xcbeautify --renderer github-actions
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-results
+          path: build/UITests.xcresult

@@ -25,7 +25,7 @@ final class ClipboardViewModel {
     @ObservationIgnored private var toastTask: Task<Void, Never>?
 
     func sections(of session: ClipboardSession, now: Date = .now) -> [(TimeSection, [ClipItem])] {
-        let group = session.settings.groups.contains { $0.id == group } ? group : nil
+        let group = session.settings.groups.contains { $0.id == self.group } ? self.group : nil
         let items = ClipUseCases.filter(session.items, kind: kind, query: query, created: dateFilter, group: group, now: now)
         return ClipUseCases.sections(items, now: now)
     }

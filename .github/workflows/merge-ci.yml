@@ -1,0 +1,50 @@
+name: Merge CI
+
+# Runs when a pull request is closed. If it was merged: package a DMG and zip of the merged code and delete the branch.
+
+on:
+  pull_request:
+    types: [ closed ]
+
+env:
+  XCODE_VERSION: latest
+
+jobs:
+  build:
+    if: github.event.pull_request.merged == true
+    runs-on: macos-26
+    permissions:
+      contents: write   # to delete the merged branch
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      # Signed ad hoc (no certificate on the runner): fine for testing, but macOS asks to "Open Anyway" on first launch.
+      # Releases are still built locally with scripts/make_release.sh and published by hand (see AGENTS.md).
+      - name: Build DMG and zip
+        run: ADHOC_SIGN=1 scripts/make_release.sh
+
+      - name: Upload DMG and zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: Copaste-${{ github.event.pull_request.number }}
+          path: |
+            build/Copaste-*.dmg
+            build/Copaste-*.zip
+          retention-days: 30
+
+      - name: Delete branch if merged
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref != 'main'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.git.deleteRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${context.payload.pull_request.head.ref}`,
+            })

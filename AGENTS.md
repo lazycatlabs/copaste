@@ -21,6 +21,7 @@ protocol-driven repositories, async/await, Swift Testing.
 | Network | LinkPresentation, to fetch a copied link's title, favicon and preview image; and GitHub's releases API when Settings › Updates is opened (`GitHubReleasesDataSource`). |
 | Support | Feedback and bug reports go to `admin@lazycatlabs.com` (`SupportLinks`); website `https://copaste.lazycatlabs.com`. |
 | Commits | Conventional Commits, one commit per change. No AI co-author lines. |
+| CI | GitHub Actions: `pull_request-ci.yml` (SwiftLint, generated strings, unit tests; E2E by hand via Run workflow) and `merge-ci.yml` (ad-hoc DMG + zip artifact, deletes the merged branch). |
 
 ## 2. Commands
 
