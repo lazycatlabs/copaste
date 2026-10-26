@@ -3,6 +3,17 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.4.0 — 2026-10-26
+
+### New
+
+- **Paste several entries at once**: in the clipboard window, ⌘-click to pick entries, ⇧-click or ⇧↑↓ to pick a
+  range. ↩ pastes them all in list order; ⌘↩ copies them. Text entries are joined one per line into a single paste;
+  with images or files among them, each entry is pasted in turn. esc clears the selection.
+- **Notes**: add your own note to any entry with the “Add a note…” field above its preview. Notes are saved as you
+  type and included in search; when a search matches a note, the entry shows it under its title with the match
+  highlighted. Entries with a note show a note icon.
+
 ## 0.3.0 — 2026-10-25
 
 ### New
