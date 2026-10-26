@@ -9,6 +9,8 @@ nonisolated enum PasteboardPayload: Sendable {
     /// An image made in Copaste that isn't saved anywhere.
     case png(Data)
     case files([URL])
+    /// Several entries, each its own clipboard item.
+    indirect case many([PasteboardPayload])
 }
 
 /// The system clipboard, watched for changes.
@@ -94,14 +96,19 @@ final class SystemPasteboard {
 
     func write(_ payload: PasteboardPayload) {
         pasteboard.clearContents()
-        switch payload {
-        case let .text(text): pasteboard.setString(text, forType: .string)
-        case let .image(url): if let image = NSImage(contentsOf: url) { pasteboard.writeObjects([image]) }
-        case let .png(data): if let image = NSImage(data: data) { pasteboard.writeObjects([image]) }
-        case let .files(urls): pasteboard.writeObjects(urls.map { $0 as NSURL })
-        }
+        pasteboard.writeObjects(Self.objects(payload))
         // Our own write isn't a new copy.
         changeCount = pasteboard.changeCount
+    }
+
+    private static func objects(_ payload: PasteboardPayload) -> [any NSPasteboardWriting] {
+        switch payload {
+        case let .text(text): [text as NSString]
+        case let .image(url): NSImage(contentsOf: url).map { [$0] } ?? []
+        case let .png(data): NSImage(data: data).map { [$0] } ?? []
+        case let .files(urls): urls.map { $0 as NSURL }
+        case let .many(payloads): payloads.flatMap(objects)
+        }
     }
 
     nonisolated private static func clipFile(_ url: URL) -> ClipFile {

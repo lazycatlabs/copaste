@@ -50,6 +50,8 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         self.panel = panel
         let view = ClipboardPanelView(model: model) { [weak self] action, item in
             self?.perform(action, on: item)
+        } performMany: { [weak self] items in
+            if session.settings.pasteDirectly { self?.paste(items) } else { self?.copy(items) }
         } onDrag: { [weak self] ended in
             self?.drag(ended: ended)
         } manageGroups: { [weak self] in
@@ -165,12 +167,11 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     /// (↩ paste, ⌘↩ copy, ⌘K actions, …). Returns whether the key was used.
     private func handle(_ event: NSEvent) -> Bool {
         guard let session else { return false }
+        let shift = event.modifierFlags.contains(.shift)
         switch Int(event.keyCode) {
-        case kVK_DownArrow: model.moveSelection(by: 1, in: session); return true
-        case kVK_UpArrow: model.moveSelection(by: -1, in: session); return true
-        case kVK_Escape:
-            if model.showsActions { model.showsActions = false } else if !model.query.isEmpty { model.query = "" } else { hide() }
-            return true
+        case kVK_DownArrow: model.moveSelection(by: 1, extending: shift, in: session); return true
+        case kVK_UpArrow: model.moveSelection(by: -1, extending: shift, in: session); return true
+        case kVK_Escape: escape(); return true
         default: break
         }
         if event.modifierFlags.intersection([.command, .option, .control, .shift]) == .command,
@@ -191,8 +192,27 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         return true
     }
 
+    /// esc closes the actions, then clears the marked entries, then the search, then the window.
+    private func escape() {
+        if model.showsActions {
+            model.showsActions = false
+        } else if !model.markedIDs.isEmpty {
+            model.markedIDs = []
+        } else if !model.query.isEmpty {
+            model.query = ""
+        } else {
+            hide()
+        }
+    }
+
     private func run(_ shortcut: Shortcut, on selected: ClipItem, session: ClipboardSession) {
         if shortcut == .actions { return model.showsActions.toggle() }
+        // ↩ and ⌘↩ use what the footer shows: the picked entries, or the selected one.
+        let chosen = model.chosen(in: session)
+        if chosen.count > 1, shortcut == .paste || shortcut == .copy {
+            return shortcut == .paste ? paste(chosen) : copy(chosen)
+        }
+        let selected = chosen.first ?? selected
         if shortcut == .paste { return perform(session.settings.pasteDirectly ? .paste : .copy, on: selected) }
         if let action = ClipAction.available(for: selected).first(where: { $0.shortcut == shortcut }) {
             perform(action, on: selected)
@@ -255,18 +275,58 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         pressCommandV(once: target)
     }
 
+    func copy(_ items: [ClipItem]) {
+        session?.copy(items)
+        hide()
+    }
+
+    /// Pastes several entries in list order: text entries as one text, one per line; with images or files among
+    /// them, each entry gets its own ⌘V. Without paste access they're copied instead.
+    func paste(_ items: [ClipItem]) {
+        guard let session else { return }
+        guard session.settings.pasteDirectly, PasteSimulator.isTrusted else {
+            copy(items)
+            if session.settings.pasteDirectly { PasteSimulator.requestAccess() }
+            return
+        }
+        let target = previousApp
+        if let text = ClipUseCases.joinedText(items) {
+            session.preparePaste(items, text: text)
+            hide()
+            return pressCommandV(once: target)
+        }
+        hide()
+        pasteInTurn(items[...], session: session, target: target)
+    }
+
+    private func pasteInTurn(_ items: ArraySlice<ClipItem>, session: ClipboardSession, target: NSRunningApplication?,
+                             isFirst: Bool = true) {
+        guard let item = items.first else { return }
+        // The user switched to another app partway through: don't paste the rest there.
+        if !isFirst, let target, !target.isActive { return }
+        session.preparePaste(item)
+        pressCommandV(once: target) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Metrics.Clipboard.multiPasteInterval) {
+                self.pasteInTurn(items.dropFirst(), session: session, target: target, isFirst: false)
+            }
+        }
+    }
+
     /// Sends ⌘V once `app` is in front again (checking every few milliseconds, for at most a second), so the
     /// keystroke doesn't reach Copaste or nowhere while the switch is still under way.
-    private func pressCommandV(once app: NSRunningApplication?, attempt: Int = 0) {
+    private func pressCommandV(once app: NSRunningApplication?, attempt: Int = 0, then done: @escaping () -> Void = {}) {
         let isFront = app.map { $0.isActive || $0.isTerminated } ?? true
         guard isFront || attempt >= Metrics.Clipboard.pasteWaitAttempts else {
             DispatchQueue.main.asyncAfter(deadline: .now() + Metrics.Clipboard.pasteDelay) {
-                self.pressCommandV(once: app, attempt: attempt + 1)
+                self.pressCommandV(once: app, attempt: attempt + 1, then: done)
             }
             return
         }
         // A beat more after the switch, for the app's window to become key.
-        DispatchQueue.main.asyncAfter(deadline: .now() + Metrics.Clipboard.pasteDelay) { PasteSimulator.pressCommandV() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + Metrics.Clipboard.pasteDelay) {
+            PasteSimulator.pressCommandV()
+            done()
+        }
     }
 
     private func annotate(_ item: ClipItem, session: ClipboardSession) {

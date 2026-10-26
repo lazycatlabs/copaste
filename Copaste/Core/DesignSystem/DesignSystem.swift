@@ -112,6 +112,8 @@ enum Metrics {
         static let pasteDelay: TimeInterval = 0.05
         /// Gives up waiting for the previous app after this many checks (one second) and sends ⌘V anyway.
         static let pasteWaitAttempts = 20
+        /// Between the ⌘V of entries pasted one after another, so the app reads each before the next replaces it.
+        static let multiPasteInterval: TimeInterval = 0.2
         static let previewTextLimit = 4000
     }
 }
