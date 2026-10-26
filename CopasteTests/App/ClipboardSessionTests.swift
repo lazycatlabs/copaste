@@ -57,7 +57,10 @@ struct UniversalClipboardTests {
         }
 
         copyFromPhone("from iPhone")
-        try await Task.sleep(for: .seconds(1.5))
+        // The clipboard is polled; a busy CI machine can take a few polls to record it.
+        for _ in 0..<50 where session.items.first?.text != "from iPhone" {
+            try await Task.sleep(for: .seconds(0.2))
+        }
         #expect(session.items.first?.text == "from iPhone")
         #expect(session.items.first?.sourceName == L(.universalClipboardSource))
 
