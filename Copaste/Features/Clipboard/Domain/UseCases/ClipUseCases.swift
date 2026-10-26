@@ -63,6 +63,11 @@ nonisolated enum ClipUseCases {
         return texts.count == items.count ? texts.joined(separator: "\n") : nil
     }
 
+    /// An empty note is no note.
+    static func cleanNote(_ note: String) -> String? {
+        note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : note
+    }
+
     /// Entries older than the retention period. Pinned entries are kept forever.
     static func expired(_ items: [ClipItem], retention: Retention, now: Date = .now) -> [ClipItem] {
         guard let limit = retention.cutoff(from: now) else { return [] }

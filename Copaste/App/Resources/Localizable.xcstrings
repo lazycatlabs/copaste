@@ -1722,6 +1722,23 @@
         }
       }
     },
+    "infoNote": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catatan"
+          }
+        }
+      }
+    },
     "infoRecognizedText": {
       "extractionState": "manual",
       "localizations": {
@@ -2058,6 +2075,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pengaturan…"
+          }
+        }
+      }
+    },
+    "notePlaceholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a note…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tambahkan catatan…"
           }
         }
       }

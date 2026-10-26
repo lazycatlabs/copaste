@@ -167,6 +167,11 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     /// (↩ paste, ⌘↩ copy, ⌘K actions, …). Returns whether the key was used.
     private func handle(_ event: NSEvent) -> Bool {
         guard let session else { return false }
+        // Typing a note: every key but esc (which leaves the field) goes to it.
+        if model.editsNote {
+            if Int(event.keyCode) == kVK_Escape { model.editsNote = false; return true }
+            return false
+        }
         let shift = event.modifierFlags.contains(.shift)
         switch Int(event.keyCode) {
         case kVK_DownArrow: model.moveSelection(by: 1, extending: shift, in: session); return true

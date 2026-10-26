@@ -12,6 +12,7 @@ struct ClipboardPanelView: View {
     /// Opens Settings › Groups.
     let manageGroups: () -> Void
     @FocusState private var searchFocused: Bool
+    @FocusState private var noteFocused: Bool
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -41,6 +42,8 @@ struct ClipboardPanelView: View {
         .ignoresSafeArea()
         .animation(.snappy, value: model.toast)
         .onAppear { searchFocused = true }
+        .onChange(of: noteFocused) { model.editsNote = noteFocused }
+        .onChange(of: model.editsNote) { if !model.editsNote { searchFocused = true } }
     }
 
     // MARK: Header
@@ -156,6 +159,8 @@ struct ClipboardPanelView: View {
             }
             .onChange(of: model.selectedID) { _, id in
                 if let id { proxy.scrollTo(id) }
+                // Picking another entry ends editing the note, so ↩ pastes again.
+                if noteFocused { searchFocused = true }
             }
         }
     }
@@ -163,7 +168,7 @@ struct ClipboardPanelView: View {
     private func row(_ item: ClipItem, isSelected: Bool, quickKey: Int?) -> some View {
         ClipRowView(item: item, query: model.query, quickKey: quickKey)
             .padding(.horizontal, Spacing.md)
-            .frame(height: Metrics.Panel.rowHeight * TextScale.shared.factor)
+            .frame(minHeight: Metrics.Panel.rowHeight * TextScale.shared.factor)
             .background(isSelected ? Color.primary.opacity(Opacity.fill) : .clear, in: .rect(cornerRadius: Radius.md))
             .contentShape(.rect)
             // Double-click copies and closes the window; a single click only selects.
@@ -189,6 +194,10 @@ struct ClipboardPanelView: View {
             }
     }
 
+    private func noteBinding(for item: ClipItem) -> Binding<String> {
+        Binding { item.note ?? "" } set: { session.setNote($0, for: item) }
+    }
+
     private func groupBinding(for item: ClipItem) -> Binding<UUID?> {
         Binding { item.groupID } set: { session.setGroup($0, for: item) }
     }
@@ -198,7 +207,17 @@ struct ClipboardPanelView: View {
     @ViewBuilder
     private var detail: some View {
         if let item = model.selected(in: session) {
-            ClipDetailView(item: item)
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                TextField(L(.notePlaceholder), text: noteBinding(for: item), axis: .vertical)
+                    .textFieldStyle(.plain)
+                    .font(.scaled(.body))
+                    .lineLimit(1...Metrics.Detail.noteLines)
+                    .focused($noteFocused)
+                    .onSubmit { searchFocused = true }
+                    .accessibilityLabel(L(.infoNote))
+                    .accessibilityIdentifier("panel.note")
+                ClipDetailView(item: item)
+            }
             .padding(Spacing.xxl)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {

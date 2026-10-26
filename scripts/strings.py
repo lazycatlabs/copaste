@@ -71,6 +71,8 @@ S = {
     "toastPastedMany": ({"one": "%lld entry pasted", "other": "%lld entries pasted"}, "%lld entri ditempel"),
     "actionPasteMany": ({"one": "Paste %lld Entry", "other": "Paste %lld Entries"}, "Tempel %lld Entri"),
     "actionCopyMany": ({"one": "Copy %lld Entry", "other": "Copy %lld Entries"}, "Salin %lld Entri"),
+    "notePlaceholder": ("Add a note…", "Tambahkan catatan…"),
+    "infoNote": ("Note", "Catatan"),
     "toastAnnotated": ("Annotated image saved and copied", "Gambar beranotasi disimpan dan disalin"),
     "groupNewName": ("New Group", "Grup Baru"),
     "groupAll": ("All Groups", "Semua Grup"),

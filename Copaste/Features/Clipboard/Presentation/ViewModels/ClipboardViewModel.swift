@@ -14,6 +14,8 @@ final class ClipboardViewModel {
     var selectedID: UUID?
     /// Entries picked with ⌘-click, ⇧-click or ⇧↑↓, to paste together. Empty: only the selected entry.
     var markedIDs: Set<UUID> = []
+    /// The note field has the keyboard, so the window's shortcuts leave keys to it.
+    var editsNote = false
     /// Where a ⇧ range starts, and the entries the current ⇧ range marked.
     @ObservationIgnored private var anchorID: UUID?
     @ObservationIgnored private var rangeIDs: Set<UUID> = []
@@ -113,6 +115,7 @@ final class ClipboardViewModel {
         query = ""
         selectedID = nil
         markedIDs = []
+        editsNote = false
         rangeIDs = []
         anchorID = nil
         showsActions = false
