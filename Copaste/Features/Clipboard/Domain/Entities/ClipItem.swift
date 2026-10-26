@@ -70,6 +70,8 @@ nonisolated struct ClipItem: Codable, Identifiable, Hashable, Sendable {
     var recognizedText: String?
     /// The group the user put the entry in (`AppSettings.groups`), if any.
     var groupID: UUID?
+    /// The user's own note about the entry.
+    var note: String?
 
     /// One line for the list.
     var title: String {
@@ -100,7 +102,7 @@ nonisolated struct ClipItem: Codable, Identifiable, Hashable, Sendable {
 
     /// Everything a search should look at.
     var searchableText: String {
-        [text, link?.title, recognizedText, sourceName, files?.map(\.name).joined(separator: " ")]
+        [text, note, link?.title, recognizedText, sourceName, files?.map(\.name).joined(separator: " ")]
             .compactMap { $0 }.joined(separator: " ")
     }
 }

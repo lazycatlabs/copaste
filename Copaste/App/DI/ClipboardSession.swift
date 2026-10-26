@@ -188,6 +188,11 @@ final class ClipboardSession {
         }
     }
 
+    /// Sets or, with an empty text, removes the entry's note.
+    func setNote(_ note: String, for item: ClipItem) {
+        update(item.id) { $0.note = ClipUseCases.cleanNote(note) }
+    }
+
     /// Puts the entry in a group, or takes it out with nil.
     func setGroup(_ group: UUID?, for item: ClipItem) {
         update(item.id) { $0.groupID = group }

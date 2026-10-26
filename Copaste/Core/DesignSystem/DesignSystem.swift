@@ -71,6 +71,8 @@ enum Metrics {
     enum Detail {
         /// About half the clipboard window; the information below scrolls.
         static let previewHeight: CGFloat = Panel.size.height / 2
+        /// The note field grows to this many lines, then scrolls.
+        static let noteLines = 3
         static let infoLabelWidth: CGFloat = 120
         static let colorFormatWidth: CGFloat = 46
     }

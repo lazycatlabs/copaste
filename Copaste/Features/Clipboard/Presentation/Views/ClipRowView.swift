@@ -45,8 +45,19 @@ struct ClipRowView: View {
     var body: some View {
         HStack(spacing: Spacing.lg) {
             ClipIconView(item: item, size: Metrics.rowIcon * TextScale.shared.factor)
-            Text(highlighted).font(.scaled(.body)).foregroundStyle(.primary).lineLimit(1).truncationMode(.tail)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(highlighted(item.title.isEmpty ? item.kind.title : item.title))
+                    .font(.scaled(.body)).foregroundStyle(.primary).lineLimit(1).truncationMode(.tail)
+                // The search found the entry by its note: show why.
+                if let note = matchingNote {
+                    Text(highlighted(note)).font(.scaled(.caption)).foregroundStyle(.secondary).lineLimit(1).truncationMode(.tail)
+                }
+            }
             Spacer(minLength: 0)
+            if item.note != nil {
+                Image(systemName: "note.text").font(.scaled(.callout)).foregroundStyle(.secondary)
+                    .help(item.note ?? "")
+            }
             if let group = session.group(of: item) {
                 Text(group.name)
                     .font(.scaled(.caption, weight: .medium))
@@ -66,10 +77,18 @@ struct ClipRowView: View {
         .accessibilityIdentifier(quickKey == nil ? "row" : "row.quickKey")
     }
 
-    /// The title with the search term marked, as in Spotlight.
-    private var highlighted: AttributedString {
-        var text = AttributedString(item.title.isEmpty ? item.kind.title : item.title)
-        let query = query.trimmingCharacters(in: .whitespaces)
+    private var trimmedQuery: String { query.trimmingCharacters(in: .whitespaces) }
+
+    /// The note on one line, while the search term is in it.
+    private var matchingNote: String? {
+        guard let note = item.note, !trimmedQuery.isEmpty, note.localizedStandardContains(trimmedQuery) else { return nil }
+        return note.components(separatedBy: .newlines).joined(separator: " ")
+    }
+
+    /// The text with the search term marked, as in Spotlight.
+    private func highlighted(_ string: String) -> AttributedString {
+        var text = AttributedString(string)
+        let query = trimmedQuery
         if !query.isEmpty, let range = text.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) {
             text[range].backgroundColor = .accentColor.opacity(Opacity.border)
         }

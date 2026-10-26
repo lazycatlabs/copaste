@@ -311,6 +311,26 @@ final class CopasteE2ETests: XCTestCase {
         XCTAssertTrue(waitUntil { !self.element("panel.primary").label.contains("Entries") }, "esc clears the selection")
     }
 
+    func test16NotesAreSavedAndSearchable() {
+        launch(open: "panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        let note = element("panel.note")
+        XCTAssertTrue(note.waitForExistence(timeout: timeout))
+        note.click()
+        note.typeText("quarterly invoice")
+        screenshot(panel, "27-note-added")
+
+        // esc leaves the note for the search field.
+        panel.typeKey(.escape, modifierFlags: [])
+        panel.typeText("quarterly")
+        let rows = app.descendants(matching: .any).matching(identifier: "row")
+        XCTAssertTrue(waitUntil { rows.count == 1 }, "Searching finds the entry by its note")
+        screenshot(panel, "28-note-found-by-search")
+        // The row's texts are combined into its accessibility value.
+        XCTAssertTrue(waitUntil { (rows.firstMatch.value as? String)?.contains("quarterly invoice") == true },
+                      "The row shows the matching note")
+    }
+
     // MARK: Helpers
 
     private func openSettingsPage(_ page: String, in settings: XCUIElement) {
