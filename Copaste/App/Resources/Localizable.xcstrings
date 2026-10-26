@@ -2096,6 +2096,125 @@
         }
       }
     },
+    "onboardingCredit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "by Lazycatlabs"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "oleh Lazycatlabs"
+          }
+        }
+      }
+    },
+    "onboardingOrganize": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search, pin, group, annotate and add notes to anything you copy."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cari, sematkan, kelompokkan, anotasi, dan beri catatan pada apa pun yang Anda salin."
+          }
+        }
+      }
+    },
+    "onboardingShortcut": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press %@ in any app to open your clipboard history."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tekan %@ di aplikasi mana pun untuk membuka riwayat clipboard."
+          }
+        }
+      }
+    },
+    "onboardingStart": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Started"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mulai"
+          }
+        }
+      }
+    },
+    "onboardingSubtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything you copy, one shortcut away."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semua yang Anda salin, cukup satu pintasan."
+          }
+        }
+      }
+    },
+    "onboardingSync": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your history lives in a folder you choose, so iCloud Drive, Google Drive or OneDrive can sync it."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riwayat disimpan di folder pilihan Anda, jadi iCloud Drive, Google Drive atau OneDrive bisa menyinkronkannya."
+          }
+        }
+      }
+    },
+    "onboardingTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to Copaste"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selamat datang di Copaste"
+          }
+        }
+      }
+    },
     "previewUnavailable": {
       "extractionState": "manual",
       "localizations": {

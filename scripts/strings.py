@@ -120,6 +120,24 @@ S = {
     "menuSettings": ("Settings…", "Pengaturan…"),
     "menuQuit": ("Quit Copaste", "Keluar dari Copaste"),
 
+    # Onboarding
+    "onboardingTitle": ("Welcome to Copaste", "Selamat datang di Copaste"),
+    "onboardingSubtitle": ("Everything you copy, one shortcut away.", "Semua yang Anda salin, cukup satu pintasan."),
+    "onboardingShortcut": (
+        "Press %@ in any app to open your clipboard history.",
+        "Tekan %@ di aplikasi mana pun untuk membuka riwayat clipboard.",
+    ),
+    "onboardingSync": (
+        "Your history lives in a folder you choose, so iCloud Drive, Google Drive or OneDrive can sync it.",
+        "Riwayat disimpan di folder pilihan Anda, jadi iCloud Drive, Google Drive atau OneDrive bisa menyinkronkannya.",
+    ),
+    "onboardingOrganize": (
+        "Search, pin, group, annotate and add notes to anything you copy.",
+        "Cari, sematkan, kelompokkan, anotasi, dan beri catatan pada apa pun yang Anda salin.",
+    ),
+    "onboardingStart": ("Get Started", "Mulai"),
+    "onboardingCredit": ("by Lazycatlabs", "oleh Lazycatlabs"),
+
     # Vault
     "vaultIntro": (
         "Choose a folder for your clipboard history. Pick one inside iCloud Drive, Google Drive or OneDrive to share it between your devices.",

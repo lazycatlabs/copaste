@@ -85,7 +85,7 @@ enum Metrics {
         /// Where a row's text starts, so the lines between rows line up with it.
         static let rowTextInset: CGFloat = Spacing.xxl + rowIcon + Spacing.xl
         static let groupNameWidth: CGFloat = 200
-        static let welcomeSize = CGSize(width: 460, height: 420)
+        static let welcomeSize = CGSize(width: 480, height: 540)
         static let heroIcon: CGFloat = 72
         static let ignoredAppIcon: CGFloat = 20
         static let shortcutRecorderWidth: CGFloat = 80
