@@ -143,6 +143,26 @@ final class ClipboardSession {
         announce(L(.toastPasted(toastTitle(item))))
     }
 
+    /// Several entries at once, as one text when they're all text; otherwise each one is its own clipboard item.
+    func copy(_ items: [ClipItem]) {
+        if let text = ClipUseCases.joinedText(items) {
+            pasteboard.write(.text(text))
+        } else {
+            pasteboard.write(.many(items.compactMap { payload($0) }))
+        }
+        for item in items { save(ClipUseCases.markCopied(item)) }
+        SoundPlayer.play(settings.copySound)
+        announce(L(.toastCopiedMany(items.count)))
+    }
+
+    /// Puts several entries on the clipboard as one text and counts a paste for each.
+    func preparePaste(_ items: [ClipItem], text: String) {
+        pasteboard.write(.text(text))
+        for item in items { save(ClipUseCases.markPasted(item)) }
+        SoundPlayer.play(settings.pasteSound)
+        announce(L(.toastPastedMany(items.count)))
+    }
+
     /// The entry's title, cut short for a toast.
     func toastTitle(_ item: ClipItem) -> String {
         let title = item.title.isEmpty ? item.kind.title : item.title
@@ -154,10 +174,14 @@ final class ClipboardSession {
     }
 
     private func write(_ item: ClipItem, as text: String? = nil) {
+        if let payload = payload(item, as: text) { pasteboard.write(payload) }
+    }
+
+    private func payload(_ item: ClipItem, as text: String? = nil) -> PasteboardPayload? {
         switch item.kind {
-        case .image: if let url = blobURL(item.blob) { pasteboard.write(.image(url)) }
-        case .file: pasteboard.write(.files((item.files ?? []).map { URL(filePath: $0.path) }))
-        default: pasteboard.write(.text(text ?? item.text ?? ""))
+        case .image: blobURL(item.blob).map(PasteboardPayload.image)
+        case .file: .files((item.files ?? []).map { URL(filePath: $0.path) })
+        default: .text(text ?? item.text ?? "")
         }
     }
 

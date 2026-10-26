@@ -5,6 +5,8 @@ struct ClipboardPanelView: View {
     @Environment(ClipboardSession.self) private var session
     @Bindable var model: ClipboardViewModel
     let perform: (ClipAction, ClipItem) -> Void
+    /// Pastes (or copies) the marked entries together.
+    let performMany: ([ClipItem]) -> Void
     /// Dragging the top or bottom bar moves the window; called while dragging, then with `true` at the end.
     let onDrag: (_ ended: Bool) -> Void
     /// Opens Settings › Groups.
@@ -140,7 +142,8 @@ struct ClipboardPanelView: View {
                             .padding(.top, Spacing.lg)
                             .padding(.bottom, Spacing.xs)
                         ForEach(items) { item in
-                            row(item, isSelected: item.id == selectedID, quickKey: quickKeys[item.id]).id(item.id)
+                            row(item, isSelected: item.id == selectedID || model.markedIDs.contains(item.id),
+                                quickKey: quickKeys[item.id]).id(item.id)
                         }
                     }
                 }
@@ -165,7 +168,10 @@ struct ClipboardPanelView: View {
             .contentShape(.rect)
             // Double-click copies and closes the window; a single click only selects.
             .onTapGesture(count: 2) { perform(.copy, item) }
-            .onTapGesture { model.selectedID = item.id }
+            .onTapGesture { model.click(item.id, in: session) }
+            // ⌘-click and ⇧-click pick several entries to paste together.
+            .highPriorityGesture(TapGesture().modifiers(.command).onEnded { model.click(item.id, command: true, in: session) })
+            .highPriorityGesture(TapGesture().modifiers(.shift).onEnded { model.click(item.id, shift: true, in: session) })
             .contextMenu {
                 ForEach(ClipAction.available(for: item)) { action in
                     Button(action.title(for: item), systemImage: action.symbolName) { perform(action, item) }
@@ -193,8 +199,8 @@ struct ClipboardPanelView: View {
     private var detail: some View {
         if let item = model.selected(in: session) {
             ClipDetailView(item: item)
-                .padding(Spacing.xxl)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(Spacing.xxl)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -207,11 +213,18 @@ struct ClipboardPanelView: View {
             AppIconImage(size: Metrics.appIcon * TextScale.shared.factor)
             Text(session.isPaused ? L(.statusPaused) : L(.appName)).font(.scaled(.body)).foregroundStyle(.secondary)
             Spacer()
-            if let item = model.selected(in: session) {
+            let chosen = model.chosen(in: session)
+            if let item = chosen.first {
                 let primary: ClipAction = session.settings.pasteDirectly ? .paste : .copy
                 let shortcuts = HotKeyStore.shared
-                footerButton(primary.title(for: item), keys: shortcuts[.paste].keys) { perform(primary, item) }
-                    .accessibilityIdentifier("panel.primary")
+                if chosen.count > 1 {
+                    let title = primary == .paste ? L(.actionPasteMany(chosen.count)) : L(.actionCopyMany(chosen.count))
+                    footerButton(title, keys: shortcuts[.paste].keys) { performMany(chosen) }
+                        .accessibilityIdentifier("panel.primary")
+                } else {
+                    footerButton(primary.title(for: item), keys: shortcuts[.paste].keys) { perform(primary, item) }
+                        .accessibilityIdentifier("panel.primary")
+                }
                 footerButton(L(.actionsTitle), keys: shortcuts[.actions].keys) { model.showsActions.toggle() }
                     .accessibilityIdentifier("panel.actions")
             }

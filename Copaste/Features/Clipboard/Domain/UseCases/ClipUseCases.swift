@@ -56,6 +56,13 @@ nonisolated enum ClipUseCases {
         return item
     }
 
+    /// Several entries as one text, one per line, so they paste in a single ⌘V.
+    /// Nil when one of them is an image or files, which can't be joined.
+    static func joinedText(_ items: [ClipItem]) -> String? {
+        let texts = items.compactMap { [.image, .file].contains($0.kind) ? nil : $0.text }
+        return texts.count == items.count ? texts.joined(separator: "\n") : nil
+    }
+
     /// Entries older than the retention period. Pinned entries are kept forever.
     static func expired(_ items: [ClipItem], retention: Retention, now: Date = .now) -> [ClipItem] {
         guard let limit = retention.cutoff(from: now) else { return [] }

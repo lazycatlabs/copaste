@@ -154,6 +154,35 @@
         }
       }
     },
+    "actionCopyMany": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Copy %lld Entry"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Copy %lld Entries"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salin %lld Entri"
+          }
+        }
+      }
+    },
     "actionDelete": {
       "extractionState": "manual",
       "localizations": {
@@ -252,6 +281,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tempel"
+          }
+        }
+      }
+    },
+    "actionPasteMany": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Paste %lld Entry"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Paste %lld Entries"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempel %lld Entri"
           }
         }
       }
@@ -3478,6 +3536,35 @@
         }
       }
     },
+    "toastCopiedMany": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entry copied — ready to paste"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entries copied — ready to paste"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld entri disalin — siap ditempel"
+          }
+        }
+      }
+    },
     "toastImageCopied": {
       "extractionState": "manual",
       "localizations": {
@@ -3508,6 +3595,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "“%@” ditempel"
+          }
+        }
+      }
+    },
+    "toastPastedMany": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entry pasted"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld entries pasted"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld entri ditempel"
           }
         }
       }

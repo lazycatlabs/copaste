@@ -293,6 +293,24 @@ final class CopasteE2ETests: XCTestCase {
         XCTAssertFalse(panel.staticTexts["#FF8C3C"].exists, "Deleted entries leave the history")
     }
 
+    func test15SelectingSeveralEntriesPastesThemTogether() {
+        launch(open: "panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        // Holding ⌘ shows the quick-paste keys, which renames the rows "row.quickKey".
+        let rows = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'row'"))
+        rows.element(boundBy: 0).click()
+        XCUIElement.perform(withKeyModifiers: .command) { rows.element(boundBy: 2).click() }
+        XCTAssertTrue(waitUntil { self.element("panel.primary").label.contains("2 Entries") }, "⌘-click adds a second entry")
+        screenshot(panel, "25-two-entries-selected")
+
+        XCUIElement.perform(withKeyModifiers: .shift) { rows.element(boundBy: 4).click() }
+        XCTAssertTrue(waitUntil { self.element("panel.primary").label.contains("4 Entries") }, "⇧-click selects the range")
+        screenshot(panel, "26-range-selected")
+
+        panel.typeKey(.escape, modifierFlags: [])
+        XCTAssertTrue(waitUntil { !self.element("panel.primary").label.contains("Entries") }, "esc clears the selection")
+    }
+
     // MARK: Helpers
 
     private func openSettingsPage(_ page: String, in settings: XCUIElement) {
