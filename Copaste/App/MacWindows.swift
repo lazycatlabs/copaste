@@ -44,6 +44,10 @@ enum MacWindows {
         window.makeKeyAndOrderFront(nil)
     }
 
+    static func isVisible(id: String) -> Bool {
+        windows[id]?.isVisible == true
+    }
+
     static func close(id: String) {
         windows[id]?.close()
     }

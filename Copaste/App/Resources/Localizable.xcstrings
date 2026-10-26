@@ -2096,6 +2096,23 @@
         }
       }
     },
+    "onboardingBack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kembali"
+          }
+        }
+      }
+    },
     "onboardingCredit": {
       "extractionState": "manual",
       "localizations": {
@@ -2109,6 +2126,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "oleh Lazycatlabs"
+          }
+        }
+      }
+    },
+    "onboardingGroups": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groups"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grup"
+          }
+        }
+      }
+    },
+    "onboardingNext": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lanjut"
+          }
+        }
+      }
+    },
+    "onboardingNotes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notes"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catatan"
           }
         }
       }
@@ -2130,6 +2198,74 @@
         }
       }
     },
+    "onboardingOrganizeHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hover over each one to try it."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arahkan kursor ke setiap fitur untuk mencobanya."
+          }
+        }
+      }
+    },
+    "onboardingOrganizeTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find anything again"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temukan lagi apa pun"
+          }
+        }
+      }
+    },
+    "onboardingPin": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sematkan"
+          }
+        }
+      }
+    },
+    "onboardingSearch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cari"
+          }
+        }
+      }
+    },
     "onboardingShortcut": {
       "extractionState": "manual",
       "localizations": {
@@ -2143,6 +2279,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tekan %@ di aplikasi mana pun untuk membuka riwayat clipboard."
+          }
+        }
+      }
+    },
+    "onboardingShortcutDone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nice! That's how you open your history."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantap! Begitu cara membuka riwayat Anda."
+          }
+        }
+      }
+    },
+    "onboardingShortcutTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One shortcut, in every app"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satu pintasan, di semua aplikasi"
+          }
+        }
+      }
+    },
+    "onboardingShortcutTry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try it now: press the keys below."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coba sekarang: tekan tombol di bawah."
+          }
+        }
+      }
+    },
+    "onboardingSkip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lewati"
           }
         }
       }
@@ -2194,6 +2398,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Riwayat disimpan di folder pilihan Anda, jadi iCloud Drive, Google Drive atau OneDrive bisa menyinkronkannya."
+          }
+        }
+      }
+    },
+    "onboardingSyncTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your history, on every Mac"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riwayat Anda, di setiap Mac"
           }
         }
       }
