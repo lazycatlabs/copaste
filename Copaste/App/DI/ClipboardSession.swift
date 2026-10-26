@@ -151,7 +151,10 @@ final class ClipboardSession {
         if let text = ClipUseCases.joinedText(items) {
             pasteboard.write(.text(text))
         } else {
-            pasteboard.write(.many(items.compactMap { payload($0) }))
+            // Apps paste only the first image on the clipboard but every file, so images go as their files.
+            pasteboard.write(.many(items.compactMap { item in
+                item.kind == .image ? blobURL(item.blob).map { .files([$0]) } : payload(item)
+            }))
         }
         for item in items { save(ClipUseCases.markCopied(item)) }
         SoundPlayer.play(settings.copySound)
