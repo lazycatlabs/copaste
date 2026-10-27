@@ -38,7 +38,8 @@ final class ClipboardSession {
     func reload() async {
         let repository = repository
         let loaded = await Task.detached { repository.loadAll() }.value
-        items = loaded
+        // Assigning redraws every row, so only when something changed.
+        if Set(loaded) != Set(items) { items = loaded }
         pruneExpired()
     }
 

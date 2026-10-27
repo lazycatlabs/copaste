@@ -1,15 +1,18 @@
 import Foundation
+import Synchronization
 
 /// Clipboard entries as one JSON file each in the vault, with images beside them in `blobs/`.
 nonisolated final class FileClipRepository: ClipRepository {
     private let store: JSONFileStore
+    /// Entries already decoded, so reopening the clipboard window only reads the files that changed.
+    private let cache = Mutex<[URL: CachedFile<ClipItem>]>([:])
 
     init(root: URL) {
         store = JSONFileStore(root: root)
     }
 
     func loadAll() -> [ClipItem] {
-        store.readAll(ClipItem.self, in: VaultLayout.items)
+        cache.withLock { store.readAll(ClipItem.self, in: VaultLayout.items, cache: &$0) }
     }
 
     func save(_ item: ClipItem) throws {
@@ -21,6 +24,7 @@ nonisolated final class FileClipRepository: ClipRepository {
             try store.remove(blob)
         }
         try store.remove(path(of: item))
+        _ = cache.withLock { $0.removeValue(forKey: store.root.appending(path: path(of: item))) }
     }
 
     func writeBlob(_ data: Data, name: String) throws -> String {

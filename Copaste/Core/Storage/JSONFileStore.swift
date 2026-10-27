@@ -11,6 +11,22 @@ nonisolated enum VaultLayout {
     static let blobs = "blobs"
 }
 
+/// When a file last changed, to tell whether it needs reading again.
+nonisolated struct FileStamp: Equatable, Sendable {
+    let modified: Date?
+    let size: Int?
+    /// Changes when a sync replaces the file, even if the date and size come out the same.
+    let id: UInt64?
+}
+
+/// A decoded file and the stamp it had when it was read.
+nonisolated struct CachedFile<T> {
+    let stamp: FileStamp
+    let value: T
+}
+
+extension CachedFile: Sendable where T: Sendable {}
+
 /// Reads and writes Codable values as pretty-printed JSON files inside a vault.
 /// One file per entity keeps cloud-sync conflicts (iCloud Drive, Google Drive, OneDrive) small and readable.
 nonisolated struct JSONFileStore: Sendable {
@@ -31,14 +47,31 @@ nonisolated struct JSONFileStore: Sendable {
 
     /// Every `.json` file in `directory`. Unreadable files are moved aside, never overwritten.
     /// Files a cloud provider hasn't downloaded yet (`.name.json.icloud`) are asked for and picked up on the next read.
-    func readAll<T: Decodable>(_ type: T.Type, in directory: String) -> [T] {
+    /// A file whose modification date and size match `cache` isn't read or decoded again; `cache` is left holding
+    /// exactly the files found this time.
+    func readAll<T: Decodable>(_ type: T.Type, in directory: String, cache: inout [URL: CachedFile<T>]) -> [T] {
         let dir = root.appending(path: directory, directoryHint: .isDirectory)
-        guard let files = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) else { return [] }
+        let keys: Set<URLResourceKey> = [.contentModificationDateKey, .fileSizeKey, .fileIdentifierKey]
+        guard let files = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: Array(keys)) else {
+            cache = [:]
+            return []
+        }
         let decoder = Self.decoder()
         for placeholder in files where placeholder.pathExtension == "icloud" {
             try? FileManager.default.startDownloadingUbiquitousItem(at: placeholder)
         }
-        return files.filter { $0.pathExtension == "json" }.compactMap { read(T.self, at: $0, decoder: decoder) }
+        var fresh: [URL: CachedFile<T>] = [:]
+        for file in files where file.pathExtension == "json" {
+            let values = try? file.resourceValues(forKeys: keys)
+            let stamp = FileStamp(modified: values?.contentModificationDate, size: values?.fileSize, id: values?.fileIdentifier)
+            if let cached = cache[file], cached.stamp == stamp {
+                fresh[file] = cached
+            } else if let value = read(T.self, at: file, decoder: decoder) {
+                fresh[file] = CachedFile(stamp: stamp, value: value)
+            }
+        }
+        cache = fresh
+        return fresh.values.map(\.value)
     }
 
     // ponytail: shallow merge, nested settings objects need a recursive merge once they exist.

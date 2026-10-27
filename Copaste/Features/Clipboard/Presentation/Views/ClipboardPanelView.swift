@@ -130,9 +130,10 @@ struct ClipboardPanelView: View {
 
     private var list: some View {
         let sections = model.sections(of: session)
-        let selectedID = model.selected(in: session)?.id
+        let visible = sections.flatMap(\.1)
+        let selectedID = (visible.first { $0.id == model.selectedID } ?? visible.first)?.id
         // While ⌘ is held, the first nine entries show the number ⌘1…⌘9 pastes.
-        let firstNine = model.showsQuickPasteKeys ? Array(sections.flatMap(\.1).prefix(Metrics.Panel.quickPasteCount)) : []
+        let firstNine = model.showsQuickPasteKeys ? Array(visible.prefix(Metrics.Panel.quickPasteCount)) : []
         let quickKeys = Dictionary(uniqueKeysWithValues: firstNine.enumerated().map { ($1.id, $0 + 1) })
         return ScrollViewReader { proxy in
             ScrollView {

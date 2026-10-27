@@ -126,6 +126,12 @@ enum Metrics {
     enum Clipboard {
         /// Seconds between checks of the system clipboard on macOS.
         static let pollInterval: TimeInterval = 0.5
+        /// Lets macOS fold the clipboard check into other wake-ups instead of waking just for it.
+        static let pollTolerance: TimeInterval = 0.1
+        /// Longest side, in pixels, an image is decoded at for the detail preview.
+        static let previewMaxPixelSize: CGFloat = 2048
+        /// Memory the decoded images and thumbnails may use before the oldest are dropped.
+        static let imageCacheBytes = 64 * 1024 * 1024
         /// Between checks that the previous app is in front again, and after it is, before sending ⌘V.
         static let pasteDelay: TimeInterval = 0.05
         /// Gives up waiting for the previous app after this many checks (one second) and sends ⌘V anyway.
