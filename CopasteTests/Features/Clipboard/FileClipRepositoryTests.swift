@@ -19,6 +19,23 @@ struct FileClipRepositoryTests {
         #expect(!FileManager.default.fileExists(atPath: repository.blobURL(item.blob ?? "").path))
     }
 
+    /// Reloads reuse decoded entries, but must still pick up a file another Mac changed in the synced vault.
+    @Test func reloadPicksUpFilesChangedOnDisk() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let repository = FileClipRepository(root: root)
+        var item = ClipItem(kind: .text, text: "first", hash: "h", firstCopied: .now, lastCopied: .now)
+        try repository.save(item)
+        #expect(repository.loadAll().first?.text == "first")
+
+        item.text = "changed elsewhere"
+        try FileClipRepository(root: root).save(item)
+        #expect(repository.loadAll().first?.text == "changed elsewhere")
+
+        try FileManager.default.removeItem(at: root.appending(path: "\(VaultLayout.items)/\(item.id.uuidString).json"))
+        #expect(repository.loadAll().isEmpty)
+    }
+
     @Test func settingsFallBackToDefaultsForMissingKeys() throws {
         let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

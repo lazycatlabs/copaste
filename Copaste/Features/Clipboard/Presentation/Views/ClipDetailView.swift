@@ -28,7 +28,7 @@ struct ClipPreviewView: View {
         case .image:
             image(session.blobURL(item.blob))
         case .link:
-            if let preview = session.blobURL(item.link?.image).flatMap(ImageCache.image) {
+            if let preview = session.blobURL(item.link?.image).flatMap(Self.preview) {
                 Image(nsImage: preview).resizable().scaledToFit().clipShape(.rect(cornerRadius: Radius.md))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -43,6 +43,10 @@ struct ClipPreviewView: View {
         }
     }
 
+    private static func preview(_ url: URL) -> NSImage? {
+        ImageCache.image(at: url, maxPixelSize: Metrics.Clipboard.previewMaxPixelSize)
+    }
+
     private var text: some View {
         ScrollView {
             Text(String((item.text ?? "").prefix(Metrics.Clipboard.previewTextLimit)))
@@ -54,7 +58,7 @@ struct ClipPreviewView: View {
 
     @ViewBuilder
     private func image(_ url: URL?) -> some View {
-        if let image = url.flatMap(ImageCache.image) {
+        if let image = url.flatMap(Self.preview) {
             Image(nsImage: image).resizable().scaledToFit().clipShape(.rect(cornerRadius: Radius.sm))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {

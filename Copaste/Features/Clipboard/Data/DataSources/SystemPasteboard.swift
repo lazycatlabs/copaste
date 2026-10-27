@@ -42,6 +42,7 @@ final class SystemPasteboard {
         timer = Timer.scheduledTimer(withTimeInterval: Metrics.Clipboard.pollInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.poll() }
         }
+        timer?.tolerance = Metrics.Clipboard.pollTolerance
     }
 
     private func poll() {
@@ -81,6 +82,10 @@ final class SystemPasteboard {
         // ponytail: text wins over an image when both are offered (spreadsheets copy both); revisit if image-first apps miss out.
         if let string = pasteboard.string(forType: .string), !string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return .text(string)
+        }
+        // Screenshots and most apps offer PNG already: keep it as is instead of decoding and re-encoding it.
+        if let png = pasteboard.data(forType: .png), let rep = NSBitmapImageRep(data: png) {
+            return .image(png: png, width: rep.pixelsWide, height: rep.pixelsHigh)
         }
         if let image = NSImage(pasteboard: pasteboard), let png = image.pngRepresentation {
             let size = image.pixelSize

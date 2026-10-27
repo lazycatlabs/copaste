@@ -6,6 +6,7 @@ struct ClipIconView: View {
     let item: ClipItem
     var size: CGFloat = Metrics.rowIcon
     @Environment(ClipboardSession.self) private var session
+    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         Group {
@@ -25,9 +26,10 @@ struct ClipIconView: View {
     }
 
     private var thumbnail: NSImage? {
+        let pixels = size * displayScale
         switch item.kind {
-        case .image: return session.blobURL(item.blob).flatMap(ImageCache.image)
-        case .link: return session.blobURL(item.link?.favicon).flatMap(ImageCache.image)
+        case .image: return session.blobURL(item.blob).flatMap { ImageCache.image(at: $0, maxPixelSize: pixels) }
+        case .link: return session.blobURL(item.link?.favicon).flatMap { ImageCache.image(at: $0, maxPixelSize: pixels) }
         case .file:
             return item.files?.first.map { NSWorkspace.shared.icon(forFile: $0.path) }
         default: return nil
