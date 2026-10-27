@@ -24,6 +24,7 @@ nonisolated final class FileClipRepository: ClipRepository {
             try store.remove(blob)
         }
         try store.remove(path(of: item))
+        _ = cache.withLock { $0.removeValue(forKey: store.root.appending(path: path(of: item))) }
     }
 
     func writeBlob(_ data: Data, name: String) throws -> String {

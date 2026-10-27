@@ -15,6 +15,8 @@ nonisolated enum VaultLayout {
 nonisolated struct FileStamp: Equatable, Sendable {
     let modified: Date?
     let size: Int?
+    /// Changes when a sync replaces the file, even if the date and size come out the same.
+    let id: UInt64?
 }
 
 /// A decoded file and the stamp it had when it was read.
@@ -49,7 +51,7 @@ nonisolated struct JSONFileStore: Sendable {
     /// exactly the files found this time.
     func readAll<T: Decodable>(_ type: T.Type, in directory: String, cache: inout [URL: CachedFile<T>]) -> [T] {
         let dir = root.appending(path: directory, directoryHint: .isDirectory)
-        let keys: Set<URLResourceKey> = [.contentModificationDateKey, .fileSizeKey]
+        let keys: Set<URLResourceKey> = [.contentModificationDateKey, .fileSizeKey, .fileIdentifierKey]
         guard let files = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: Array(keys)) else {
             cache = [:]
             return []
@@ -61,7 +63,7 @@ nonisolated struct JSONFileStore: Sendable {
         var fresh: [URL: CachedFile<T>] = [:]
         for file in files where file.pathExtension == "json" {
             let values = try? file.resourceValues(forKeys: keys)
-            let stamp = FileStamp(modified: values?.contentModificationDate, size: values?.fileSize)
+            let stamp = FileStamp(modified: values?.contentModificationDate, size: values?.fileSize, id: values?.fileIdentifier)
             if let cached = cache[file], cached.stamp == stamp {
                 fresh[file] = cached
             } else if let value = read(T.self, at: file, decoder: decoder) {

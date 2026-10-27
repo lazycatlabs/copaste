@@ -28,7 +28,11 @@ struct ClipIconView: View {
     private var thumbnail: NSImage? {
         let pixels = size * displayScale
         switch item.kind {
-        case .image: return session.blobURL(item.blob).flatMap { ImageCache.image(at: $0, maxPixelSize: pixels) }
+        case .image:
+            // The square crops the longer side, so the shorter side needs the full size.
+            let sides = [item.pixelWidth, item.pixelHeight].compactMap { $0 }.filter { $0 > 0 }.map(CGFloat.init)
+            let aspect = sides.count == 2 ? (sides.max() ?? 1) / (sides.min() ?? 1) : 1
+            return session.blobURL(item.blob).flatMap { ImageCache.image(at: $0, maxPixelSize: pixels * aspect) }
         case .link: return session.blobURL(item.link?.favicon).flatMap { ImageCache.image(at: $0, maxPixelSize: pixels) }
         case .file:
             return item.files?.first.map { NSWorkspace.shared.icon(forFile: $0.path) }
