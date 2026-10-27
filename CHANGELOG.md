@@ -3,6 +3,15 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.5.1 — 2026-10-27
+
+### Improved
+
+- **Uses less memory and CPU**: image thumbnails and previews are loaded at the size they're shown instead of at full
+  size, and the memory they take is capped. Opening the clipboard window only reads entries that changed since last
+  time, instead of the whole history. Screenshots and other PNG images are saved as copied, without converting them
+  first, and the clipboard check lets macOS group it with other work so it wakes your Mac less.
+
 ## 0.5.0 — 2026-10-26
 
 ### New
