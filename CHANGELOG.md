@@ -3,6 +3,14 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.5.2 — 2026-10-28
+
+### New
+
+- **Copaste is now open source under the GNU GPL v3.** Settings › About shows the license, links to the source code on
+  GitHub and carries the copyright and no-warranty notice. You're free to use, share and change Copaste under the
+  license's terms.
+
 ## 0.5.1 — 2026-10-27
 
 ### Improved
