@@ -4,6 +4,8 @@ import Foundation
 nonisolated enum SupportLinks {
     static let email = "admin@lazycatlabs.com"
     static let website = URL(string: "https://copaste.lazycatlabs.com")!
+    static let sourceCode = URL(string: "https://github.com/lazycatlabs/copaste")!
+    static let license = URL(string: "https://github.com/lazycatlabs/copaste/blob/main/LICENSE")!
 
     static var appVersion: String {
         let info = Bundle.main.infoDictionary

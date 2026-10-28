@@ -68,7 +68,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         case .privacy: [.settingsIgnoredApps, .settingsAddApp]
         case .importing: [.importFromRaycast]
         case .updates: [.updateCheck, .changelogTitle, .updateDownload]
-        case .about: [.aboutVersion, .supportFeedback, .supportBugReport, .supportWebsite]
+        case .about: [.aboutVersion, .aboutLicense, .aboutSourceCode, .supportFeedback, .supportBugReport, .supportWebsite]
         }
         return ([title, subtitle] + settings.map(L)).joined(separator: " ")
     }
@@ -382,9 +382,15 @@ private struct PrivacyPage: View {
 
 private struct AboutPage: View {
     var body: some View {
-        SettingsSection(L(.settingsAbout)) {
+        SettingsSection(L(.settingsAbout), footer: L(.aboutLicenseFooter)) {
             SettingsRow(L(.aboutVersion), symbol: "info.circle") {
                 Text(SupportLinks.appVersion).foregroundStyle(.secondary).textSelection(.enabled)
+            }
+            SettingsRow(L(.aboutLicense), symbol: "checkmark.seal") {
+                Link(L(.aboutLicenseName), destination: SupportLinks.license).accessibilityIdentifier("settings.license")
+            }
+            SettingsRow(L(.aboutSourceCode), symbol: "chevron.left.forwardslash.chevron.right") {
+                Link(L(.aboutSourceCode), destination: SupportLinks.sourceCode)
             }
             if let url = SupportLinks.feedback() {
                 SettingsRow(L(.supportFeedback), symbol: "bubble.left") { Link(L(.supportFeedback), destination: url) }

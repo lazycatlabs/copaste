@@ -14,8 +14,9 @@ Your history lives in a folder you choose, so iCloud Drive, Google Drive or OneD
 ![macOS 26+](https://img.shields.io/badge/macOS-26%2B-111111?logo=apple)
 ![Swift 6](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
 ![SwiftUI + Observation](https://img.shields.io/badge/SwiftUI-Observation-0A84FF)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
-[**Download for Mac**](https://github.com/lazycatlabs/copaste/releases/latest) · [Features](#features) · [Install](#install) · [Shortcuts](#shortcuts) · [Your data](#your-data) · [FAQ](#faq) · [Development](#development)
+[**Download for Mac**](https://github.com/lazycatlabs/copaste/releases/latest) · [Features](#features) · [Install](#install) · [Shortcuts](#shortcuts) · [Your data](#your-data) · [FAQ](#faq) · [Development](#development) · [License](#license)
 
 </div>
 
@@ -204,5 +205,14 @@ scripts/               String catalog generator, release packaging
 ```
 
 </details>
+
+## License
+
+Copyright © 2026 Lazycat Labs.
+
+Copaste is free software: you can redistribute it and/or modify it under the terms of the
+[GNU General Public License, version 3](LICENSE) or (at your option) any later version. It is distributed in the hope
+that it will be useful, but **without any warranty**; without even the implied warranty of merchantability or fitness
+for a particular purpose. See [LICENSE](LICENSE) for the full text.
 
 Website: [copaste.lazycatlabs.com](https://copaste.lazycatlabs.com)

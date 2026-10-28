@@ -1,19 +1,87 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "aboutLicense": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "License"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisensi"
+          }
+        }
+      }
+    },
+    "aboutLicenseFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright © 2026 Lazycat Labs. Copaste is free software under the GNU General Public License v3: you can share and change it under its terms. It comes with no warranty."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hak cipta © 2026 Lazycat Labs. Copaste adalah perangkat lunak bebas di bawah GNU General Public License v3: Anda boleh membagikan dan mengubahnya sesuai ketentuannya. Tanpa jaminan apa pun."
+          }
+        }
+      }
+    },
+    "aboutLicenseName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU GPL v3"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GNU GPL v3"
+          }
+        }
+      }
+    },
+    "aboutSourceCode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source Code"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kode Sumber"
+          }
+        }
+      }
+    },
     "aboutSubtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Version, feedback and help."
+            "value": "Version, license, feedback and help."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Versi, masukan dan bantuan."
+            "value": "Versi, lisensi, masukan dan bantuan."
           }
         }
       }

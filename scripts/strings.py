@@ -236,7 +236,7 @@ S = {
     "changelogInstalled": ("Installed", "Terpasang"),
     "changelogOnGitHub": ("All Releases on GitHub", "Semua Rilis di GitHub"),
     "changelogUnavailable": ("The changelog can't be loaded right now", "Catatan perubahan tidak bisa dimuat sekarang"),
-    "aboutSubtitle": ("Version, feedback and help.", "Versi, masukan dan bantuan."),
+    "aboutSubtitle": ("Version, license, feedback and help.", "Versi, lisensi, masukan dan bantuan."),
     "settingsVault": ("Vault", "Vault"),
     "settingsVaultFolder": ("Folder", "Folder"),
     "settingsHistory": ("History", "Riwayat"),
@@ -314,6 +314,15 @@ S = {
     "shortcutSettings": ("Open Settings", "Buka Pengaturan"),
     "settingsAbout": ("About", "Tentang"),
     "aboutVersion": ("Version", "Versi"),
+    "aboutLicense": ("License", "Lisensi"),
+    "aboutLicenseName": ("GNU GPL v3", "GNU GPL v3"),
+    "aboutLicenseFooter": (
+        "Copyright © 2026 Lazycat Labs. Copaste is free software under the GNU General Public License v3: you can share "
+        "and change it under its terms. It comes with no warranty.",
+        "Hak cipta © 2026 Lazycat Labs. Copaste adalah perangkat lunak bebas di bawah GNU General Public License v3: "
+        "Anda boleh membagikan dan mengubahnya sesuai ketentuannya. Tanpa jaminan apa pun.",
+    ),
+    "aboutSourceCode": ("Source Code", "Kode Sumber"),
     "supportFeedback": ("Send Feedback", "Kirim Masukan"),
     "supportBugReport": ("Report a Bug", "Laporkan Bug"),
     "supportWebsite": ("Website", "Situs Web"),
