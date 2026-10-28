@@ -370,6 +370,15 @@ final class CopasteE2ETests: XCTestCase {
         XCTAssertFalse(element("onboarding.page.welcome").exists, "The introduction isn't shown again")
     }
 
+    func test18AboutShowsTheLicense() {
+        launch(open: "settings")
+        let settings = app.windows["settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: timeout))
+        openSettingsPage("about", in: settings)
+        XCTAssertTrue(element("settings.license").waitForExistence(timeout: timeout), "About links to the GPL-3.0 license")
+        screenshot(settings, "34-settings-about-license")
+    }
+
     // MARK: Helpers
 
     private func openSettingsPage(_ page: String, in settings: XCUIElement) {
