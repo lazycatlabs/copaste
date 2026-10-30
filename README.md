@@ -16,7 +16,7 @@ Your history lives in a folder you choose, so iCloud Drive, Google Drive or OneD
 ![SwiftUI + Observation](https://img.shields.io/badge/SwiftUI-Observation-0A84FF)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
-[**Download for Mac**](https://github.com/lazycatlabs/copaste/releases/latest) · [Features](#features) · [Install](#install) · [Shortcuts](#shortcuts) · [Your data](#your-data) · [FAQ](#faq) · [Development](#development) · [License](#license)
+[**Download for Mac**](https://github.com/lazycatlabs/copaste/releases/latest) · [Features](#features) · [Install](#install) · [Shortcuts](#shortcuts) · [Your data](#your-data) · [FAQ](#faq) · [Development](#development) · [Sponsors](#sponsors) · [License](#license)
 
 </div>
 
@@ -205,6 +205,15 @@ scripts/               String catalog generator, release packaging
 ```
 
 </details>
+
+## Sponsors
+
+Copaste is free and open source. If it saves you time, you can support its development on
+[GitHub Sponsors](https://github.com/sponsors/Lzyct) — or from Settings › About › Sponsor on GitHub in the app.
+
+<!-- sponsors --><!-- sponsors -->
+
+Thank you to everyone above. Your avatar shows up here (updated daily) once you sponsor.
 
 ## License
 
