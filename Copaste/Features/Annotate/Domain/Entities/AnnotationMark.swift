@@ -62,14 +62,16 @@ struct AnnotationMark: Identifiable {
     }
 
     /// The image shrunk to one pixel per mosaic square, for a blur mark of this width. Drawn back at full size
-    /// without smoothing, each pixel becomes a solid square, so the covered content can't be recovered.
+    /// without smoothing, each pixel becomes a solid square, so the covered content can't be recovered. It's opaque,
+    /// so semi-transparent content in the original can't show through.
     static func mosaic(of image: NSImage, width: CGFloat) -> Image? {
         guard let source = image.cgImage(forProposedRect: nil, context: nil, hints: nil), image.size.width > 0 else { return nil }
-        let columns = max(1, Int((1 / (width * Metrics.Annotate.mosaicScale)).rounded()))
-        let rows = max(1, Int((CGFloat(columns) * image.size.height / image.size.width).rounded()))
+        // Never more squares than the image has pixels, so a tall, narrow image doesn't ask for a huge bitmap.
+        let columns = min(source.width, max(1, Int((1 / (width * Metrics.Annotate.mosaicScale)).rounded())))
+        let rows = min(source.height, max(1, Int((CGFloat(columns) * image.size.height / image.size.width).rounded())))
         guard let context = CGContext(data: nil, width: columns, height: rows, bitsPerComponent: 8, bytesPerRow: 0,
                                       space: CGColorSpaceCreateDeviceRGB(),
-                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
+                                      bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return nil }
         context.interpolationQuality = .high
         context.draw(source, in: CGRect(x: 0, y: 0, width: columns, height: rows))
         return context.makeImage().map { Image(decorative: $0, scale: 1).interpolation(.none) }
