@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum AnnotationTool: String, CaseIterable, Identifiable {
-    case pen, highlighter, rectangle, ellipse, triangle, arrow, text, blur
+    case select, pen, highlighter, rectangle, ellipse, triangle, arrow, text, blur
 
     var id: String { rawValue }
 
@@ -10,6 +10,7 @@ enum AnnotationTool: String, CaseIterable, Identifiable {
 
     var symbolName: String {
         switch self {
+        case .select: "cursorarrow"
         case .pen: "pencil.tip"
         case .highlighter: "highlighter"
         case .rectangle: "rectangle"
@@ -23,6 +24,7 @@ enum AnnotationTool: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .select: L(.toolSelect)
         case .pen: L(.toolPen)
         case .highlighter: L(.toolHighlighter)
         case .rectangle: L(.toolRectangle)
@@ -77,6 +79,48 @@ struct AnnotationMark: Identifiable {
         return context.makeImage().map { Image(decorative: $0, scale: 1).interpolation(.none) }
     }
 
+    /// The area the mark covers on a canvas of this size, in points.
+    func bounds(in size: CGSize) -> CGRect {
+        guard let first = points.first else { return .null }
+        if tool == .text {
+            let font = NSFont.systemFont(ofSize: fontSize(in: size), weight: .semibold)
+            return CGRect(origin: CGPoint(x: first.x * size.width, y: first.y * size.height),
+                          size: NSAttributedString(string: text, attributes: [.font: font]).size())
+        }
+        return points.reduce(CGRect.null) { $0.union(CGRect(x: $1.x * size.width, y: $1.y * size.height, width: 0, height: 0)) }
+    }
+
+    // ponytail: bounding-box hit test, so a click inside a diagonal stroke's box picks it too.
+    /// Whether a click at this canvas location lands on the mark.
+    func contains(_ location: CGPoint, in size: CGSize) -> Bool {
+        let slop = lineWidth(in: size) / 2 + Metrics.Annotate.hitSlop
+        return bounds(in: size).insetBy(dx: -slop, dy: -slop).contains(location)
+    }
+
+    /// The mark shifted by this offset, as a share of the image's size.
+    func moved(by offset: CGSize) -> AnnotationMark {
+        var copy = self
+        copy.points = points.map { CGPoint(x: $0.x + offset.width, y: $0.y + offset.height) }
+        return copy
+    }
+
+    /// The mark stretched so the corner at `start` ends at `end` while `anchor` stays put (all shares of the image's
+    /// size). Text keeps its proportions and grows its font instead.
+    func resized(anchor: CGPoint, from start: CGPoint, to end: CGPoint) -> AnnotationMark {
+        func scale(_ end: CGFloat, _ start: CGFloat, _ anchor: CGFloat) -> CGFloat {
+            start == anchor ? 1 : (end - anchor) / (start - anchor)
+        }
+        var scaleX = scale(end.x, start.x, anchor.x), scaleY = scale(end.y, start.y, anchor.y)
+        var copy = self
+        if tool == .text {
+            scaleX = max(abs(scaleY), Metrics.Annotate.widthRange.lowerBound / width)
+            scaleY = scaleX
+            copy.width = width * scaleX
+        }
+        copy.points = points.map { CGPoint(x: anchor.x + ($0.x - anchor.x) * scaleX, y: anchor.y + ($0.y - anchor.y) * scaleY) }
+        return copy
+    }
+
     func draw(in context: GraphicsContext, size: CGSize) {
         let points = points.map { CGPoint(x: $0.x * size.width, y: $0.y * size.height) }
         guard let first = points.first, let last = points.last else { return }
@@ -85,6 +129,8 @@ struct AnnotationMark: Identifiable {
         let lineWidth = lineWidth(in: size)
         var path = Path()
         switch tool {
+        case .select:
+            return
         case .text:
             let label = Text(text).font(.system(size: fontSize(in: size), weight: .semibold)).foregroundStyle(color)
             return context.draw(label, at: first, anchor: .topLeading)

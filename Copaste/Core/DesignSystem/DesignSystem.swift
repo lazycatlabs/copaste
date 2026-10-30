@@ -128,6 +128,9 @@ enum Metrics {
         static let reopenDelay: TimeInterval = 0.3
         static let arrowHeadAngle = Double.pi / 7
         static let arrowHeadLength: CGFloat = 6
+        /// Select tool: how far outside a mark, in points, a click still picks it, and the corner handles' size.
+        static let hitSlop: CGFloat = 6
+        static let handleSize: CGFloat = 8
     }
 
     enum Clipboard {

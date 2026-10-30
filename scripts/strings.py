@@ -110,6 +110,7 @@ S = {
     "annotateOutline": ("Border", "Garis tepi"),
     "annotateFill": ("Fill", "Isi"),
     "annotateDone": ("Save as New Entry", "Simpan sebagai Entri Baru"),
+    "toolSelect": ("Select, move and resize", "Pilih, pindahkan, dan ubah ukuran"),
     "toolPen": ("Pen", "Pena"),
     "toolHighlighter": ("Highlighter", "Stabilo"),
     "toolRectangle": ("Rectangle", "Kotak"),
