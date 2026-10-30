@@ -3,6 +3,14 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.7.0 — 2026-10-30
+
+### New
+
+- **Move and resize marks in Annotate**: pick the new Select tool (the pointer), click a mark, then drag it to move
+  it or drag a corner handle to resize it. Text grows or shrinks with its corner.
+- **Undo goes further**: it now also reverses moves, resizes and Clear.
+
 ## 0.6.0 — 2026-10-30
 
 ### New
