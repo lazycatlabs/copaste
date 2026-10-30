@@ -181,6 +181,23 @@ final class CopasteE2ETests: XCTestCase {
         }
     }
 
+    func test09bAnnotateMovesAndResizesMarks() {
+        launch(open: "annotate")
+        let editor = app.windows["annotate"]
+        XCTAssertTrue(editor.waitForExistence(timeout: timeout))
+        let canvas = element("annotate.canvas")
+        func point(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate { canvas.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y)) }
+        editor.radioButtons["Rectangle"].click()
+        point(0.1, 0.1).click(forDuration: 0.1, thenDragTo: point(0.3, 0.3))
+
+        editor.radioButtons["Select, move and resize"].click()
+        // Pressing inside the rectangle selects it and drags it; then its bottom-right handle stretches it.
+        point(0.2, 0.2).click(forDuration: 0.1, thenDragTo: point(0.5, 0.5))
+        point(0.6, 0.6).click(forDuration: 0.1, thenDragTo: point(0.85, 0.8))
+        XCTAssertTrue(editor.buttons["Undo"].isEnabled, "Moving and resizing can be undone")
+        screenshot(editor, "14b-annotate-moved-resized")
+    }
+
     // MARK: Quick paste, groups, Settings pages
 
     func test10HoldingCommandShowsQuickPasteKeys() {
