@@ -68,7 +68,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         case .privacy: [.settingsIgnoredApps, .settingsAddApp]
         case .importing: [.importFromRaycast]
         case .updates: [.updateCheck, .changelogTitle, .updateDownload]
-        case .about: [.aboutVersion, .aboutLicense, .aboutSourceCode, .supportFeedback, .supportBugReport, .supportWebsite]
+        case .about: [.aboutVersion, .aboutLicense, .aboutSourceCode, .aboutSponsor, .supportFeedback, .supportBugReport, .supportWebsite]
         }
         return ([title, subtitle] + settings.map(L)).joined(separator: " ")
     }
