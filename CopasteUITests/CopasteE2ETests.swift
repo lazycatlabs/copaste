@@ -376,7 +376,41 @@ final class CopasteE2ETests: XCTestCase {
         XCTAssertTrue(settings.waitForExistence(timeout: timeout))
         openSettingsPage("about", in: settings)
         XCTAssertTrue(element("settings.license").waitForExistence(timeout: timeout), "About links to the GPL-3.0 license")
+        XCTAssertTrue(element("settings.sponsor").exists, "About links to GitHub Sponsors")
         screenshot(settings, "34-settings-about-license")
+    }
+
+    func test19AnnotateShapesSizeAndBlur() {
+        launch(open: "annotate")
+        let editor = app.windows["annotate"]
+        XCTAssertTrue(editor.waitForExistence(timeout: timeout))
+        let canvas = element("annotate.canvas")
+        XCTAssertTrue(canvas.waitForExistence(timeout: timeout))
+        var marks = 0
+        func drag(from start: CGVector, to end: CGVector) {
+            canvas.coordinate(withNormalizedOffset: start)
+                .click(forDuration: 0.2, thenDragTo: canvas.coordinate(withNormalizedOffset: end))
+            marks += 1
+            XCTAssertTrue(editor.buttons["Undo"].isEnabled, "Mark \(marks) is drawn")
+        }
+
+        editor.radioButtons["Blur"].click()
+        element("annotate.size").coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5)).click()
+        drag(from: CGVector(dx: 0.05, dy: 0.05), to: CGVector(dx: 0.45, dy: 0.3))
+
+        editor.radioButtons["Circle"].click()
+        XCTAssertTrue(editor.radioButtons["Fill"].waitForExistence(timeout: timeout), "Shapes can be filled")
+        editor.radioButtons["Fill"].click()
+        drag(from: CGVector(dx: 0.55, dy: 0.1), to: CGVector(dx: 0.75, dy: 0.35))
+
+        editor.radioButtons["Border"].click()
+        element("annotate.size").coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).click()
+        editor.radioButtons["Triangle"].click()
+        drag(from: CGVector(dx: 0.6, dy: 0.5), to: CGVector(dx: 0.9, dy: 0.9))
+
+        editor.radioButtons["Pen"].click()
+        XCTAssertFalse(editor.radioButtons["Fill"].exists, "Fill is only offered for shapes")
+        screenshot(editor, "35-annotate-shapes-size-blur")
     }
 
     // MARK: Helpers

@@ -105,12 +105,18 @@ S = {
 
     # Annotate
     "annotateTool": ("Tool", "Alat"),
-    "annotateWidth": ("Line width", "Tebal garis"),
+    "annotateWidth": ("Size", "Ukuran"),
+    "annotateShapeStyle": ("Shape style", "Gaya bentuk"),
+    "annotateOutline": ("Border", "Garis tepi"),
+    "annotateFill": ("Fill", "Isi"),
     "annotateDone": ("Save as New Entry", "Simpan sebagai Entri Baru"),
     "toolPen": ("Pen", "Pena"),
     "toolHighlighter": ("Highlighter", "Stabilo"),
     "toolRectangle": ("Rectangle", "Kotak"),
+    "toolEllipse": ("Circle", "Lingkaran"),
+    "toolTriangle": ("Triangle", "Segitiga"),
     "toolArrow": ("Arrow", "Panah"),
+    "toolBlur": ("Blur", "Buramkan"),
     "toolText": ("Text", "Teks"),
     "annotateTextPlaceholder": ("Type here", "Ketik di sini"),
 
@@ -323,6 +329,7 @@ S = {
         "Anda boleh membagikan dan mengubahnya sesuai ketentuannya. Tanpa jaminan apa pun.",
     ),
     "aboutSourceCode": ("Source Code", "Kode Sumber"),
+    "aboutSponsor": ("Sponsor on GitHub", "Sponsori di GitHub"),
     "supportFeedback": ("Send Feedback", "Kirim Masukan"),
     "supportBugReport": ("Report a Bug", "Laporkan Bug"),
     "supportWebsite": ("Website", "Situs Web"),

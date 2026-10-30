@@ -1,0 +1,49 @@
+name: Sponsors
+
+# Refreshes the sponsor avatars in README.md once a day.
+# Needs a SPONSORS_TOKEN secret: a personal access token of the sponsored account with the read:user and read:org scopes
+# (the built-in GITHUB_TOKEN can't read sponsors). If the API call fails, the job fails and README.md is left as it is.
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write public sponsors into README.md
+        env:
+          GH_TOKEN: ${{ secrets.SPONSORS_TOKEN }}
+        run: |
+          set -euo pipefail
+          sponsors=$(gh api graphql --paginate -f query='
+            query($endCursor: String) {
+              user(login: "Lzyct") {
+                sponsorshipsAsMaintainer(first: 100, after: $endCursor, activeOnly: true) {
+                  pageInfo { hasNextPage endCursor }
+                  nodes { privacyLevel sponsorEntity { ... on User { login name } ... on Organization { login name } } }
+                }
+              }
+            }' --jq '.data.user.sponsorshipsAsMaintainer.nodes[] | select(.privacyLevel == "PUBLIC") | .sponsorEntity
+              | (if (.name // "") == "" then .login else .name end) as $alt
+              | @html "<a href=\"https://github.com/\(.login)\"><img src=\"https://github.com/\(.login).png?size=120\" width=\"60\" alt=\"\($alt)\" /></a>"')
+          SPONSORS="$sponsors" python3 -c '
+          import os, re
+          html = "&nbsp;".join(os.environ["SPONSORS"].splitlines())
+          text = open("README.md").read()
+          text = re.sub(r"<!-- sponsors -->.*?<!-- sponsors -->", lambda _: f"<!-- sponsors -->{html}<!-- sponsors -->", text, flags=re.S)
+          open("README.md", "w").write(text)'
+
+      - name: Commit if changed
+        run: |
+          git diff --quiet README.md && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "docs: update sponsors"
+          git push

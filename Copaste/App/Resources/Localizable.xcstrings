@@ -69,6 +69,23 @@
         }
       }
     },
+    "aboutSponsor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sponsor on GitHub"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sponsori di GitHub"
+          }
+        }
+      }
+    },
     "aboutSubtitle": {
       "extractionState": "manual",
       "localizations": {
@@ -535,6 +552,57 @@
         }
       }
     },
+    "annotateFill": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fill"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isi"
+          }
+        }
+      }
+    },
+    "annotateOutline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Border"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garis tepi"
+          }
+        }
+      }
+    },
+    "annotateShapeStyle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shape style"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaya bentuk"
+          }
+        }
+      }
+    },
     "annotateTextPlaceholder": {
       "extractionState": "manual",
       "localizations": {
@@ -575,13 +643,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Line width"
+            "value": "Size"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tebal garis"
+            "value": "Ukuran"
           }
         }
       }
@@ -4087,6 +4155,40 @@
         }
       }
     },
+    "toolBlur": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blur"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buramkan"
+          }
+        }
+      }
+    },
+    "toolEllipse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Circle"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lingkaran"
+          }
+        }
+      }
+    },
     "toolHighlighter": {
       "extractionState": "manual",
       "localizations": {
@@ -4151,6 +4253,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Teks"
+          }
+        }
+      }
+    },
+    "toolTriangle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triangle"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segitiga"
           }
         }
       }
