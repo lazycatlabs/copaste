@@ -376,6 +376,7 @@ final class CopasteE2ETests: XCTestCase {
         XCTAssertTrue(settings.waitForExistence(timeout: timeout))
         openSettingsPage("about", in: settings)
         XCTAssertTrue(element("settings.license").waitForExistence(timeout: timeout), "About links to the GPL-3.0 license")
+        XCTAssertTrue(element("settings.sponsor").exists, "About links to GitHub Sponsors")
         screenshot(settings, "34-settings-about-license")
     }
 

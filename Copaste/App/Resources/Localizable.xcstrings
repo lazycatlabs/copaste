@@ -69,6 +69,23 @@
         }
       }
     },
+    "aboutSponsor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sponsor on GitHub"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sponsori di GitHub"
+          }
+        }
+      }
+    },
     "aboutSubtitle": {
       "extractionState": "manual",
       "localizations": {

@@ -392,6 +392,9 @@ private struct AboutPage: View {
             SettingsRow(L(.aboutSourceCode), symbol: "chevron.left.forwardslash.chevron.right") {
                 Link(L(.aboutSourceCode), destination: SupportLinks.sourceCode)
             }
+            SettingsRow(L(.aboutSponsor), symbol: "heart") {
+                Link(L(.aboutSponsor), destination: SupportLinks.sponsor).accessibilityIdentifier("settings.sponsor")
+            }
             if let url = SupportLinks.feedback() {
                 SettingsRow(L(.supportFeedback), symbol: "bubble.left") { Link(L(.supportFeedback), destination: url) }
             }

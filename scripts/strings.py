@@ -329,6 +329,7 @@ S = {
         "Anda boleh membagikan dan mengubahnya sesuai ketentuannya. Tanpa jaminan apa pun.",
     ),
     "aboutSourceCode": ("Source Code", "Kode Sumber"),
+    "aboutSponsor": ("Sponsor on GitHub", "Sponsori di GitHub"),
     "supportFeedback": ("Send Feedback", "Kirim Masukan"),
     "supportBugReport": ("Report a Bug", "Laporkan Bug"),
     "supportWebsite": ("Website", "Situs Web"),

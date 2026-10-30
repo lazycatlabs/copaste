@@ -5,6 +5,7 @@ nonisolated enum SupportLinks {
     static let email = "admin@lazycatlabs.com"
     static let website = URL(string: "https://copaste.lazycatlabs.com")!
     static let sourceCode = URL(string: "https://github.com/lazycatlabs/copaste")!
+    static let sponsor = URL(string: "https://github.com/sponsors/Lzyct")!
     static let license = URL(string: "https://github.com/lazycatlabs/copaste/blob/main/LICENSE")!
 
     static var appVersion: String {
