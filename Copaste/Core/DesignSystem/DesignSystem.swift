@@ -112,7 +112,12 @@ enum Metrics {
         static let swatch: CGFloat = 20
         static let selectedRing: CGFloat = 2
         /// Stroke widths, as a share of the image's width, so a mark looks the same at any zoom.
-        static let widths: [CGFloat] = [0.003, 0.006, 0.012]
+        static let widthRange: ClosedRange<CGFloat> = 0.002...0.03
+        static let defaultWidth: CGFloat = 0.006
+        static let sizeSliderWidth: CGFloat = 100
+        /// The dot beside the size slider, in points.
+        static let sizePreviewMin: CGFloat = 2
+        static let sizePreviewMax: CGFloat = 24
         static let highlighterScale: CGFloat = 4
         /// Text marks: font size as a multiple of the stroke width.
         static let textScale: CGFloat = 4

@@ -16,7 +16,7 @@ struct AnnotationEditor: View {
     @State private var current: AnnotationMark?
     @State private var tool = AnnotationTool.pen
     @State private var color = Color.red
-    @State private var widthIndex = 1
+    @State private var width = Metrics.Annotate.defaultWidth
     @State private var canvasSize = CGSize.zero
     /// The text mark being typed, shown as a field on the canvas until it's committed.
     @State private var typing: AnnotationMark?
@@ -55,15 +55,7 @@ struct AnnotationEditor: View {
                         .accessibilityAddTraits(.isButton)
                 }
             }
-            Picker(L(.annotateWidth), selection: $widthIndex) {
-                ForEach(Metrics.Annotate.widths.indices, id: \.self) { index in
-                    Image(systemName: "circle.fill").imageScale([.small, .medium, .large][index]).tag(index)
-                }
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .fixedSize()
-            .onChange(of: widthIndex) { typing?.width = Metrics.Annotate.widths[widthIndex] }
+            sizeControl
             Spacer(minLength: 0)
             Button(L(.actionUndo), systemImage: "arrow.uturn.backward") { _ = marks.popLast() }
                 .disabled(marks.isEmpty)
@@ -72,6 +64,23 @@ struct AnnotationEditor: View {
                 .disabled(marks.isEmpty)
         }
         .labelStyle(.iconOnly)
+    }
+
+    /// A slider for the stroke size, next to a dot as wide as the stroke will be on the canvas.
+    private var sizeControl: some View {
+        HStack(spacing: Spacing.sm) {
+            let sample = AnnotationMark(tool: tool, color: color, width: width, points: [])
+            Circle().fill(color)
+                .overlay(Circle().strokeBorder(.primary.opacity(Opacity.border)))
+                .frame(width: min(max(sample.lineWidth(in: canvasSize), Metrics.Annotate.sizePreviewMin), Metrics.Annotate.sizePreviewMax))
+                .frame(width: Metrics.Annotate.sizePreviewMax, height: Metrics.Annotate.sizePreviewMax)
+            Slider(value: $width, in: Metrics.Annotate.widthRange) { Text(L(.annotateWidth)) }
+                .labelsHidden()
+                .frame(width: Metrics.Annotate.sizeSliderWidth)
+                .accessibilityIdentifier("annotate.size")
+                .onChange(of: width) { typing?.width = width }
+        }
+        .help(L(.annotateWidth))
     }
 
     private var canvas: some View {
@@ -125,7 +134,7 @@ struct AnnotationEditor: View {
                 guard canvasSize.width > 0, canvasSize.height > 0, tool != .text else { return }
                 let point = CGPoint(x: value.location.x / canvasSize.width, y: value.location.y / canvasSize.height)
                 if current == nil {
-                    current = AnnotationMark(tool: tool, color: color, width: Metrics.Annotate.widths[widthIndex], points: [point])
+                    current = AnnotationMark(tool: tool, color: color, width: width, points: [point])
                 } else if tool == .pen || tool == .highlighter {
                     current?.points.append(point)
                 } else {
@@ -137,7 +146,7 @@ struct AnnotationEditor: View {
                     // A click places a text field there; clicking elsewhere keeps the previous text.
                     commitText()
                     let point = CGPoint(x: value.location.x / canvasSize.width, y: value.location.y / canvasSize.height)
-                    typing = AnnotationMark(tool: .text, color: color, width: Metrics.Annotate.widths[widthIndex], points: [point])
+                    typing = AnnotationMark(tool: .text, color: color, width: width, points: [point])
                 }
                 if let current { marks.append(current) }
                 current = nil

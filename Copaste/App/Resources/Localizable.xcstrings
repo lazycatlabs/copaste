@@ -575,13 +575,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Line width"
+            "value": "Size"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tebal garis"
+            "value": "Ukuran"
           }
         }
       }

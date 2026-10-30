@@ -43,23 +43,26 @@ struct AnnotationMark: Identifiable {
         width * size.width * Metrics.Annotate.textScale
     }
 
+    /// The stroke width on an image (or canvas) of this size.
+    func lineWidth(in size: CGSize) -> CGFloat {
+        width * size.width * (tool == .highlighter ? Metrics.Annotate.highlighterScale : 1)
+    }
+
     func draw(in context: GraphicsContext, size: CGSize) {
         let points = points.map { CGPoint(x: $0.x * size.width, y: $0.y * size.height) }
         guard let first = points.first, let last = points.last else { return }
-        if tool == .text {
-            let label = Text(text).font(.system(size: fontSize(in: size), weight: .semibold)).foregroundStyle(color)
-            return context.draw(label, at: first, anchor: .topLeading)
-        }
-        let lineWidth = width * size.width * (tool == .highlighter ? Metrics.Annotate.highlighterScale : 1)
+        let bounds = CGRect(x: min(first.x, last.x), y: min(first.y, last.y),
+                            width: abs(last.x - first.x), height: abs(last.y - first.y))
+        let lineWidth = lineWidth(in: size)
         var path = Path()
         switch tool {
+        case .text:
+            let label = Text(text).font(.system(size: fontSize(in: size), weight: .semibold)).foregroundStyle(color)
+            return context.draw(label, at: first, anchor: .topLeading)
         case .pen, .highlighter:
             path.addLines(points)
         case .rectangle:
-            path.addRect(CGRect(x: min(first.x, last.x), y: min(first.y, last.y),
-                                width: abs(last.x - first.x), height: abs(last.y - first.y)))
-        case .text:
-            return
+            path.addRect(bounds)
         case .arrow:
             path.move(to: first)
             path.addLine(to: last)

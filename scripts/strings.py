@@ -105,7 +105,7 @@ S = {
 
     # Annotate
     "annotateTool": ("Tool", "Alat"),
-    "annotateWidth": ("Line width", "Tebal garis"),
+    "annotateWidth": ("Size", "Ukuran"),
     "annotateDone": ("Save as New Entry", "Simpan sebagai Entri Baru"),
     "toolPen": ("Pen", "Pena"),
     "toolHighlighter": ("Highlighter", "Stabilo"),
