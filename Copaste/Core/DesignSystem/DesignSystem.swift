@@ -118,6 +118,8 @@ enum Metrics {
         /// The dot beside the size slider, in points.
         static let sizePreviewMin: CGFloat = 2
         static let sizePreviewMax: CGFloat = 24
+        /// Blur mosaic: the side of a square as a multiple of the stroke width.
+        static let mosaicScale: CGFloat = 3
         static let highlighterScale: CGFloat = 4
         /// Text marks: font size as a multiple of the stroke width.
         static let textScale: CGFloat = 4

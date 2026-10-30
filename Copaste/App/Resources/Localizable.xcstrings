@@ -4138,6 +4138,23 @@
         }
       }
     },
+    "toolBlur": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blur"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buramkan"
+          }
+        }
+      }
+    },
     "toolEllipse": {
       "extractionState": "manual",
       "localizations": {

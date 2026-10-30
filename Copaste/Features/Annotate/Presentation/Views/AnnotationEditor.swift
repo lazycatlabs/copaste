@@ -1,7 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Draw and write on an image (pen, highlighter, shapes, arrow, text), then keep the result as a new clipboard entry.
+/// Draw and write on an image (pen, highlighter, shapes, arrow, text, blur), then keep the result as a new clipboard entry.
 struct AnnotationEditor: View {
     let image: NSImage
     /// Called with the annotated image as PNG, and its size in pixels.
@@ -144,7 +144,8 @@ struct AnnotationEditor: View {
                 guard canvasSize.width > 0, canvasSize.height > 0, tool != .text else { return }
                 let point = CGPoint(x: value.location.x / canvasSize.width, y: value.location.y / canvasSize.height)
                 if current == nil {
-                    current = AnnotationMark(tool: tool, color: color, width: width, points: [point], filled: filled)
+                    current = AnnotationMark(tool: tool, color: color, width: width, points: [point], filled: filled,
+                                             mosaic: tool == .blur ? AnnotationMark.mosaic(of: image, width: width) : nil)
                 } else if tool == .pen || tool == .highlighter {
                     current?.points.append(point)
                 } else {

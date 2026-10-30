@@ -116,6 +116,7 @@ S = {
     "toolEllipse": ("Circle", "Lingkaran"),
     "toolTriangle": ("Triangle", "Segitiga"),
     "toolArrow": ("Arrow", "Panah"),
+    "toolBlur": ("Blur", "Buramkan"),
     "toolText": ("Text", "Teks"),
     "annotateTextPlaceholder": ("Type here", "Ketik di sini"),
 
