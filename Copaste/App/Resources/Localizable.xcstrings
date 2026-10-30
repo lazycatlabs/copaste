@@ -4240,6 +4240,23 @@
         }
       }
     },
+    "toolSelect": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select, move and resize"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pilih, pindahkan, dan ubah ukuran"
+          }
+        }
+      }
+    },
     "toolText": {
       "extractionState": "manual",
       "localizations": {

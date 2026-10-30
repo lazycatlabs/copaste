@@ -22,6 +22,20 @@ struct AnnotationEditor: View {
     /// The text mark being typed, shown as a field on the canvas until it's committed.
     @State private var typing: AnnotationMark?
     @FocusState private var typingFocused: Bool
+    /// Earlier versions of `marks`, for undo.
+    @State private var history: [[AnnotationMark]] = []
+    /// Select tool: the mark with handles around it, and the drag moving or resizing it.
+    @State private var selection: AnnotationMark.ID?
+    @State private var edit: Edit?
+
+    private struct Edit {
+        let index: Int
+        let original: AnnotationMark
+        /// The corner handle being dragged and the opposite corner, in shares of the image's size; nil when moving.
+        var corner: CGPoint?
+        var anchor = CGPoint.zero
+        var recorded = false
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,7 +52,10 @@ struct AnnotationEditor: View {
             Picker(L(.annotateTool), selection: $tool) {
                 ForEach(AnnotationTool.allCases) { Label($0.title, systemImage: $0.symbolName).tag($0) }
             }
-            .onChange(of: tool) { commitText() }
+            .onChange(of: tool) {
+                commitText()
+                selection = nil
+            }
             .pickerStyle(.segmented)
             .labelsHidden()
             .fixedSize()
@@ -67,10 +84,13 @@ struct AnnotationEditor: View {
             }
             sizeControl
             Spacer(minLength: 0)
-            Button(L(.actionUndo), systemImage: "arrow.uturn.backward") { _ = marks.popLast() }
-                .disabled(marks.isEmpty)
+            Button(L(.actionUndo), systemImage: "arrow.uturn.backward") { marks = history.popLast() ?? [] }
+                .disabled(history.isEmpty)
                 .keyboardShortcut(typing == nil ? KeyboardShortcut("z") : nil)
-            Button(L(.actionClear), systemImage: "trash") { marks.removeAll() }
+            Button(L(.actionClear), systemImage: "trash") {
+                record()
+                marks.removeAll()
+            }
                 .disabled(marks.isEmpty)
         }
         .labelStyle(.iconOnly)
@@ -98,6 +118,7 @@ struct AnnotationEditor: View {
             Image(nsImage: image).resizable()
             Canvas { context, size in
                 for mark in marks + [current].compactMap({ $0 }) { mark.draw(in: context, size: size) }
+                if let mark = marks.first(where: { $0.id == selection }) { drawSelection(around: mark.bounds(in: size), in: context) }
             }
         }
         .accessibilityIdentifier("annotate.canvas")
@@ -134,7 +155,10 @@ struct AnnotationEditor: View {
 
     /// Keeps the text being typed as a mark, unless it's empty.
     private func commitText() {
-        if let typing, !typing.text.trimmingCharacters(in: .whitespaces).isEmpty { marks.append(typing) }
+        if let typing, !typing.text.trimmingCharacters(in: .whitespaces).isEmpty {
+            record()
+            marks.append(typing)
+        }
         typing = nil
     }
 
@@ -142,7 +166,8 @@ struct AnnotationEditor: View {
         DragGesture(minimumDistance: 0)
             .onChanged { value in
                 guard canvasSize.width > 0, canvasSize.height > 0, tool != .text else { return }
-                let point = CGPoint(x: value.location.x / canvasSize.width, y: value.location.y / canvasSize.height)
+                if tool == .select { return dragSelection(value) }
+                let point = normalized(value.location)
                 if current == nil {
                     current = AnnotationMark(tool: tool, color: color, width: width, points: [point], filled: filled,
                                              mosaic: tool == .blur ? AnnotationMark.mosaic(of: image, width: width) : nil)
@@ -153,15 +178,76 @@ struct AnnotationEditor: View {
                 }
             }
             .onEnded { value in
+                edit = nil
                 if tool == .text, canvasSize.width > 0, canvasSize.height > 0 {
                     // A click places a text field there; clicking elsewhere keeps the previous text.
                     commitText()
-                    let point = CGPoint(x: value.location.x / canvasSize.width, y: value.location.y / canvasSize.height)
-                    typing = AnnotationMark(tool: .text, color: color, width: width, points: [point])
+                    typing = AnnotationMark(tool: .text, color: color, width: width, points: [normalized(value.location)])
                 }
-                if let current { marks.append(current) }
+                if let current {
+                    record()
+                    marks.append(current)
+                }
                 current = nil
             }
+    }
+
+    private func record() { history.append(marks) }
+
+    /// A canvas location as a share of the image's size.
+    private func normalized(_ location: CGPoint) -> CGPoint {
+        CGPoint(x: location.x / canvasSize.width, y: location.y / canvasSize.height)
+    }
+
+    /// A rectangle's corners, clockwise from the top left.
+    private func corners(of rect: CGRect) -> [CGPoint] {
+        [CGPoint(x: rect.minX, y: rect.minY), CGPoint(x: rect.maxX, y: rect.minY),
+         CGPoint(x: rect.maxX, y: rect.maxY), CGPoint(x: rect.minX, y: rect.maxY)]
+    }
+
+    /// Select tool: a press on a corner handle resizes the selected mark, on a mark selects and moves it.
+    private func dragSelection(_ value: DragGesture.Value) {
+        if edit == nil { edit = beginEdit(at: value.startLocation) }
+        guard var edit, value.translation != .zero else { return }
+        if !edit.recorded {
+            record()
+            edit.recorded = true
+            self.edit = edit
+        }
+        let offset = CGSize(width: value.translation.width / canvasSize.width, height: value.translation.height / canvasSize.height)
+        marks[edit.index] = if let corner = edit.corner {
+            edit.original.resized(anchor: edit.anchor, from: corner,
+                                  to: CGPoint(x: corner.x + offset.width, y: corner.y + offset.height))
+        } else {
+            edit.original.moved(by: offset)
+        }
+    }
+
+    private func beginEdit(at location: CGPoint) -> Edit? {
+        if let index = marks.firstIndex(where: { $0.id == selection }) {
+            let handles = corners(of: marks[index].bounds(in: canvasSize))
+            if let hit = handles.firstIndex(where: { hypot($0.x - location.x, $0.y - location.y) <= Metrics.Annotate.handleSize }) {
+                return Edit(index: index, original: marks[index], corner: normalized(handles[hit]),
+                            anchor: normalized(handles[(hit + 2) % handles.count]))
+            }
+        }
+        guard let index = marks.lastIndex(where: { $0.contains(location, in: canvasSize) }) else {
+            selection = nil
+            return nil
+        }
+        selection = marks[index].id
+        return Edit(index: index, original: marks[index])
+    }
+
+    /// A dashed box with corner handles around the selected mark.
+    private func drawSelection(around rect: CGRect, in context: GraphicsContext) {
+        context.stroke(Path(rect), with: .color(.accentColor), style: StrokeStyle(lineWidth: Metrics.hairline, dash: [Spacing.xs]))
+        let side = Metrics.Annotate.handleSize
+        for corner in corners(of: rect) {
+            let handle = Path(CGRect(x: corner.x - side / 2, y: corner.y - side / 2, width: side, height: side))
+            context.fill(handle, with: .color(.white))
+            context.stroke(handle, with: .color(.accentColor), lineWidth: Metrics.hairline)
+        }
     }
 
     private var footer: some View {
