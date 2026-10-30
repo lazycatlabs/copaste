@@ -3,6 +3,22 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.6.0 — 2026-10-30
+
+### New
+
+- **More ways to mark up images in Annotate**: Circle and Triangle sit next to Rectangle, and any shape can be drawn as
+  a border or filled with the color.
+- **Mosaic blur**: drag over part of an image to pixelate it, for passwords, names or anything you'd rather not share.
+  The hidden content can't be recovered from the saved image.
+- **Size slider**: the stroke size is now a slider, with a dot beside it that shows how wide the line will be. It also
+  sets the text size and the mosaic's square size.
+- **Sponsor Copaste**: Settings › About links to GitHub Sponsors.
+
+### Fixed
+
+- The three stroke-size buttons in Annotate all looked the same size.
+
 ## 0.5.2 — 2026-10-28
 
 ### New
