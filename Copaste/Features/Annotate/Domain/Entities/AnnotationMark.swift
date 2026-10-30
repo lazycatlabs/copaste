@@ -1,15 +1,20 @@
 import SwiftUI
 
 enum AnnotationTool: String, CaseIterable, Identifiable {
-    case pen, highlighter, rectangle, arrow, text
+    case pen, highlighter, rectangle, ellipse, triangle, arrow, text
 
     var id: String { rawValue }
+
+    /// Shapes that can be drawn as an outline or filled.
+    var isShape: Bool { [.rectangle, .ellipse, .triangle].contains(self) }
 
     var symbolName: String {
         switch self {
         case .pen: "pencil.tip"
         case .highlighter: "highlighter"
         case .rectangle: "rectangle"
+        case .ellipse: "circle"
+        case .triangle: "triangle"
         case .arrow: "arrow.up.right"
         case .text: "textformat"
         }
@@ -20,6 +25,8 @@ enum AnnotationTool: String, CaseIterable, Identifiable {
         case .pen: L(.toolPen)
         case .highlighter: L(.toolHighlighter)
         case .rectangle: L(.toolRectangle)
+        case .ellipse: L(.toolEllipse)
+        case .triangle: L(.toolTriangle)
         case .arrow: L(.toolArrow)
         case .text: L(.toolText)
         }
@@ -37,6 +44,8 @@ struct AnnotationMark: Identifiable {
     var points: [CGPoint]
     /// What a text mark says; its top-left corner is the first point.
     var text = ""
+    /// Shapes only: filled with the color instead of outlined.
+    var filled = false
 
     /// A text mark's font size on an image (or canvas) of this size.
     func fontSize(in size: CGSize) -> CGFloat {
@@ -63,6 +72,12 @@ struct AnnotationMark: Identifiable {
             path.addLines(points)
         case .rectangle:
             path.addRect(bounds)
+        case .ellipse:
+            path.addEllipse(in: bounds)
+        case .triangle:
+            path.addLines([CGPoint(x: bounds.midX, y: bounds.minY), CGPoint(x: bounds.maxX, y: bounds.maxY),
+                           CGPoint(x: bounds.minX, y: bounds.maxY)])
+            path.closeSubpath()
         case .arrow:
             path.move(to: first)
             path.addLine(to: last)
@@ -74,6 +89,7 @@ struct AnnotationMark: Identifiable {
                 path.addLine(to: CGPoint(x: last.x + head * cos(wing), y: last.y + head * sin(wing)))
             }
         }
+        if filled && tool.isShape { return context.fill(path, with: .color(color)) }
         let shading = tool == .highlighter ? color.opacity(Opacity.highlighter) : color
         context.stroke(path, with: .color(shading), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
     }

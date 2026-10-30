@@ -1,7 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Draw and write on an image (pen, highlighter, rectangle, arrow, text), then keep the result as a new clipboard entry.
+/// Draw and write on an image (pen, highlighter, shapes, arrow, text), then keep the result as a new clipboard entry.
 struct AnnotationEditor: View {
     let image: NSImage
     /// Called with the annotated image as PNG, and its size in pixels.
@@ -17,6 +17,7 @@ struct AnnotationEditor: View {
     @State private var tool = AnnotationTool.pen
     @State private var color = Color.red
     @State private var width = Metrics.Annotate.defaultWidth
+    @State private var filled = false
     @State private var canvasSize = CGSize.zero
     /// The text mark being typed, shown as a field on the canvas until it's committed.
     @State private var typing: AnnotationMark?
@@ -41,6 +42,15 @@ struct AnnotationEditor: View {
             .pickerStyle(.segmented)
             .labelsHidden()
             .fixedSize()
+            if tool.isShape {
+                Picker(L(.annotateShapeStyle), selection: $filled) {
+                    Label(L(.annotateOutline), systemImage: "square").tag(false)
+                    Label(L(.annotateFill), systemImage: "square.fill").tag(true)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .fixedSize()
+            }
             HStack(spacing: Spacing.sm) {
                 ForEach(Self.palette, id: \.self) { swatch in
                     Circle().fill(swatch)
@@ -134,7 +144,7 @@ struct AnnotationEditor: View {
                 guard canvasSize.width > 0, canvasSize.height > 0, tool != .text else { return }
                 let point = CGPoint(x: value.location.x / canvasSize.width, y: value.location.y / canvasSize.height)
                 if current == nil {
-                    current = AnnotationMark(tool: tool, color: color, width: width, points: [point])
+                    current = AnnotationMark(tool: tool, color: color, width: width, points: [point], filled: filled)
                 } else if tool == .pen || tool == .highlighter {
                     current?.points.append(point)
                 } else {
