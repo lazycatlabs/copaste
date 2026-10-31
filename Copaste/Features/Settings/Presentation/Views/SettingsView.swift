@@ -77,6 +77,17 @@ enum SettingsPage: String, CaseIterable, Identifiable {
     var needsVault: Bool { ![.general, .updates, .about].contains(self) }
 }
 
+/// A sidebar page's icon: accent-colored, but in the selected row's text color while that row is highlighted, so it
+/// doesn't vanish into the accent-colored selection.
+private struct SidebarIcon: View {
+    let symbol: String
+    @Environment(\.backgroundProminence) private var prominence
+
+    var body: some View {
+        Image(systemName: symbol).foregroundStyle(prominence == .increased ? AnyShapeStyle(.primary) : AnyShapeStyle(Color.accentColor))
+    }
+}
+
 /// Settings: a searchable sidebar of pages, and the chosen page.
 struct SettingsView: View {
     @Environment(AppContainer.self) private var container
@@ -96,7 +107,7 @@ struct SettingsView: View {
                 Label {
                     Text(page.title).font(.scaled(.body))
                 } icon: {
-                    Image(systemName: page.symbol).foregroundStyle(Color.accentColor)
+                    SidebarIcon(symbol: page.symbol)
                 }
                 .tag(page)
                 .accessibilityIdentifier("settings.nav.\(page.rawValue)")
