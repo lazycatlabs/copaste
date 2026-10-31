@@ -19,14 +19,46 @@ nonisolated enum ImageConverter {
         guard var image = CGImageSourceCreateThumbnailAtIndex(source, 0, decode as CFDictionary) else { return nil }
         if !options.format.keepsTransparency, hasAlpha(image), let flat = flattened(image) { image = flat }
 
+        let data: Data? = switch options.format {
+        case .svg: svg(image)
+        case .pdf: pdf(image)
+        default: encode(image, as: options.format.type, quality: options.format.isLossy ? options.quality : nil)
+        }
+        return data.map { ConvertedImage(data: $0, width: image.width, height: image.height) }
+    }
+
+    private static func encode(_ image: CGImage, as type: UTType, quality: Double? = nil) -> Data? {
         let data = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(data, options.format.type.identifier as CFString, 1, nil)
-        else { return nil }
-        var encode: [CFString: Any] = [:]
-        if options.format.isLossy { encode[kCGImageDestinationLossyCompressionQuality] = options.quality }
-        CGImageDestinationAddImage(destination, image, encode as CFDictionary)
-        guard CGImageDestinationFinalize(destination) else { return nil }
-        return ConvertedImage(data: data as Data, width: image.width, height: image.height)
+        guard let destination = CGImageDestinationCreateWithData(data, type.identifier as CFString, 1, nil) else { return nil }
+        let properties = quality.map { [kCGImageDestinationLossyCompressionQuality: $0] } ?? [:]
+        CGImageDestinationAddImage(destination, image, properties as CFDictionary)
+        return CGImageDestinationFinalize(destination) ? data as Data : nil
+    }
+
+    /// A one-page PDF the size of the image (one point per pixel).
+    private static func pdf(_ image: CGImage) -> Data? {
+        let data = NSMutableData()
+        var box = CGRect(x: 0, y: 0, width: image.width, height: image.height)
+        guard let consumer = CGDataConsumer(data: data as CFMutableData),
+              let context = CGContext(consumer: consumer, mediaBox: &box, nil) else { return nil }
+        context.beginPDFPage(nil)
+        context.draw(image, in: box)
+        context.endPDFPage()
+        context.closePDF()
+        return data as Data
+    }
+
+    /// An SVG the size of the image, with the image inside as a PNG (which keeps transparency).
+    private static func svg(_ image: CGImage) -> Data? {
+        guard let png = encode(image, as: .png) else { return nil }
+        let (width, height) = (image.width, image.height)
+        return Data("""
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" \
+        width="\(width)" height="\(height)" viewBox="0 0 \(width) \(height)">
+        <image width="\(width)" height="\(height)" xlink:href="data:image/png;base64,\(png.base64EncodedString())"/>
+        </svg>
+
+        """.utf8)
     }
 
     private static func hasAlpha(_ image: CGImage) -> Bool {

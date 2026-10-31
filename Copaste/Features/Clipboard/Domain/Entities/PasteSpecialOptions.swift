@@ -1,8 +1,9 @@
 import UniformTypeIdentifiers
 
-/// The file types Paste Special can turn an image into.
+/// The file types Paste Special can turn an image into. SVG and PDF hold the picture as it is (an SVG isn't
+/// traced into vector shapes): handy for apps and uploads that only take those types.
 nonisolated enum ImageFormat: String, CaseIterable, Identifiable, Sendable {
-    case png, jpeg, heic, tiff
+    case png, jpeg, heic, tiff, svg, pdf
 
     var id: String { rawValue }
 
@@ -12,6 +13,8 @@ nonisolated enum ImageFormat: String, CaseIterable, Identifiable, Sendable {
         case .jpeg: .jpeg
         case .heic: .heic
         case .tiff: .tiff
+        case .svg: .svg
+        case .pdf: .pdf
         }
     }
 

@@ -30,8 +30,17 @@ struct PasteSpecialTests {
         let url = try makePNG(width: 400, height: 200)
         defer { try? FileManager.default.removeItem(at: url) }
         let result = try #require(ImageConverter.convert(url, options: PasteSpecialOptions(format: format, scale: 0.5)))
-        #expect(type(of: result.data) == format.type.identifier)
         #expect(result.width == 200 && result.height == 100)
+        switch format {
+        case .svg:
+            let svg = try #require(String(data: result.data, encoding: .utf8))
+            #expect(svg.hasPrefix("<svg") && svg.contains(#"width="200" height="100""#) && svg.contains("data:image/png;base64,"))
+        case .pdf:
+            let page = try #require(CGDataProvider(data: result.data as CFData).flatMap(CGPDFDocument.init)?.page(at: 1))
+            #expect(page.getBoxRect(.mediaBox).size == CGSize(width: 200, height: 100))
+        default:
+            #expect(type(of: result.data) == format.type.identifier)
+        }
     }
 
     @Test func lowerQualityMakesSmallerJPEG() throws {
