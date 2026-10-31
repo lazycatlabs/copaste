@@ -58,6 +58,8 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
             SettingsNavigation.shared.page = .groups
             self?.hide(restoringFocus: false)
             self?.showSettings()
+        } finishPasteSpecial: { [weak self] pasting in
+            self?.finishPasteSpecial(pasting: pasting)
         }
         .environment(session)
         panel.contentView = NSHostingView(rootView: view)
@@ -172,6 +174,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
             if Int(event.keyCode) == kVK_Escape { model.editsNote = false; return true }
             return false
         }
+        if model.pasteSpecial != nil { return handlePasteSpecial(event) }
         let shift = event.modifierFlags.contains(.shift)
         switch Int(event.keyCode) {
         case kVK_DownArrow: model.moveSelection(by: 1, extending: shift, in: session); return true
@@ -194,6 +197,15 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         }
         guard let shortcut = HotKeyStore.shared.shortcut(for: event) else { return false }
         if let selected = model.selected(in: session) { run(shortcut, on: selected, session: session) }
+        return true
+    }
+
+    /// Paste Special open: esc closes it, the paste and copy shortcuts finish it, the rest go to its controls.
+    private func handlePasteSpecial(_ event: NSEvent) -> Bool {
+        if Int(event.keyCode) == kVK_Escape { model.pasteSpecial = nil; return true }
+        let store = HotKeyStore.shared
+        guard store[.paste].matches(event) || store[.copy].matches(event) else { return false }
+        finishPasteSpecial(pasting: store[.paste].matches(event))
         return true
     }
 
@@ -231,6 +243,9 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         switch action {
         case .paste: paste(item, session: session)
         case .copy: session.copy(item); hide()
+        case .pasteSpecial:
+            model.showsActions = false
+            model.pasteSpecial = session.imageURL(of: item).map { PasteSpecialModel(item: item, source: $0) }
         case .copyHex: copyColor(item) { $0.hex }
         case .copyRGB: copyColor(item) { $0.rgb }
         case .copyHSL: copyColor(item) { $0.hsl }
@@ -278,6 +293,20 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         session.preparePaste(item)
         hide()
         pressCommandV(once: target)
+    }
+
+    /// Puts the Paste Special conversion on the clipboard as a file and, when pasting, sends ⌘V to the previous app.
+    /// Without paste access (or with pasting turned off) it's copied instead.
+    private func finishPasteSpecial(pasting: Bool) {
+        guard let session, let special = model.pasteSpecial else { return }
+        guard let image = special.converted() else { return model.showToast(L(.pasteSpecialFailed)) }
+        let wantsPaste = pasting && session.settings.pasteDirectly
+        let pastes = wantsPaste && PasteSimulator.isTrusted
+        guard session.writeConverted(image, format: special.options.format, for: special.item, pasting: pastes) else { return }
+        model.pasteSpecial = nil
+        let target = previousApp
+        hide()
+        if pastes { pressCommandV(once: target) } else if wantsPaste { PasteSimulator.requestAccess() }
     }
 
     func copy(_ items: [ClipItem]) {

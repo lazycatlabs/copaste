@@ -20,6 +20,8 @@ final class ClipboardViewModel {
     @ObservationIgnored private var anchorID: UUID?
     @ObservationIgnored private var rangeIDs: Set<UUID> = []
     var showsActions = false
+    /// The Paste Special sheet, while it's open.
+    var pasteSpecial: PasteSpecialModel?
     /// A short confirmation shown at the bottom of the window, e.g. after copying an entry.
     private(set) var toast: String?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
@@ -119,6 +121,7 @@ final class ClipboardViewModel {
         rangeIDs = []
         anchorID = nil
         showsActions = false
+        pasteSpecial = nil
         showsQuickPasteKeys = false
         toast = nil
     }

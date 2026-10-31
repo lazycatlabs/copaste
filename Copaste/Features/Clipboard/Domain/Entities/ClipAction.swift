@@ -2,13 +2,14 @@ import Foundation
 
 /// What can be done with an entry. Which ones apply depends on its kind.
 nonisolated enum ClipAction: String, CaseIterable, Identifiable, Sendable {
-    case paste, copy, open, composeEmail, copyHex, copyRGB, copyHSL, annotate, saveToFile, revealInFinder
+    case paste, copy, pasteSpecial, open, composeEmail, copyHex, copyRGB, copyHSL, annotate, saveToFile, revealInFinder
     case pin, delete
 
     var id: String { rawValue }
 
     static func available(for item: ClipItem) -> [ClipAction] {
         var actions: [ClipAction] = [.paste, .copy]
+        if item.isConvertibleImage { actions.append(.pasteSpecial) }
         switch item.kind {
         case .link: actions.append(.open)
         case .email: actions.append(.composeEmail)
@@ -24,6 +25,7 @@ nonisolated enum ClipAction: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .paste: "doc.on.clipboard"
         case .copy: "doc.on.doc"
+        case .pasteSpecial: "wand.and.stars"
         case .open: "arrow.up.forward.app"
         case .composeEmail: "envelope"
         case .copyHex, .copyRGB, .copyHSL: "eyedropper"
@@ -39,6 +41,7 @@ nonisolated enum ClipAction: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .paste: L(.actionPaste)
         case .copy: L(.actionCopy)
+        case .pasteSpecial: L(.actionPasteSpecial)
         case .open: item.kind == .link ? L(.actionOpenInBrowser) : L(.actionOpen)
         case .composeEmail: L(.actionComposeEmail)
         case .copyHex: L(.actionCopyAs("HEX"))
@@ -57,6 +60,7 @@ nonisolated enum ClipAction: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .paste: .paste
         case .copy: .copy
+        case .pasteSpecial: .pasteSpecial
         case .open, .composeEmail: .open
         case .annotate: .annotate
         case .saveToFile: .save

@@ -107,6 +107,12 @@ enum Metrics {
         static let pageAnimation: TimeInterval = 0.35
     }
 
+    enum PasteSpecial {
+        static let width: CGFloat = 400
+        /// Wait this long after the last change before converting again, so dragging the quality slider stays smooth.
+        static let debounce: Duration = .milliseconds(150)
+    }
+
     enum Annotate {
         static let windowSize = CGSize(width: 900, height: 680)
         static let swatch: CGFloat = 20
