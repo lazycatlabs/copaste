@@ -430,6 +430,67 @@ final class CopasteE2ETests: XCTestCase {
         screenshot(editor, "35-annotate-shapes-size-blur")
     }
 
+    // MARK: Paste Special
+
+    func test20PasteSpecialOpensAtPointerAndCopiesAConvertedFile() throws {
+        let clipboard = NSPasteboard(name: NSPasteboard.Name("com.lazycatlabs.copaste.e2e"))
+        clipboard.clearContents()
+        launch(open: "panel:image")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        // Park the pointer over the window, then open Paste Special with ⌥↩.
+        let pointer = panel.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3))
+        pointer.hover()
+        let point = pointer.screenPoint
+        app.typeKey(.return, modifierFlags: .option)
+
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout), "⌥↩ opens Paste Special")
+        XCTAssertTrue(waitUntil { !self.element("panel.search").exists }, "It replaces the clipboard window")
+        XCTAssertEqual(special.frame.minX, point.x, accuracy: 2, "Opens at the pointer")
+        XCTAssertEqual(special.frame.minY, point.y, accuracy: 2, "Opens at the pointer")
+        screenshot(special, "36-paste-special-at-pointer")
+
+        // HEIC at half size: the 1440 × 900 sample becomes 720 × 450.
+        special.radioButtons["HEIC"].click()
+        special.radioButtons["50%"].click()
+        let summary = element("pasteSpecial.summary")
+        XCTAssertTrue(waitUntil { self.text(of: summary).contains("720×450") }, "The preview shows the new size")
+        screenshot(special, "37-paste-special-heic-half-size")
+
+        app.typeKey(.return, modifierFlags: .command)
+        XCTAssertTrue(waitUntil { !special.exists }, "⌘↩ copies and closes")
+        let files = { clipboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? [] }
+        XCTAssertTrue(waitUntil { files().first?.pathExtension == "heic" }, "A HEIC file is on the clipboard")
+        let file = try XCTUnwrap(files().first)
+        let image = try XCTUnwrap(NSImage(contentsOf: file))
+        XCTAssertEqual(image.representations.first?.pixelsWide, 720)
+        let attachment = XCTAttachment(image: image)
+        attachment.name = "38-paste-special-copied-heic"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    func test21PasteSpecialShortcutCanBeChanged() {
+        launch(open: "settings")
+        let settings = app.windows["settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: timeout))
+        openSettingsPage("shortcuts", in: settings)
+        let shortcut = settings.buttons["settings.shortcut.pasteSpecial"]
+        reveal(shortcut, in: settings)
+        XCTAssertEqual(text(of: shortcut), "⌥↩", "Paste Special defaults to ⌥↩")
+        shortcut.click()
+        settings.typeKey("v", modifierFlags: [.command, .option])
+        XCTAssertTrue(waitUntil { self.text(of: shortcut) == "⌥⌘V" }, "Recorded ⌥⌘V")
+        screenshot(settings, "39-settings-paste-special-shortcut")
+
+        send("panel:image")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        app.typeKey("v", modifierFlags: [.command, .option])
+        XCTAssertTrue(element("pasteSpecialPanel").waitForExistence(timeout: timeout), "⌥⌘V opens Paste Special")
+        app.typeKey(.escape, modifierFlags: [])
+        XCTAssertTrue(waitUntil { !self.element("pasteSpecialPanel").exists }, "esc closes it")
+    }
+
     // MARK: Helpers
 
     private func openSettingsPage(_ page: String, in settings: XCUIElement) {
@@ -484,6 +545,11 @@ final class CopasteE2ETests: XCTestCase {
             list.scroll(byDeltaX: 0, deltaY: element.frame.midY > visible.midY ? -8 : 8)
         }
         XCTAssertTrue(window.frame.contains(element.frame), "Scrolled into view")
+    }
+
+    /// A button's or text's visible text, whichever XCUITest fills in.
+    private func text(of element: XCUIElement) -> String {
+        [element.title, element.label, element.value as? String ?? ""].first { !$0.isEmpty } ?? ""
     }
 
     private func waitUntil(_ condition: @escaping () -> Bool) -> Bool {
