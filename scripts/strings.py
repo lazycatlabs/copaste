@@ -89,7 +89,7 @@ S = {
     "pasteSpecialSize": ("Size", "Ukuran"),
     "pasteSpecialQuality": ("Quality", "Kualitas"),
     "pasteSpecialConverting": ("Converting…", "Mengonversi…"),
-    "pasteSpecialResult": ("%1$@ → %2$@ · %3$lld×%4$lld", "%1$@ → %2$@ · %3$lld×%4$lld"),
+    "pasteSpecialResult": ("%1$@ → %2$@ · %3$@×%4$@", "%1$@ → %2$@ · %3$@×%4$@"),
     "pasteSpecialFailed": ("Couldn’t convert the image", "Gambar tidak bisa dikonversi"),
 
     # Information

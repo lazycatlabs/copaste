@@ -64,11 +64,15 @@ struct PasteSpecialView: View {
         guard model.isUpToDate, let result = model.result else { return L(.pasteSpecialConverting) }
         let before = model.originalBytes?.formatted(.byteCount(style: .file)) ?? "—"
         let after = Int64(result.data.count).formatted(.byteCount(style: .file))
-        return L(.pasteSpecialResult(before, after, result.width, result.height))
+        return L(.pasteSpecialResult(before, after, String(result.width), String(result.height)))
     }
 
+    /// The title on its own line, so the control below gets the full width (six file types side by side).
     private func row(_ title: String, @ViewBuilder content: () -> some View) -> some View {
-        LabeledContent(title) { content().labelsHidden() }.font(.scaled(.body))
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text(title).font(.scaled(.body, weight: .medium)).foregroundStyle(.secondary)
+            content().labelsHidden().frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
 
     private func button(_ title: String, keys: [String], action: @escaping () -> Void) -> some View {
