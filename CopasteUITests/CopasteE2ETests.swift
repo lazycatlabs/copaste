@@ -470,6 +470,28 @@ final class CopasteE2ETests: XCTestCase {
         add(attachment)
     }
 
+    func test20bPasteSpecialCopiesAsSVGAndPDF() {
+        let clipboard = NSPasteboard(name: NSPasteboard.Name("com.lazycatlabs.copaste.e2e"))
+        let files = { clipboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? [] }
+        launch(open: "panel:image")
+        for format in ["SVG", "PDF"] {
+            clipboard.clearContents()
+            if !element("panel.search").exists { send("panel:image") }
+            XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+            // A pointer action first: an app-wide key press before any sets off an assertion inside XCTest.
+            panel.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3)).hover()
+            app.typeKey(.return, modifierFlags: .option)
+            let special = element("pasteSpecialPanel")
+            XCTAssertTrue(special.waitForExistence(timeout: timeout))
+            special.radioButtons[format].click()
+            XCTAssertFalse(element("pasteSpecial.quality").isEnabled, "\(format) has no quality setting")
+            XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.summary")).contains("1440×900") })
+            screenshot(special, "40-paste-special-\(format.lowercased())")
+            app.typeKey(.return, modifierFlags: .command)
+            XCTAssertTrue(waitUntil { files().first?.pathExtension == format.lowercased() }, "A \(format) file is on the clipboard")
+        }
+    }
+
     func test21PasteSpecialShortcutCanBeChanged() {
         launch(open: "settings")
         let settings = app.windows["settings"]
