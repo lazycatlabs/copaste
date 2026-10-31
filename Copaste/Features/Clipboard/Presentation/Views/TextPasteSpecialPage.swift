@@ -42,7 +42,7 @@ struct TextPasteSpecialPage: View {
     /// What the text was taken for: a language, code, or plain text.
     private var detected: String {
         guard let language = model.language else { return L(.pasteSpecialPlainText) }
-        return L(.pasteSpecialDetected(language.name ?? L(.pasteSpecialCode)))
+        return L(.pasteSpecialDetected(language.name ?? L(.kindCode)))
     }
 
     /// The start of the text as it will be pasted.

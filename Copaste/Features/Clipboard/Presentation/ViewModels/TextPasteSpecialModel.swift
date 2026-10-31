@@ -1,8 +1,7 @@
 import Foundation
 import Observation
 
-/// Paste Special for text: the entries (one, or several joined one per line), what the text looks like, the chosen
-/// options and the text they give.
+/// Paste Special for text: the entry, what the text looks like, the chosen options and the text they give.
 @Observable
 final class TextPasteSpecialModel {
     let items: [ClipItem]

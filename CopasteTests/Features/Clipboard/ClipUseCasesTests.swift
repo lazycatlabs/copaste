@@ -47,8 +47,19 @@ struct ClipUseCasesTests {
         let link = ClipItem(kind: .link, text: "https://apple.com", hash: "1", firstCopied: now, lastCopied: now)
         var image = ClipItem(kind: .image, hash: "2", firstCopied: now, lastCopied: now)
         image.recognizedText = "Invoice total"
-        #expect(ClipUseCases.filter([link, image], kind: .link, query: "").count == 1)
-        #expect(ClipUseCases.filter([link, image], kind: nil, query: "invoice").first?.kind == .image)
+        #expect(ClipUseCases.filter([link, image], type: .kind(.link), query: "").count == 1)
+        #expect(ClipUseCases.filter([link, image], type: nil, query: "invoice").first?.kind == .image)
+    }
+
+    @Test func filtersCodeAmongTextEntries() {
+        let code = ClipItem(kind: .text, text: "git status", hash: "1", firstCopied: now, lastCopied: now)
+        let prose = ClipItem(kind: .text, text: "See you at 5", hash: "2", firstCopied: now, lastCopied: now)
+        let link = ClipItem(kind: .link, text: "https://apple.com", hash: "3", firstCopied: now, lastCopied: now)
+        let isCode = { (item: ClipItem) in item.text.flatMap(TextFormatter.language) != nil }
+        #expect(ClipUseCases.filter([code, prose, link], type: .code, query: "", isCode: isCode).map(\.hash) == ["1"])
+        #expect(ClipUseCases.filter([code, prose, link], type: .kind(.text), query: "", isCode: isCode).count == 2,
+                "Code is still text")
+        #expect(TypeFilter.all.prefix(2) == [.kind(.text), .code], "Code comes right after Text")
     }
 
     @Test func filtersByGroup() {
@@ -56,8 +67,8 @@ struct ClipUseCasesTests {
         var inWork = ClipItem(kind: .text, text: "a", hash: "a", firstCopied: now, lastCopied: now)
         inWork.groupID = work
         let loose = ClipItem(kind: .text, text: "b", hash: "b", firstCopied: now, lastCopied: now)
-        #expect(ClipUseCases.filter([inWork, loose], kind: nil, query: "", group: work).map(\.text) == ["a"])
-        #expect(ClipUseCases.filter([inWork, loose], kind: nil, query: "", group: nil).count == 2)
+        #expect(ClipUseCases.filter([inWork, loose], type: nil, query: "", group: work).map(\.text) == ["a"])
+        #expect(ClipUseCases.filter([inWork, loose], type: nil, query: "", group: nil).count == 2)
     }
 
     @Test func filtersByCreationDate() {
@@ -70,7 +81,7 @@ struct ClipUseCasesTests {
         let lastMonth = ClipItem(kind: .text, hash: "m", firstCopied: now.addingTimeInterval(-20 * 86_400), lastCopied: now)
         let items = [today, older, lastMonth]
         let filter = { (created: DateFilter) in
-            ClipUseCases.filter(items, kind: nil, query: "", created: created, now: now, calendar: calendar).map(\.hash)
+            ClipUseCases.filter(items, type: nil, query: "", created: created, now: now, calendar: calendar).map(\.hash)
         }
         #expect(filter(.today) == ["t"])
         #expect(filter(.yesterday) == ["y"])

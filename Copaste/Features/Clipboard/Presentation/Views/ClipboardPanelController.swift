@@ -328,15 +328,15 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         show()
     }
 
-    /// Paste Special for entries from the list: the images among them, converted together; or else their text,
-    /// one entry per line.
+    /// Paste Special for entries from the list, the dialog matching what they are: images (one or several, converted
+    /// together) or one text entry. Several entries of other kinds, or of mixed kinds, get a toast instead.
     private func pasteSpecial(_ items: [ClipItem], session: ClipboardSession) {
         let sources = items.compactMap { item in session.imageURL(of: item).map { PasteSpecialModel.Source(item: item, url: $0) } }
-        if !sources.isEmpty { return showPasteSpecial(PasteSpecialModel(sources: sources)) }
-        guard let text = ClipUseCases.joinedText(items), !text.isEmpty else {
+        if !sources.isEmpty, sources.count == items.count { return showPasteSpecial(PasteSpecialModel(sources: sources)) }
+        guard items.count == 1, let item = items.first, item.kind == .text, let text = item.text, !text.isEmpty else {
             return model.showToast(L(.pasteSpecialNoImageSelected))
         }
-        showPasteSpecial(TextPasteSpecialModel(items: items, text: text))
+        showPasteSpecial(TextPasteSpecialModel(items: [item], text: text))
     }
 
     private func showPasteSpecial(_ special: PasteSpecialModel) {

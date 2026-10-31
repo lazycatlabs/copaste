@@ -2062,6 +2062,23 @@
         }
       }
     },
+    "kindCode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kode"
+          }
+        }
+      }
+    },
     "kindColor": {
       "extractionState": "manual",
       "localizations": {
@@ -2589,23 +2606,6 @@
         }
       }
     },
-    "pasteSpecialCode": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code"
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kode"
-          }
-        }
-      }
-    },
     "pasteSpecialConverting": {
       "extractionState": "manual",
       "localizations": {
@@ -2697,13 +2697,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "None of the selected entries is an image or text"
+            "value": "Paste Special works on several images, or on one entry at a time"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tidak ada gambar atau teks di entri yang dipilih"
+            "value": "Tempel Khusus hanya untuk beberapa gambar, atau satu entri"
           }
         }
       }

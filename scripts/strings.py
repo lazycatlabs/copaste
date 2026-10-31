@@ -36,6 +36,7 @@ S = {
 
     # Kinds
     "kindText": ("Text", "Teks"),
+    "kindCode": ("Code", "Kode"),
     "kindLink": ("Link", "Tautan"),
     "kindEmail": ("Email", "Email"),
     "kindColor": ("Color", "Warna"),
@@ -91,12 +92,11 @@ S = {
     "pasteSpecialConverting": ("Converting…", "Mengonversi…"),
     "pasteSpecialResult": ("%1$@ → %2$@ · %3$@×%4$@", "%1$@ → %2$@ · %3$@×%4$@"),
     "pasteSpecialResultMany": ("%1$lld images · %2$@ → %3$@", "%1$lld gambar · %2$@ → %3$@"),
-    "pasteSpecialNoImageSelected": ("None of the selected entries is an image or text", "Tidak ada gambar atau teks di entri yang dipilih"),
+    "pasteSpecialNoImageSelected": ("Paste Special works on several images, or on one entry at a time", "Tempel Khusus hanya untuk beberapa gambar, atau satu entri"),
     "pasteSpecialNoImage": ("The last copy isn’t an image or text", "Salinan terakhir bukan gambar atau teks"),
     "pasteSpecialReformat": ("Reformat", "Format Ulang"),
     "pasteSpecialPasteAs": ("Paste As", "Tempel Sebagai"),
     "pasteSpecialDetected": ("Detected: %@", "Terdeteksi: %@"),
-    "pasteSpecialCode": ("Code", "Kode"),
     "pasteSpecialPlainText": ("Plain text", "Teks biasa"),
     "textReformatOriginal": ("As Is", "Apa Adanya"),
     "textReformatTidy": ("Tidy", "Rapikan"),

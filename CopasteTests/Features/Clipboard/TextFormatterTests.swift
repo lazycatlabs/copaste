@@ -7,6 +7,8 @@ struct TextFormatterTests {
         ("<html><body><p>Hi</p></body></html>", .html),
         ("<note><to>Tove</to></note>", .xml),
         ("import SwiftUI\n\nstruct ContentView: View {\n    var body: some View { Text(\"Hi\") }\n}", .swift),
+        ("struct ContentView: View {\n    var body: some View {\n        Text(\"Hello\")\n    }\n}", .swift),
+        ("a:hover, .nav > li {\n  color: red;\n}", .css),
         ("def greet(name):\n    print(f\"Hi {name}\")\n", .python),
         ("const total = items.reduce((sum, x) => {\n  return sum + x;\n}, 0);", .javascript),
         ("package main\n\nfunc main() {\n    fmt.Println(\"hi\")\n}", .go),

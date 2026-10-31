@@ -343,7 +343,7 @@ final class CopasteE2ETests: XCTestCase {
         // esc leaves the note for the search field.
         panel.typeKey(.escape, modifierFlags: [])
         panel.typeText("quarterly")
-        let rows = app.descendants(matching: .any).matching(identifier: "row")
+        let rows = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'row'"))
         XCTAssertTrue(waitUntil { rows.count == 1 }, "Searching finds the entry by its note")
         screenshot(panel, "28-note-found-by-search")
         // The row's texts are combined into its accessibility value.
@@ -498,7 +498,7 @@ final class CopasteE2ETests: XCTestCase {
         screenshot(toast, "41-paste-special-not-an-image")
     }
 
-    func test20ePasteSpecialFormatsCopiedJSON() {
+    func test20hPasteSpecialFormatsCopiedJSON() {
         _ = parkPointer()
         copyInApp { $0.setString(#"{"name":"Copaste","tags":["clipboard","mac"]}"#, forType: .string) }
         send("pasteSpecial")
@@ -515,6 +515,55 @@ final class CopasteE2ETests: XCTestCase {
         let expected = "```json\n{\n  \"name\": \"Copaste\",\n  \"tags\": [\n    \"clipboard\",\n    \"mac\"\n  ]\n}\n```"
         XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == expected },
                       "Indented JSON in a code fence: \(clipboard.string(forType: .string) ?? "nothing")")
+    }
+
+    func test20fCodeFilterMarksCodeAndOpensTextPasteSpecial() {
+        launch(open: "panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        let rows = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'row'"))
+        let codeRows = app.descendants(matching: .any).matching(identifier: "row.code")
+        XCTAssertTrue(waitUntil { codeRows.count == 3 }, "The brew command, the Swift snippet and the JSON are marked as code")
+        screenshot(panel, "46-code-badges-in-list")
+
+        // Code: the pinned brew command, the Swift snippet and the JSON, but not the other text.
+        element("panel.filter").click()
+        app.menuItems["Code"].click()
+        XCTAssertTrue(waitUntil { rows.count == 3 }, "Only code entries: \(rows.count)")
+        XCTAssertTrue(text(of: element("panel.filter")).contains("Code"))
+        screenshot(panel, "47-code-filter")
+
+        // ⌥↩ on code opens the text dialog, with the same shortcut as for images.
+        // The pinned brew command is selected; the Swift snippet is next.
+        panel.typeKey(.downArrow, modifierFlags: [])
+        app.typeKey(.return, modifierFlags: .option)
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout), "⌥↩ opens Paste Special for the selected code")
+        screenshot(special, "48-paste-special-swift-code-block")
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.detected")).contains("Swift") },
+                      "Detected as Swift: \(text(of: element("pasteSpecial.detected")))")
+        XCTAssertFalse(element("pasteSpecial.format").exists, "The text dialog, not the image one")
+
+        app.typeKey(.return, modifierFlags: .command)
+        XCTAssertTrue(waitUntil { !special.exists }, "⌘↩ copies and closes")
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string)?.hasPrefix("```swift\nstruct ContentView") == true },
+                      "A Swift code block: \(clipboard.string(forType: .string) ?? "nothing")")
+    }
+
+    func test20gPasteSpecialRefusesSeveralEntriesOfMixedKinds() {
+        launch(open: "panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        row(containing: "Image (").click()
+        XCUIElement.perform(withKeyModifiers: .command) {
+            self.row(containing: "ContentView").click()
+        }
+        XCTAssertTrue(waitUntil { self.element("panel.primary").label.contains("2 Entries") })
+        app.typeKey(.return, modifierFlags: .option)
+
+        let toast = element("panel.toast")
+        XCTAssertTrue(toast.waitForExistence(timeout: timeout), "A toast explains why nothing opened")
+        XCTAssertTrue(waitUntil { self.text(of: toast).contains("several images") || toast.staticTexts.count > 0 })
+        XCTAssertFalse(element("pasteSpecialPanel").exists, "No dialog for an image and a text together")
+        screenshot(panel, "49-paste-special-mixed-selection")
     }
 
     func test20dPasteSpecialOpensForTheSelectedEntry() {
@@ -588,6 +637,13 @@ final class CopasteE2ETests: XCTestCase {
     }
 
     private var panel: XCUIElement { app.dialogs["clipboardPanel"] }
+
+    /// The list entry whose text contains this.
+    private func row(containing text: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH 'row' AND (label CONTAINS %@ OR value CONTAINS %@)", text, text))
+            .firstMatch
+    }
 
     private func element(_ identifier: String) -> XCUIElement {
         app.descendants(matching: .any)[identifier].firstMatch

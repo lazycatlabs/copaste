@@ -61,6 +61,7 @@ nonisolated enum TextFormatter {
                       #/^(?:@\w+ |private |public |static |override )*func \w+.*\(/#,
                       #/^guard .+ else \{|^if let \w+/#,
                       #/^(?:struct|enum|protocol|extension|actor) \w+.*\{$/#,
+                      #/^(?:private |public |static |@\w+ )*var \w+: [\w<>\[\]?. ]+ \{$/#,
                       #/^@(?:State|Binding|Observable|MainActor|Published)\b/#]),
             (.kotlin, [#/^(?:fun \w+\(|val \w+(?:: \w+)? = |data class |when \(|companion object)/#]),
             (.java, [#/^(?:public|private|protected) (?:static |final |abstract )*(?:class|interface|void) /#,
@@ -76,7 +77,8 @@ nonisolated enum TextFormatter {
             (.c, [#/^(?:#include [<"]|#define |int main\(|using namespace )|std::|printf\(/#]),
             (.sql, [#/^(?:SELECT .+|INSERT INTO |UPDATE \w+ SET |DELETE FROM |FROM \w+|WHERE .+|(?:LEFT |INNER )?JOIN )/#,
                     #/^(?:CREATE|ALTER|DROP) (?:TABLE|INDEX|VIEW) /#]),
-            (.css, [#/^[.#@]?[\w-]+[\w .#:>,\[\]="-]* \{$|^[\w-]+: [^;]+;$/#]),
+            // A selector's colons never have a space after them, unlike `var body: some View {`.
+            (.css, [#/^[.#@]?[\w-]+(?:[\w .#>,\[\]="-]|:(?! ))* \{$|^[\w-]+: [^;]+;$/#]),
             (.shell, [#/^(?:#!\/|\$ |sudo |cd |ls |echo |export [A-Z_]+=|curl |chmod |mkdir |rm |cp |mv )/#,
                       #/^(?:brew|git|npm|npx|yarn|pnpm|pip3?|python3?|docker|kubectl|xcodebuild) /#,
                       #/^swift (?:build|test|run)/#]),

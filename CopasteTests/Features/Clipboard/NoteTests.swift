@@ -19,7 +19,7 @@ struct NoteTests {
 
         session.setNote("for the invoice", for: item)
         #expect(session.items.first?.note == "for the invoice")
-        #expect(ClipUseCases.filter(session.items, kind: nil, query: "invoice").count == 1)
+        #expect(ClipUseCases.filter(session.items, type: nil, query: "invoice").count == 1)
         #expect(FileClipRepository(root: root).loadAll().first?.note == "for the invoice")
 
         session.setNote("  ", for: item)

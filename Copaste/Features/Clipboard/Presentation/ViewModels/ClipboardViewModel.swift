@@ -5,7 +5,7 @@ import Observation
 @Observable
 final class ClipboardViewModel {
     var query = ""
-    var kind: ClipKind?
+    var type: TypeFilter?
     var dateFilter = DateFilter.anyTime
     /// Only entries in this group; nil for all.
     var group: UUID?
@@ -30,7 +30,8 @@ final class ClipboardViewModel {
 
     func sections(of session: ClipboardSession, now: Date = .now) -> [(TimeSection, [ClipItem])] {
         let group = session.settings.groups.contains { $0.id == self.group } ? self.group : nil
-        let items = ClipUseCases.filter(session.items, kind: kind, query: query, created: dateFilter, group: group, now: now)
+        let items = ClipUseCases.filter(session.items, type: type, query: query, created: dateFilter, group: group, now: now,
+                                        isCode: { session.codeLanguage(of: $0) != nil })
         return ClipUseCases.sections(items, now: now)
     }
 

@@ -18,6 +18,8 @@ final class ClipboardSession {
     var errorMessage: String?
     /// Receives "“…” copied" / "“…” pasted" confirmations when toasts are on; the app decides where to show them.
     @ObservationIgnored var onToast: ((String) -> Void)?
+    /// The code language of text entries, by content hash, so each text is looked at once.
+    @ObservationIgnored private var languages: [String: CodeLanguage?] = [:]
 
     @ObservationIgnored let repository: ClipRepository
     @ObservationIgnored let pasteboard: SystemPasteboard
@@ -169,6 +171,15 @@ final class ClipboardSession {
         for item in items { save(ClipUseCases.markPasted(item)) }
         SoundPlayer.play(settings.pasteSound)
         announce(L(.toastPastedMany(items.count)))
+    }
+
+    /// The language of a text entry that is code, or nil for prose and other kinds. Worked out once per text.
+    func codeLanguage(of item: ClipItem) -> CodeLanguage? {
+        guard item.kind == .text, let text = item.text else { return nil }
+        if let cached = languages[item.hash] { return cached }
+        let language = TextFormatter.language(of: text)
+        languages[item.hash] = language
+        return language
     }
 
     /// The image file Paste Special reads: the entry's image, or the image file it points at.

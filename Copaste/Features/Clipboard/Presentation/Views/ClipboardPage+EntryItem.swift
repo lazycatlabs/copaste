@@ -25,6 +25,9 @@ extension ClipboardPage {
                     Image(systemName: "note.text").font(.scaled(.callout)).foregroundStyle(.secondary)
                         .help(item.note ?? "")
                 }
+                if let language {
+                    CodeBadge(language: language)
+                }
                 if let group = session.group(of: item) {
                     Text(group.name)
                         .font(.scaled(.caption, weight: .medium))
@@ -41,8 +44,10 @@ extension ClipboardPage {
                 }
             }
             .accessibilityElement(children: .combine)
-            .accessibilityIdentifier(quickKey == nil ? "row" : "row.quickKey")
+            .accessibilityIdentifier(quickKey != nil ? "row.quickKey" : language != nil ? "row.code" : "row")
         }
+
+        private var language: CodeLanguage? { session.codeLanguage(of: item) }
 
         private var trimmedQuery: String { query.trimmingCharacters(in: .whitespaces) }
 
@@ -61,5 +66,20 @@ extension ClipboardPage {
             }
             return text
         }
+    }
+}
+
+/// Marks a text entry that is code, with its language when one stood out.
+private struct CodeBadge: View {
+    let language: CodeLanguage
+
+    var body: some View {
+        Label(language.name ?? L(.kindCode), systemImage: TypeFilter.codeSymbol)
+            .font(.scaled(.caption, weight: .medium))
+            .foregroundStyle(Color.accentColor)
+            .lineLimit(1)
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, Spacing.xxs)
+            .background(Color.accentColor.opacity(Opacity.fill), in: .capsule)
     }
 }
