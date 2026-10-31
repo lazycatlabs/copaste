@@ -47,16 +47,22 @@ nonisolated enum TextFormatter {
         return (try? JSONSerialization.jsonObject(with: Data(value.utf8))) != nil
     }
 
-    /// Ends or starts like a line of code in most languages.
+    /// Ends or starts like a line of code in most languages: also the `foo(` and `bar: 1,` lines of nested calls
+    /// (Flutter widgets, React props), but not a sentence ending in a comma.
     private static func looksLikeCode(_ line: String) -> Bool {
-        if let last = line.last, ";{}[]".contains(last) { return true }
-        return ["}", "//", "/*", "#!"].contains { line.hasPrefix($0) }
+        guard let last = line.last else { return false }
+        if ";{}[](".contains(last) { return true }
+        if last == ",", line.contains(where: { "(){}[]=:'\"".contains($0) }) { return true }
+        return ["}", ")", "]", "//", "/*", "#!"].contains { line.hasPrefix($0) }
     }
 
     /// Lines that are typical of each language, matched against a trimmed line. Listed so that on a tie the more
     /// specific language wins (Swift before JavaScript for `let x = 1`).
     private static var signatures: [(language: CodeLanguage, patterns: [Regex<Substring>])] {
         [
+            (.dart, [#/^import '(?:package|dart):/#,
+                     #/^(?:abstract )?class \w+ extends (?:StatelessWidget|StatefulWidget|State<\w+>)/#,
+                     #/^(?:Widget build\(|void main\(\)|@override$|late (?:final )?\w+|setState\(\(\))/#]),
             (.swift, [#/^import (?:SwiftUI|Foundation|UIKit|AppKit|Combine)$/#,
                       #/^(?:@\w+ |private |public |static |override )*func \w+.*\(/#,
                       #/^guard .+ else \{|^if let \w+/#,
@@ -95,7 +101,7 @@ nonisolated enum TextFormatter {
         case .prettyJSON: json(text, pretty: true) ?? text
         case .minifyJSON: json(text, pretty: false) ?? text
         }
-        return options.style == .codeBlock ? codeBlock(body, language: language) : body
+        return options.style == .codeBlock ? codeBlock(body, tag: options.fenceTag) : body
     }
 
     /// Removes trailing spaces, the indentation all lines share, blank lines at either end, and runs of blank
@@ -165,10 +171,10 @@ nonisolated enum TextFormatter {
     }
 
     /// The text in a Markdown code fence, one backtick longer than any run of backticks inside it.
-    static func codeBlock(_ text: String, language: CodeLanguage?) -> String {
+    static func codeBlock(_ text: String, tag: String) -> String {
         let longest = text.split { $0 != "`" }.map(\.count).max() ?? 0
         let fence = String(repeating: "`", count: max(3, longest + 1))
         let body = text.hasSuffix("\n") ? String(text.dropLast()) : text
-        return "\(fence)\(language?.fenceTag ?? "")\n\(body)\n\(fence)"
+        return "\(fence)\(tag)\n\(body)\n\(fence)"
     }
 }

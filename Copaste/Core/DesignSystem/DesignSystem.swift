@@ -116,6 +116,8 @@ enum Metrics {
         /// The text preview's height, and how much of a long text it shows.
         static let previewHeight: CGFloat = 180
         static let previewLength = 4_000
+        /// The language search's list of matches, dropping down over the preview.
+        static let languageListHeight: CGFloat = 170
     }
 
     enum Annotate {

@@ -33,6 +33,7 @@ struct TextPasteSpecialPage: View {
             Text(model.options.style.hint)
                 .font(.scaled(.callout))
                 .foregroundStyle(.secondary)
+            LanguageSection(model: model)
             preview
             PasteSpecialButtons(finish: finish, cancel: cancel)
         }

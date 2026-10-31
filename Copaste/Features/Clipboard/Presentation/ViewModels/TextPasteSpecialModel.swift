@@ -11,6 +11,8 @@ final class TextPasteSpecialModel {
     var options: TextPasteOptions {
         didSet { if options != oldValue { result = TextFormatter.apply(options, to: text, language: language) } }
     }
+    /// The code block's language field is searching: its keys go to the field, not to the window's shortcuts.
+    var searchesLanguage = false
     /// The text with `options` applied, worked out once per change instead of on every redraw.
     private(set) var result: String
 

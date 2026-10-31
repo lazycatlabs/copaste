@@ -9,6 +9,9 @@ struct TextFormatterTests {
         ("import SwiftUI\n\nstruct ContentView: View {\n    var body: some View { Text(\"Hi\") }\n}", .swift),
         ("struct ContentView: View {\n    var body: some View {\n        Text(\"Hello\")\n    }\n}", .swift),
         ("a:hover, .nav > li {\n  color: red;\n}", .css),
+        ("import 'package:flutter/material.dart';\nimport 'package:flutter_bloc/flutter_bloc.dart';", .dart),
+        ("class App extends StatelessWidget {\n  @override\n  Widget build(BuildContext context) {\n"
+            + "    return MaterialApp(\n      home: Text('Hi'),\n    );\n  }\n}", .dart),
         ("def greet(name):\n    print(f\"Hi {name}\")\n", .python),
         ("const total = items.reduce((sum, x) => {\n  return sum + x;\n}, 0);", .javascript),
         ("package main\n\nfunc main() {\n    fmt.Println(\"hi\")\n}", .go),
@@ -29,6 +32,7 @@ struct TextFormatterTests {
         "Meeting at 5 (room 3)",
         "Dear team,\n\nThe release is ready. Please check it before Friday.\n\nThanks!",
         "Shopping list:\n- milk\n- eggs",
+        "Dear team,\nThanks for the update,\nsee you soon",
         "{not json at all",
     ])
     func leavesProseAlone(text: String) {
@@ -66,14 +70,23 @@ struct TextFormatterTests {
     }
 
     @Test func wrapsInACodeFenceLongerThanAnyInside() {
-        #expect(TextFormatter.codeBlock("let a = 1\n", language: .swift) == "```swift\nlet a = 1\n```")
-        #expect(TextFormatter.codeBlock("a ``` b", language: .other) == "````\na ``` b\n````")
-        #expect(TextFormatter.codeBlock("x", language: nil) == "```\nx\n```")
+        #expect(TextFormatter.codeBlock("let a = 1\n", tag: "swift") == "```swift\nlet a = 1\n```")
+        #expect(TextFormatter.codeBlock("a ``` b", tag: "") == "````\na ``` b\n````")
+    }
+
+    @Test func findsFenceLanguagesByNameTagOrAlias() {
+        #expect(FenceLanguage.matching("").count == FenceLanguage.all.count)
+        #expect(FenceLanguage.matching("ts").first?.tag == "typescript", "An exact alias before names starting with it (TSX)")
+        #expect(FenceLanguage.matching("RUB").map(\.tag) == ["ruby"])
+        #expect(FenceLanguage.matching("script").map(\.tag) == ["javascript", "typescript"])
+        #expect(FenceLanguage.matching("zzz").isEmpty)
+        #expect(CodeLanguage.allCases.filter { $0 != .other }.allSatisfy { FenceLanguage.named($0.fenceTag) != nil },
+                "Every detected language can be picked")
     }
 
     @Test func picksDefaultsFromWhatWasCopied() {
         let model = TextPasteSpecialModel(items: [], text: #"{"a":1}"#)
-        #expect(model.options == TextPasteOptions(reformat: .prettyJSON, style: .plain))
+        #expect(model.options == TextPasteOptions(reformat: .prettyJSON, style: .plain, fenceTag: "json"))
         #expect(model.result == "{\n  \"a\": 1\n}")
         #expect(model.reformats.contains(.minifyJSON))
 

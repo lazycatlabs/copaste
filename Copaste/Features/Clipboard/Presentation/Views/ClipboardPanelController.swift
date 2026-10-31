@@ -209,8 +209,14 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         return true
     }
 
-    /// Paste Special open: esc closes it, the paste and copy shortcuts finish it, the rest go to its controls.
+    /// Paste Special open: esc closes it, the paste and copy shortcuts finish it, the rest go to its controls. While
+    /// the code block's language is being searched, keys go to the search (↩ picks) and esc only ends the search.
     private func handlePasteSpecial(_ event: NSEvent) -> Bool {
+        if let special = model.textPasteSpecial, special.searchesLanguage {
+            guard Int(event.keyCode) == kVK_Escape else { return false }
+            special.searchesLanguage = false
+            return true
+        }
         if Int(event.keyCode) == kVK_Escape { hide(); return true }
         let store = HotKeyStore.shared
         guard store[.paste].matches(event) || store[.copy].matches(event) else { return false }
@@ -363,6 +369,9 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         let visible = Self.screenUnderPointer?.visibleFrame ?? NSRect(origin: pointer, size: size)
         panel.setFrame(NSRect(origin: PanelPlacement.origin(topLeftAt: pointer, size: size, in: visible), size: size), display: true)
         panel.makeKeyAndOrderFront(nil)
+        // Nothing focused, so ↩ and ⌘↩ finish at once: AppKit would otherwise focus the first text field (the code
+        // block's language search).
+        panel.makeFirstResponder(nil)
         panel.invalidateShadow()
         guides.hide()
         self.panel?.orderOut(nil)

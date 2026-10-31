@@ -2674,6 +2674,57 @@
         }
       }
     },
+    "pasteSpecialLanguage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code Block Language"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bahasa Blok Kode"
+          }
+        }
+      }
+    },
+    "pasteSpecialLanguageCustom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press ↩ to use “%@”"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tekan ↩ untuk memakai “%@”"
+          }
+        }
+      }
+    },
+    "pasteSpecialLanguageNone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tanpa bahasa"
+          }
+        }
+      }
+    },
     "pasteSpecialNoImage": {
       "extractionState": "manual",
       "localizations": {
@@ -2806,6 +2857,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld gambar · %2$@ → %3$@"
+          }
+        }
+      }
+    },
+    "pasteSpecialSearchLanguage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search languages"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cari bahasa"
           }
         }
       }

@@ -566,6 +566,35 @@ final class CopasteE2ETests: XCTestCase {
         screenshot(panel, "49-paste-special-mixed-selection")
     }
 
+    func test20iCodeBlockLanguageCanBeSearched() {
+        _ = parkPointer()
+        copyInApp { $0.setString("puts 'Hello, Copaste'", forType: .string) }
+        send("pasteSpecial")
+
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout))
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.detected")) == "Plain text" }, "No language detected")
+        pick("Code Block", in: special)
+        let language = element("pasteSpecial.language")
+        XCTAssertEqual(text(of: language), "None", "No language until one is picked")
+        language.click()
+        let options = app.descendants(matching: .any).matching(identifier: "pasteSpecial.languageOption")
+        XCTAssertTrue(waitUntil { options.count > 1 }, "Clicking the field lists the languages")
+        special.typeText("rub")
+        XCTAssertTrue(waitUntil { options.count == 1 }, "Only Ruby matches: \(options.count), field: \(text(of: language))")
+        screenshot(special, "50-paste-special-language-search")
+
+        special.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.language")).contains("Ruby") }, "↩ picks Ruby")
+        XCTAssertTrue(special.exists, "↩ in the search picks a language instead of pasting")
+        screenshot(special, "51-paste-special-ruby-code-block")
+
+        app.typeKey(.return, modifierFlags: .command)
+        XCTAssertTrue(waitUntil { !special.exists }, "⌘↩ copies and closes")
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == "```ruby\nputs 'Hello, Copaste'\n```" },
+                      "A Ruby code block: \(clipboard.string(forType: .string) ?? "nothing")")
+    }
+
     func test20dPasteSpecialOpensForTheSelectedEntry() {
         launch(open: "panel:image")
         XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
