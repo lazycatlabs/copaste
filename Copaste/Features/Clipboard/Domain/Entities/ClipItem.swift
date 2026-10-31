@@ -1,4 +1,5 @@
 import Foundation
+import UniformTypeIdentifiers
 
 /// What a clipboard entry holds. Raw pasteboard data becomes one of these in `ClipClassifier`, so views compare enums.
 nonisolated enum ClipKind: String, Codable, CaseIterable, Sendable {
@@ -95,6 +96,17 @@ nonisolated struct ClipItem: Codable, Identifiable, Hashable, Sendable {
         case .email: text.flatMap(ClipClassifier.mailURL)
         case .file: files?.first.map { URL(filePath: $0.path) }
         default: nil
+        }
+    }
+
+    /// Whether Paste Special can convert it: an image, or a single image file.
+    var isConvertibleImage: Bool {
+        switch kind {
+        case .image: true
+        case .file:
+            files?.count == 1 && files?.first
+                .flatMap { UTType(filenameExtension: URL(filePath: $0.path).pathExtension) }?.conforms(to: .image) == true
+        default: false
         }
     }
 

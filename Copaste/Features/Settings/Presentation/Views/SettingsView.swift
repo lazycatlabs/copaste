@@ -305,6 +305,7 @@ private struct ShortcutsPage: View {
         case .openHistory: "command"
         case .paste: "doc.on.clipboard"
         case .copy: "doc.on.doc"
+        case .pasteSpecial: "wand.and.stars"
         case .actions: "ellipsis.circle"
         case .open: "arrow.up.forward.app"
         case .annotate: "pencil.tip.crop.circle"

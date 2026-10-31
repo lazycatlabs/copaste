@@ -7,6 +7,13 @@ struct PanelPlacementTests {
     private let screen = CGRect(x: 0, y: 0, width: 1000, height: 800)
     private let size = CGSize(width: 400, height: 200)
 
+    @Test func popupOpensAtThePointerAndStaysOnScreen() {
+        // Top-left corner at the pointer (AppKit's origin is bottom-left).
+        #expect(PanelPlacement.origin(topLeftAt: CGPoint(x: 100, y: 500), size: size, in: screen) == CGPoint(x: 100, y: 300))
+        // Near the bottom-right corner it moves back inside the screen.
+        #expect(PanelPlacement.origin(topLeftAt: CGPoint(x: 900, y: 50), size: size, in: screen) == CGPoint(x: 600, y: 0))
+    }
+
     @Test func zeroOffsetIsCentered() {
         let origin = PanelPlacement.origin(size: size, in: screen, offset: .zero)
         #expect(origin == CGPoint(x: 300, y: 300))

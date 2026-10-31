@@ -72,7 +72,7 @@ nonisolated struct HotKeyBinding: Codable, Equatable, Sendable {
 /// The shortcuts that can be changed in Settings: the global one that opens the clipboard window,
 /// and the ones the clipboard window handles.
 nonisolated enum Shortcut: String, CaseIterable, Identifiable, Sendable {
-    case openHistory, paste, copy, actions, open, annotate, save, pin, delete
+    case openHistory, paste, copy, pasteSpecial, actions, open, annotate, save, pin, delete
 
     var id: String { rawValue }
 
@@ -84,6 +84,7 @@ nonisolated enum Shortcut: String, CaseIterable, Identifiable, Sendable {
         case .openHistory: .standard
         case .paste: Self.binding(kVK_Return, "\r", [])
         case .copy: Self.binding(kVK_Return, "\r", .command)
+        case .pasteSpecial: Self.binding(kVK_Return, "\r", .option)
         case .actions: Self.binding(kVK_ANSI_K, "k", .command)
         case .open: Self.binding(kVK_ANSI_O, "o", .command)
         case .annotate: Self.binding(kVK_ANSI_E, "e", .command)
@@ -98,6 +99,7 @@ nonisolated enum Shortcut: String, CaseIterable, Identifiable, Sendable {
         case .openHistory: L(.settingsShortcut)
         case .paste: L(.actionPaste)
         case .copy: L(.actionCopy)
+        case .pasteSpecial: L(.pasteSpecialTitle)
         case .actions: L(.actionsTitle)
         case .open: L(.actionOpen)
         case .annotate: L(.actionAnnotate)

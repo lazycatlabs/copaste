@@ -2,6 +2,7 @@ import OSLog
 import Foundation
 import Observation
 import AppKit
+import UniformTypeIdentifiers
 
 /// The open vault's clipboard history: what every screen reads, and the one place entries change.
 @Observable
@@ -168,6 +169,36 @@ final class ClipboardSession {
         for item in items { save(ClipUseCases.markPasted(item)) }
         SoundPlayer.play(settings.pasteSound)
         announce(L(.toastPastedMany(items.count)))
+    }
+
+    /// The image file Paste Special reads: the entry's image, or the image file it points at.
+    func imageURL(of item: ClipItem) -> URL? {
+        guard item.isConvertibleImage else { return nil }
+        return item.kind == .image ? blobURL(item.blob) : item.files?.first.map { URL(filePath: $0.path) }
+    }
+
+    /// Puts a converted copy of the entry on the clipboard as a file, so apps receive it in the chosen format.
+    /// The file goes in a temporary folder that's emptied each time. `pasting` counts a paste instead of a copy.
+    /// - Returns: whether it's on the clipboard; a failed write is reported to the user.
+    @discardableResult
+    func writeConverted(_ image: ConvertedImage, format: ImageFormat, for item: ClipItem, pasting: Bool) -> Bool {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "PasteSpecial")
+        let name = item.kind == .file ? item.files?.first?.name ?? L(.imageFileName) : L(.imageFileName)
+        let url = folder.appending(path: (name as NSString).deletingPathExtension).appendingPathExtension(for: format.type)
+        do {
+            try? FileManager.default.removeItem(at: folder)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try image.data.write(to: url, options: .atomic)
+        } catch {
+            Log.storage.error("Paste Special write failed: \(error.localizedDescription, privacy: .public)")
+            NSApp.presentError(error)
+            return false
+        }
+        pasteboard.write(.files([url]))
+        save(pasting ? ClipUseCases.markPasted(item) : ClipUseCases.markCopied(item))
+        SoundPlayer.play(pasting ? settings.pasteSound : settings.copySound)
+        announce(pasting ? L(.toastPasted(toastTitle(item))) : L(.toastCopied(toastTitle(item))))
+        return true
     }
 
     /// The entry's title, cut short for a toast.

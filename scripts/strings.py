@@ -24,6 +24,7 @@ S = {
     "actionOpen": ("Open", "Buka"),
     "actionOpenInBrowser": ("Open in Browser", "Buka di Browser"),
     "actionPaste": ("Paste", "Tempel"),
+    "actionPasteSpecial": ("Paste Special…", "Tempel Khusus…"),
     "actionPin": ("Pin", "Sematkan"),
     "actionRemove": ("Remove", "Hapus"),
     "actionReset": ("Reset", "Atur Ulang"),
@@ -81,6 +82,15 @@ S = {
     "groupManage": ("Manage Groups…", "Kelola Grup…"),
     "infoGroup": ("Group", "Grup"),
     "toastImageCopied": ("Annotated image copied — ready to paste", "Gambar beranotasi disalin — siap ditempel"),
+
+    # Paste Special
+    "pasteSpecialTitle": ("Paste Special", "Tempel Khusus"),
+    "pasteSpecialFormat": ("Format", "Format"),
+    "pasteSpecialSize": ("Size", "Ukuran"),
+    "pasteSpecialQuality": ("Quality", "Kualitas"),
+    "pasteSpecialConverting": ("Converting…", "Mengonversi…"),
+    "pasteSpecialResult": ("%1$@ → %2$@ · %3$@×%4$@", "%1$@ → %2$@ · %3$@×%4$@"),
+    "pasteSpecialFailed": ("Couldn’t convert the image", "Gambar tidak bisa dikonversi"),
 
     # Information
     "infoTitle": ("Information", "Informasi"),

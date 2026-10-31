@@ -28,6 +28,11 @@ enum PanelPlacement {
               size: size, in: visible)
     }
 
+    /// A popup's origin with its top-left corner at `point` (the pointer), moved inside the visible area if it would stick out.
+    static func origin(topLeftAt point: CGPoint, size: CGSize, in visible: CGRect) -> CGPoint {
+        clamp(CGPoint(x: point.x, y: point.y - size.height), size: size, in: visible)
+    }
+
     static func offset(of origin: CGPoint, size: CGSize, in visible: CGRect) -> CGSize {
         CGSize(width: origin.x + size.width / 2 - visible.midX, height: origin.y + size.height / 2 - visible.midY)
     }
