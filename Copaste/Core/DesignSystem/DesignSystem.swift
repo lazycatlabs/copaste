@@ -111,6 +111,11 @@ enum Metrics {
         static let width: CGFloat = 400
         /// Wait this long after the last change before converting again, so dragging the quality slider stays smooth.
         static let debounce: Duration = .milliseconds(150)
+        /// The font size of text pasted as monospaced rich text.
+        static let codeFontSize: CGFloat = 12
+        /// The text preview's height, and how much of a long text it shows.
+        static let previewHeight: CGFloat = 180
+        static let previewLength = 4_000
     }
 
     enum Annotate {

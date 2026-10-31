@@ -498,6 +498,25 @@ final class CopasteE2ETests: XCTestCase {
         screenshot(toast, "41-paste-special-not-an-image")
     }
 
+    func test20ePasteSpecialFormatsCopiedJSON() {
+        _ = parkPointer()
+        copyInApp { $0.setString(#"{"name":"Copaste","tags":["clipboard","mac"]}"#, forType: .string) }
+        send("pasteSpecial")
+
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout), "The shortcut opens Paste Special for copied text")
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.detected")).contains("JSON") }, "Detected as JSON")
+        screenshot(special, "44-paste-special-json")
+
+        pick("Code Block", in: special)
+        screenshot(special, "45-paste-special-json-code-block")
+        app.typeKey(.return, modifierFlags: .command)
+        XCTAssertTrue(waitUntil { !special.exists }, "⌘↩ copies and closes")
+        let expected = "```json\n{\n  \"name\": \"Copaste\",\n  \"tags\": [\n    \"clipboard\",\n    \"mac\"\n  ]\n}\n```"
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == expected },
+                      "Indented JSON in a code fence: \(clipboard.string(forType: .string) ?? "nothing")")
+    }
+
     func test20dPasteSpecialOpensForTheSelectedEntry() {
         launch(open: "panel:image")
         XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))

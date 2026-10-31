@@ -200,6 +200,19 @@ final class ClipboardSession {
             return false
         }
         pasteboard.write(.files(urls))
+        countUse(of: items, pasting: pasting)
+        return true
+    }
+
+    /// Puts text rewritten by Paste Special on the clipboard, in a monospaced font if asked. `pasting` counts a paste
+    /// instead of a copy.
+    func writeFormatted(_ text: String, monospaced: Bool, for items: [ClipItem], pasting: Bool) {
+        pasteboard.write(monospaced ? .monospaced(text) : .text(text))
+        countUse(of: items, pasting: pasting)
+    }
+
+    /// Counts a paste or a copy of each entry, with its sound and toast.
+    private func countUse(of items: [ClipItem], pasting: Bool) {
         for item in items { save(pasting ? ClipUseCases.markPasted(item) : ClipUseCases.markCopied(item)) }
         SoundPlayer.play(pasting ? settings.pasteSound : settings.copySound)
         if let item = items.first, items.count == 1 {
@@ -207,7 +220,6 @@ final class ClipboardSession {
         } else {
             announce(pasting ? L(.toastPastedMany(items.count)) : L(.toastCopiedMany(items.count)))
         }
-        return true
     }
 
     /// The entry's title, cut short for a toast.

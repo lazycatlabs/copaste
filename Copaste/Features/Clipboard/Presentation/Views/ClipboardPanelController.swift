@@ -88,6 +88,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         panel?.orderOut(nil)
         specialPanel?.orderOut(nil)
         model.pasteSpecial = nil
+        model.textPasteSpecial = nil
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
         // Hand the focus back to the app the user was in, so a paste (or ⌘V afterwards) lands in its window
@@ -101,7 +102,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
 
     func windowDidResignKey(_ notification: Notification) {
         // The clipboard window handing over to Paste Special: keep the previous app and the key monitor.
-        if notification.object as? NSWindow === panel, model.pasteSpecial != nil { return }
+        if notification.object as? NSWindow === panel, model.showsPasteSpecial { return }
         // Clicking another window: that window takes the focus, so don't pull it back.
         hide(restoringFocus: false)
     }
@@ -182,7 +183,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
             if Int(event.keyCode) == kVK_Escape { model.editsNote = false; return true }
             return false
         }
-        if model.pasteSpecial != nil { return handlePasteSpecial(event) }
+        if model.showsPasteSpecial { return handlePasteSpecial(event) }
         let shift = event.modifierFlags.contains(.shift)
         switch Int(event.keyCode) {
         case kVK_DownArrow: model.moveSelection(by: 1, extending: shift, in: session); return true
@@ -304,14 +305,19 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         pressCommandV(once: target)
     }
 
-    /// The global Paste Special shortcut: the options for the latest copy, at the pointer, if it's an image or an
-    /// image file. Otherwise a toast says so.
+    /// The global Paste Special shortcut: the options for the latest copy, at the pointer, if it's an image, an
+    /// image file or text. Otherwise a toast says so.
     func pasteSpecialLatest() {
         guard let session else { return }
-        guard let item = ClipUseCases.latest(session.items), let source = session.imageURL(of: item) else {
+        let item = ClipUseCases.latest(session.items)
+        let show: () -> Void
+        if let item, let source = session.imageURL(of: item) {
+            show = { self.showPasteSpecial(PasteSpecialModel(sources: [.init(item: item, url: source)])) }
+        } else if let item, item.kind == .text, let text = item.text, !text.isEmpty {
+            show = { self.showPasteSpecial(TextPasteSpecialModel(items: [item], text: text)) }
+        } else {
             return ToastPresenter.shared.show(L(.pasteSpecialNoImage))
         }
-        let special = PasteSpecialModel(sources: [.init(item: item, url: source)])
         if !isOpen {
             let front = NSWorkspace.shared.frontmostApplication
             previousApp = front == .current ? nil : front
@@ -319,22 +325,35 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         // Active, so closing can hand the keyboard back to the previous app (see `show`).
         NSApp.activate(ignoringOtherApps: true)
         installKeyMonitor()
-        showPasteSpecial(special, session: session)
+        show()
     }
 
-    /// Paste Special for entries from the list: the images among them, converted together.
+    /// Paste Special for entries from the list: the images among them, converted together; or else their text,
+    /// one entry per line.
     private func pasteSpecial(_ items: [ClipItem], session: ClipboardSession) {
         let sources = items.compactMap { item in session.imageURL(of: item).map { PasteSpecialModel.Source(item: item, url: $0) } }
-        guard !sources.isEmpty else { return model.showToast(L(.pasteSpecialNoImageSelected)) }
-        showPasteSpecial(PasteSpecialModel(sources: sources), session: session)
+        if !sources.isEmpty { return showPasteSpecial(PasteSpecialModel(sources: sources)) }
+        guard let text = ClipUseCases.joinedText(items), !text.isEmpty else {
+            return model.showToast(L(.pasteSpecialNoImageSelected))
+        }
+        showPasteSpecial(TextPasteSpecialModel(items: items, text: text))
+    }
+
+    private func showPasteSpecial(_ special: PasteSpecialModel) {
+        model.pasteSpecial = special
+        present(PasteSpecialPage(model: special, finish: { [weak self] pasting in self?.finishPasteSpecial(pasting: pasting) },
+                                 cancel: { [weak self] in self?.hide() }))
+    }
+
+    private func showPasteSpecial(_ special: TextPasteSpecialModel) {
+        model.textPasteSpecial = special
+        present(TextPasteSpecialPage(model: special, finish: { [weak self] pasting in self?.finishPasteSpecial(pasting: pasting) },
+                                     cancel: { [weak self] in self?.hide() }))
     }
 
     /// Swaps the clipboard window for Paste Special's options, with their top-left corner at the pointer.
-    private func showPasteSpecial(_ special: PasteSpecialModel, session: ClipboardSession) {
+    private func present(_ view: some View) {
         model.showsActions = false
-        model.pasteSpecial = special
-        let view = PasteSpecialPage(model: special, finish: { [weak self] pasting in self?.finishPasteSpecial(pasting: pasting) },
-                                    cancel: { [weak self] in self?.hide() })
         let hosting = NSHostingView(rootView: view)
         let panel = specialPanel ?? makePanel(identifier: "pasteSpecialPanel")
         specialPanel = panel
@@ -349,13 +368,21 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         self.panel?.orderOut(nil)
     }
 
-    /// Puts the Paste Special conversion on the clipboard as a file and, when pasting, sends ⌘V to the previous app.
+    /// Puts Paste Special's result on the clipboard (converted images as files, or the rewritten text) and, when
+    /// pasting, sends ⌘V to the previous app.
     /// Paste is offered even with "Paste directly" off, since the user picked it here; without Accessibility it's copied.
     private func finishPasteSpecial(pasting: Bool) {
-        guard let session, let special = model.pasteSpecial else { return }
-        guard let images = special.converted() else { return ToastPresenter.shared.show(L(.pasteSpecialFailed)) }
+        guard let session else { return }
         let pastes = pasting && PasteSimulator.isTrusted
-        guard session.writeConverted(images, format: special.options.format, for: special.items, pasting: pastes) else { return }
+        if let special = model.textPasteSpecial {
+            session.writeFormatted(special.result, monospaced: special.options.style == .monospaced, for: special.items,
+                                   pasting: pastes)
+        } else if let special = model.pasteSpecial {
+            guard let images = special.converted() else { return ToastPresenter.shared.show(L(.pasteSpecialFailed)) }
+            guard session.writeConverted(images, format: special.options.format, for: special.items, pasting: pastes) else { return }
+        } else {
+            return
+        }
         let target = previousApp
         hide()
         if pastes { pressCommandV(once: target) } else if pasting { PasteSimulator.requestAccess() }

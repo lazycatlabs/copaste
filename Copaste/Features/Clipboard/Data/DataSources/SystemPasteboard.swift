@@ -5,6 +5,8 @@ import AppKit
 /// What Copaste puts back on the clipboard.
 nonisolated enum PasteboardPayload: Sendable {
     case text(String)
+    /// Text in a monospaced font, as rich text and HTML for apps that take them and plain text for the rest.
+    case monospaced(String)
     case image(URL)
     /// An image made in Copaste that isn't saved anywhere.
     case png(Data)
@@ -109,11 +111,24 @@ final class SystemPasteboard {
     private static func objects(_ payload: PasteboardPayload) -> [any NSPasteboardWriting] {
         switch payload {
         case let .text(text): [text as NSString]
+        case let .monospaced(text): [monospacedItem(text)]
         case let .image(url): NSImage(contentsOf: url).map { [$0] } ?? []
         case let .png(data): NSImage(data: data).map { [$0] } ?? []
         case let .files(urls): urls.map { $0 as NSURL }
         case let .many(payloads): payloads.flatMap(objects)
         }
+    }
+
+    private static func monospacedItem(_ text: String) -> NSPasteboardItem {
+        let item = NSPasteboardItem()
+        item.setString(text, forType: .string)
+        let size = Metrics.PasteSpecial.codeFontSize
+        let font = NSFont(name: "Menlo", size: size) ?? .monospacedSystemFont(ofSize: size, weight: .regular)
+        let rich = NSAttributedString(string: text, attributes: [.font: font])
+        if let rtf = rich.rtf(from: NSRange(location: 0, length: rich.length)) { item.setData(rtf, forType: .rtf) }
+        let escaped = text.replacing("&", with: "&amp;").replacing("<", with: "&lt;").replacing(">", with: "&gt;")
+        item.setString("<pre><code>\(escaped)</code></pre>", forType: .html)
+        return item
     }
 
     nonisolated private static func clipFile(_ url: URL) -> ClipFile {

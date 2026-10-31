@@ -2589,6 +2589,23 @@
         }
       }
     },
+    "pasteSpecialCode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kode"
+          }
+        }
+      }
+    },
     "pasteSpecialConverting": {
       "extractionState": "manual",
       "localizations": {
@@ -2602,6 +2619,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mengonversi…"
+          }
+        }
+      }
+    },
+    "pasteSpecialDetected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detected: %@"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terdeteksi: %@"
           }
         }
       }
@@ -2646,13 +2680,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The last copy isn’t an image"
+            "value": "The last copy isn’t an image or text"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Salinan terakhir bukan gambar"
+            "value": "Salinan terakhir bukan gambar atau teks"
           }
         }
       }
@@ -2663,13 +2697,47 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "None of the selected entries is an image"
+            "value": "None of the selected entries is an image or text"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tidak ada gambar di entri yang dipilih"
+            "value": "Tidak ada gambar atau teks di entri yang dipilih"
+          }
+        }
+      }
+    },
+    "pasteSpecialPasteAs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste As"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempel Sebagai"
+          }
+        }
+      }
+    },
+    "pasteSpecialPlainText": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plain text"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teks biasa"
           }
         }
       }
@@ -2687,6 +2755,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kualitas"
+          }
+        }
+      }
+    },
+    "pasteSpecialReformat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reformat"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format Ulang"
           }
         }
       }
@@ -3938,13 +4023,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste Special the latest image"
+            "value": "Paste Special the latest copy"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tempel Khusus gambar terakhir"
+            "value": "Tempel Khusus salinan terakhir"
           }
         }
       }
@@ -3955,13 +4040,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste Special the selected image"
+            "value": "Paste Special the selected entry"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tempel Khusus gambar terpilih"
+            "value": "Tempel Khusus entri terpilih"
           }
         }
       }
@@ -4216,6 +4301,74 @@
         }
       }
     },
+    "textReformatMinifyJSON": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One Line"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satu Baris"
+          }
+        }
+      }
+    },
+    "textReformatOriginal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As Is"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apa Adanya"
+          }
+        }
+      }
+    },
+    "textReformatPrettyJSON": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indented"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indentasi"
+          }
+        }
+      }
+    },
+    "textReformatTidy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidy"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapikan"
+          }
+        }
+      }
+    },
     "textSizeDefault": {
       "extractionState": "manual",
       "localizations": {
@@ -4280,6 +4433,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kecil"
+          }
+        }
+      }
+    },
+    "textStyleCodeBlock": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code Block"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blok Kode"
+          }
+        }
+      }
+    },
+    "textStyleCodeBlockHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wrapped in ``` for chats, GitHub and Markdown editors."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dibungkus ``` untuk chat, GitHub, dan editor Markdown."
+          }
+        }
+      }
+    },
+    "textStyleMonospaced": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monospaced"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monospace"
+          }
+        }
+      }
+    },
+    "textStyleMonospacedHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In a monospaced font, for Notes, Mail, Pages and web editors."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dengan font monospace, untuk Notes, Mail, Pages, dan editor web."
+          }
+        }
+      }
+    },
+    "textStylePlain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plain Text"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teks Biasa"
+          }
+        }
+      }
+    },
+    "textStylePlainHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plain text, in the other app’s font."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teks biasa, dengan font aplikasi tujuan."
           }
         }
       }
