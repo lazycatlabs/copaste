@@ -12,6 +12,9 @@ final class CopasteE2ETests: XCTestCase {
 
     override func setUp() {
         continueAfterFailure = false
+        // Connects the runner to the window server. Without it, the first element screenshot in a fresh runner
+        // aborts in CoreGraphics (CGS_REQUIRE_INIT) when more than one display is attached.
+        _ = NSScreen.screens
     }
 
     override func tearDown() {
