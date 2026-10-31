@@ -47,6 +47,12 @@ final class SystemPasteboard {
         timer?.tolerance = Metrics.Clipboard.pollTolerance
     }
 
+    /// Records a copy made since the last check right away, instead of on the next tick (which macOS may delay while
+    /// Copaste is in the background). For when the history must be current, e.g. as a window opens.
+    func checkNow() {
+        poll()
+    }
+
     private func poll() {
         guard pasteboard.changeCount != changeCount else { return }
         changeCount = pasteboard.changeCount

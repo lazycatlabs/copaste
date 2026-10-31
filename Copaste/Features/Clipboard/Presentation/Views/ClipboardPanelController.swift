@@ -43,6 +43,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     ///   - toast: a confirmation to show once the window is open.
     func show(selecting id: UUID? = nil, toast: String? = nil) {
         guard let session else { return showSettings() }
+        session.pasteboard.checkNow()
         specialPanel?.orderOut(nil)
         if !isOpen {
             let front = NSWorkspace.shared.frontmostApplication
@@ -315,6 +316,8 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     /// image file or text. Otherwise a toast says so.
     func pasteSpecialLatest() {
         guard let session else { return }
+        // The copy just made must be the latest, even if the clipboard wasn't checked since.
+        session.pasteboard.checkNow()
         let item = ClipUseCases.latest(session.items)
         let show: () -> Void
         if let item, let source = session.imageURL(of: item) {
