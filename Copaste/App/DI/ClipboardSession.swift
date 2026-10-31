@@ -20,6 +20,7 @@ final class ClipboardSession {
     @ObservationIgnored var onToast: ((String) -> Void)?
     /// The code language of text entries, by content hash, so each text is looked at once.
     @ObservationIgnored private var languages: [String: CodeLanguage?] = [:]
+    @ObservationIgnored private var languageNames: [String: String] = [:]
 
     @ObservationIgnored let repository: ClipRepository
     @ObservationIgnored let pasteboard: SystemPasteboard
@@ -180,6 +181,15 @@ final class ClipboardSession {
         let language = TextFormatter.language(of: text)
         languages[item.hash] = language
         return language
+    }
+
+    /// The language name the list shows for a code entry (e.g. a code block's own YAML tag), or nil for other entries.
+    func codeName(of item: ClipItem) -> String? {
+        guard let language = codeLanguage(of: item), let text = item.text else { return nil }
+        if let cached = languageNames[item.hash] { return cached }
+        let name = TextFormatter.languageName(language, of: text)
+        languageNames[item.hash] = name
+        return name
     }
 
     /// The image file Paste Special reads: the entry's image, or the image file it points at.

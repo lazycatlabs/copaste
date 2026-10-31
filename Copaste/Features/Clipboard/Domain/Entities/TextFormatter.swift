@@ -44,6 +44,14 @@ nonisolated enum TextFormatter {
         return lines.count > 1 ? .other : nil
     }
 
+    /// The name to show for code in this language: a code block's own tag when it names a language Copaste doesn't
+    /// detect (YAML, C++), otherwise the language's name, or "Code".
+    static func languageName(_ language: CodeLanguage, of text: String) -> String {
+        if let name = language.name { return name }
+        if let tag = unfenced(text)?.tag, !tag.isEmpty { return FenceLanguage.named(tag)?.name ?? tag }
+        return L(.kindCode)
+    }
+
     /// A JSON object or array.
     static func isJSON(_ text: String) -> Bool {
         let value = text.trimmingCharacters(in: .whitespacesAndNewlines)

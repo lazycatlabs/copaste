@@ -617,6 +617,8 @@ final class CopasteE2ETests: XCTestCase {
         send("panel")
         XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
         XCTAssertTrue(row(containing: "```yaml").waitForExistence(timeout: timeout), "The code block is a new entry")
+        XCTAssertTrue(text(of: row(containing: "```yaml")).contains("YAML"),
+                      "Its badge names the block's own language: \(text(of: row(containing: "```yaml")))")
         screenshot(panel, "52-paste-special-result-in-history")
 
         // Paste Special on that code block again: another language replaces the tag instead of wrapping it again.

@@ -84,6 +84,10 @@ struct TextFormatterTests {
         #expect(TextFormatter.unfenced("```swift\nlet a = 1") == nil, "Not closed")
         #expect(TextFormatter.unfenced("Use ``` for code") == nil)
         #expect(TextFormatter.language(of: "```\nimport SwiftUI\n```") == .swift, "An untagged block: its code decides")
+        #expect(TextFormatter.languageName(.other, of: "```yaml\na: 1\n```") == "YAML", "The block's own tag names it")
+        #expect(TextFormatter.languageName(.other, of: "```cpp\nint a;\n```") == "C++")
+        #expect(TextFormatter.languageName(.other, of: "```zig\nconst a = 1;\n```") == "zig", "An unlisted tag as it is")
+        #expect(TextFormatter.languageName(.swift, of: "```swift\nlet a = 1\n```") == "Swift")
     }
 
     @Test func rewrappingACodeBlockReplacesItsLanguage() {
