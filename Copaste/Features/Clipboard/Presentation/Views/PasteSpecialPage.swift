@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Shown in its own window at the pointer. Converts an image entry to another file type, optionally smaller, then pastes or copies it as a file.
-struct PasteSpecialView: View {
+struct PasteSpecialPage: View {
     @Bindable var model: PasteSpecialModel
     let finish: (_ pasting: Bool) -> Void
     let cancel: () -> Void

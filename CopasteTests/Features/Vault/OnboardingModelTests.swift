@@ -4,15 +4,15 @@ import Testing
 
 @MainActor
 struct OnboardingModelTests {
-    @Test func pagesStopAtBothEnds() {
+    @Test func stepsStopAtBothEnds() {
         let model = OnboardingModel(binding: .standard)
         model.back()
-        #expect(model.page == .welcome)
-        for _ in OnboardingPage.allCases { model.next() }
-        #expect(model.page == .organize)
-        #expect(model.isLastPage)
+        #expect(model.step == .welcome)
+        for _ in OnboardingStep.allCases { model.next() }
+        #expect(model.step == .organize)
+        #expect(model.isLastStep)
         model.go(to: .shortcut)
-        #expect(model.page == .shortcut)
+        #expect(model.step == .shortcut)
         #expect(!model.movesForward)
     }
 
@@ -25,6 +25,6 @@ struct OnboardingModelTests {
         model.go(to: .sync)
         model.pressedShortcut()
         #expect(model.isHeld(2))
-        #expect(model.page == .shortcut, "Pressing the shortcut shows its page")
+        #expect(model.step == .shortcut, "Pressing the shortcut shows its step")
     }
 }

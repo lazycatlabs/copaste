@@ -51,23 +51,58 @@ Copaste/
 └── Features/
     ├── Clipboard/                  # Domain (ClipItem, ClipClassifier, ColorValue, TimeSection, ClipAction, ClipUseCases)
     │                               # Data (FileClipRepository, SystemPasteboard, LinkMetadata, TextRecognition, PasteSimulator)
-    │                               # Presentation (ClipboardViewModel, list/detail views, the floating panel)
+    │                               # Presentation (ClipboardViewModel, ClipboardPage and its sections, the floating panel)
     ├── Annotate/                   # SwiftUI Canvas editor; marks use 0…1 coordinates
-    ├── Settings/                   # AppSettings (vault config), SupportLinks and SettingsView
-    └── Vault/                      # Folder picking and the bookmark
+    ├── Settings/                   # AppSettings (vault config), SupportLinks, SettingsPage and one …SettingsPage per pane
+    ├── Updates/                    # GitHub releases check, UpdatesSettingsPage
+    ├── Migration/                  # Raycast import, ImportSettingsPage
+    └── Vault/                      # Folder picking, the bookmark, OnboardingPage and VaultPickerPage
 ```
 
 ## 4. Rules
 
 - Data flows DataSource → Repository → UseCase / ClipboardSession → View. Business rules live in `ClipUseCases` or entities so they can be unit-tested.
 - Pasteboard types become `CapturedContent`, then `ClipKind` via `ClipClassifier`. Views compare enums.
-- **No magic numbers** (`Spacing`, `Radius`, `Opacity`, `Metrics.<Area>`). **No hardcoded strings**: add keys to `scripts/strings.py`, run it, use `L(.key)` / `Text(.key)`.
 - Vault writes go through `ClipboardSession.persist`, which reports failures to the user. Never fail silently.
 - Vault format must stay backward compatible: new `AppSettings` fields need defaults; new `ClipItem` fields must be optional.
 - Never record secrets: `SystemPasteboard` skips `org.nspasteboard.ConcealedType` / `TransientType`, and `AppSettings.ignoredApps` is checked in `ClipboardSession.handle`.
 - Use `Log`, never `print`.
 
-## 5. Vault format
+## 5. UI conventions
+
+- **No magic numbers.** Use `Spacing.xxs…huge`, `Radius`, `Opacity`, and a `Metrics.<Area>` entry for anything else.
+- **No hardcoded user-facing strings.** Add the key to `scripts/strings.py` with both languages, run it, then use
+  `L(.key)` or `Text(.key)`.
+- **Small `body`.** Split views as described in "View naming and where a view lives" below.
+- Settings panes use `SettingsGroup`, `SettingsRow` and `SettingsToggle`, laid out by `SettingsPaneLayout`.
+- Give anything a test needs an `accessibilityIdentifier`.
+- Respect light and dark mode. Check new colours in both.
+
+### View naming and where a view lives
+
+| Kind of UI                                     | Type and file suffix | Example                                  |
+|------------------------------------------------|----------------------|------------------------------------------|
+| A whole screen, window, sheet or pane          | `Page`               | `ClipboardPage`, `HistorySettingsPage`   |
+| One row or cell of a `List`, `ForEach` or grid | `Item`               | `ClipboardPage.EntryItem`                |
+| A named block of a page                        | `Section`            | `ClipboardPage.HeaderSection`            |
+| Loading state                                  | `Loading`            | _none yet_                               |
+| Empty state                                    | `Empty`              | _none yet_                               |
+| Shared page logic (not a view)                 | `Behavior`           | a protocol with its default implementation in an extension |
+
+For every piece of a page (sections, items, loading and empty states) the decision is the same:
+
+- **Reusable** (used by more than one page, or plausibly will be): an `internal` struct in its own file, in the
+  feature's `Presentation/Views`, or in `Core/DesignSystem` when other features use it too.
+- **Used only by that one page**: nest it in the page, `extension ClipboardPage { struct HeaderSection: View { … } }`
+  in `ClipboardPage+HeaderSection.swift`, used as `HeaderSection` inside the page. A piece of a few lines can stay a
+  `private` struct in the page's own file.
+
+Enums that list a page's parts don't take the `Page` name: `SettingsPane` lists the Settings panes, `OnboardingStep`
+the introduction's steps. Names that would clash with an entity get a word of their own (`EntryItem`, not `ClipItem`).
+Shared components that aren't a page, section or item (`SettingsRow`, `ClipIcon`, `KeyCaps`, `VaultFolderButton`)
+keep their own names. AppKit controllers that host a page (`ClipboardPanelController`) keep theirs too.
+
+## 6. Vault format
 
 ```text
 <vault>/
@@ -76,7 +111,7 @@ Copaste/
 └── blobs/                 # <uuid>.png images, <uuid>-icon favicons, <uuid>-preview link images
 ```
 
-## 6. Platform notes
+## 7. Platform notes
 
 - Menu bar app (`LSUIElement`), sandbox off. The clipboard is polled every 0.5 s. The floating window is a
   non-activating `NSPanel`, so the previous app stays in front and receives ⌘V (needs Accessibility; without it
