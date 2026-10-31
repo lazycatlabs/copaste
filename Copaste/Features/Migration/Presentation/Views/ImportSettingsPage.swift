@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Settings › Import: brings Raycast's clipboard images and rich-text copies into the vault.
-struct RaycastImportSection: View {
+struct ImportSettingsPage: View {
     let session: ClipboardSession
     @State private var files: [URL] = []
     @State private var confirms = false
@@ -9,7 +9,7 @@ struct RaycastImportSection: View {
     @State private var result: String?
 
     var body: some View {
-        SettingsSection(L(.importTitle), footer: L(.importFooter)) {
+        SettingsGroup(L(.importTitle), footer: L(.importFooter)) {
             SettingsRow("Raycast", symbol: "square.and.arrow.down.on.square", subtitle: result) {
                 if let progress {
                     ProgressView(value: Double(progress.done), total: Double(max(progress.total, 1))) {

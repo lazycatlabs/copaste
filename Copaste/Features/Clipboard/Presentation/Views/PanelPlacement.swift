@@ -88,12 +88,12 @@ final class PanelGuides {
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.isReleasedWhenClosed = false
-        window.contentView = NSHostingView(rootView: PanelGuidesView(guides: self))
+        window.contentView = NSHostingView(rootView: PanelGuidesPage(guides: self))
         return window
     }
 }
 
-private struct PanelGuidesView: View {
+private struct PanelGuidesPage: View {
     let guides: PanelGuides
 
     var body: some View {

@@ -54,14 +54,14 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         Task { await session.reload() }
         let panel = panel ?? makePanel()
         self.panel = panel
-        let view = ClipboardPanelView(model: model) { [weak self] action, item in
+        let view = ClipboardPage(model: model) { [weak self] action, item in
             self?.perform(action, on: item)
         } performMany: { [weak self] items in
             if session.settings.pasteDirectly { self?.paste(items) } else { self?.copy(items) }
         } onDrag: { [weak self] ended in
             self?.drag(ended: ended)
         } manageGroups: { [weak self] in
-            SettingsNavigation.shared.page = .groups
+            SettingsNavigation.shared.pane = .groups
             self?.hide(restoringFocus: false)
             self?.showSettings()
         }
@@ -333,7 +333,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     private func showPasteSpecial(_ special: PasteSpecialModel, session: ClipboardSession) {
         model.showsActions = false
         model.pasteSpecial = special
-        let view = PasteSpecialView(model: special, finish: { [weak self] pasting in self?.finishPasteSpecial(pasting: pasting) },
+        let view = PasteSpecialPage(model: special, finish: { [weak self] pasting in self?.finishPasteSpecial(pasting: pasting) },
                                     cancel: { [weak self] in self?.hide() })
         let hosting = NSHostingView(rootView: view)
         let panel = specialPanel ?? makePanel(identifier: "pasteSpecialPanel")
@@ -419,7 +419,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         guard let image = session.blobURL(item.blob).flatMap(ImageCache.image) else { return }
         hide(restoringFocus: false)
         MacWindows.show(id: "annotate", title: L(.actionAnnotate), size: Metrics.Annotate.windowSize) {
-            AnnotationEditor(image: image) { [weak self] png, width, height in
+            AnnotationEditorPage(image: image) { [weak self] png, width, height in
                 let saved = session.addImage(png, width: width, height: height)
                 MacWindows.close(id: "annotate")
                 // Show the result, so it's clear the annotated copy was saved and is on the clipboard. A moment later:

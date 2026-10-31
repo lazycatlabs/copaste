@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Draw and write on an image (pen, highlighter, shapes, arrow, text, blur), then keep the result as a new clipboard entry.
-struct AnnotationEditor: View {
+struct AnnotationEditorPage: View {
     let image: NSImage
     /// Called with the annotated image as PNG, and its size in pixels.
     let onDone: (Data, Int, Int) -> Void
