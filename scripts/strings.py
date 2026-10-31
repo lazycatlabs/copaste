@@ -90,6 +90,9 @@ S = {
     "pasteSpecialQuality": ("Quality", "Kualitas"),
     "pasteSpecialConverting": ("Converting…", "Mengonversi…"),
     "pasteSpecialResult": ("%1$@ → %2$@ · %3$@×%4$@", "%1$@ → %2$@ · %3$@×%4$@"),
+    "pasteSpecialResultMany": ("%1$lld images · %2$@ → %3$@", "%1$lld gambar · %2$@ → %3$@"),
+    "pasteSpecialNoImageSelected": ("None of the selected entries is an image", "Tidak ada gambar di entri yang dipilih"),
+    "pasteSpecialNoImage": ("The last copy isn’t an image", "Salinan terakhir bukan gambar"),
     "pasteSpecialFailed": ("Couldn’t convert the image", "Gambar tidak bisa dikonversi"),
 
     # Information
@@ -321,9 +324,14 @@ S = {
     "actionCenter": ("Center", "Ke Tengah"),
     "settingsShortcuts": ("Shortcuts", "Pintasan"),
     "settingsShortcutsFooter": (
-        "Click a shortcut, then press the new keys (esc cancels). Shortcuts other than the first work inside the clipboard window.",
-        "Klik pintasan, lalu tekan tombol baru (esc membatalkan). Pintasan selain yang pertama berlaku di dalam jendela clipboard.",
+        "These work in any app. To change a shortcut, click it and press the new keys (esc cancels).",
+        "Ini berlaku di aplikasi mana pun. Untuk mengubah pintasan, klik lalu tekan tombol baru (esc membatalkan).",
     ),
+    "shortcutPasteSpecial": ("Paste Special the latest image", "Tempel Khusus gambar terakhir"),
+    "shortcutPasteSpecialSelected": ("Paste Special the selected image", "Tempel Khusus gambar terpilih"),
+    "shortcutGroupAnywhere": ("In Any App", "Di Aplikasi Mana Pun"),
+    "shortcutGroupWindow": ("Clipboard Window", "Jendela Clipboard"),
+    "shortcutGroupEntry": ("Selected Entry", "Entri yang Dipilih"),
     "shortcutPin": ("Pin or unpin", "Sematkan atau lepas sematan"),
     "shortcutNavigate": ("Move the selection", "Pindahkan pilihan"),
     "shortcutQuickPaste": ("Paste entry 1 to 9", "Tempel entri 1 sampai 9"),

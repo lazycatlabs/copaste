@@ -69,21 +69,31 @@ nonisolated struct HotKeyBinding: Codable, Equatable, Sendable {
     }
 }
 
-/// The shortcuts that can be changed in Settings: the global one that opens the clipboard window,
-/// and the ones the clipboard window handles.
+/// The shortcuts that can be changed in Settings: the global ones (open the clipboard window, Paste Special the
+/// latest copy), and the ones the clipboard window handles.
 nonisolated enum Shortcut: String, CaseIterable, Identifiable, Sendable {
-    case openHistory, paste, copy, pasteSpecial, actions, open, annotate, save, pin, delete
+    case openHistory, pasteSpecialLatest, paste, copy, pasteSpecial, actions, open, annotate, save, pin, delete
 
     var id: String { rawValue }
 
-    /// Only the global shortcut works while another app is in front.
-    var isGlobal: Bool { self == .openHistory }
+    /// The section it's listed in, in Settings.
+    var group: ShortcutGroup {
+        switch self {
+        case .openHistory, .pasteSpecialLatest: .anywhere
+        case .paste, .copy, .pasteSpecial, .actions: .window
+        case .open, .annotate, .save, .pin, .delete: .entry
+        }
+    }
+
+    /// Only the global shortcuts work while another app is in front.
+    var isGlobal: Bool { self == .openHistory || self == .pasteSpecialLatest }
 
     var standard: HotKeyBinding {
         switch self {
         case .openHistory: .standard
         case .paste: Self.binding(kVK_Return, "\r", [])
         case .copy: Self.binding(kVK_Return, "\r", .command)
+        case .pasteSpecialLatest: Self.binding(kVK_ANSI_V, "v", [.control, .command])
         case .pasteSpecial: Self.binding(kVK_Return, "\r", .option)
         case .actions: Self.binding(kVK_ANSI_K, "k", .command)
         case .open: Self.binding(kVK_ANSI_O, "o", .command)
@@ -99,7 +109,8 @@ nonisolated enum Shortcut: String, CaseIterable, Identifiable, Sendable {
         case .openHistory: L(.settingsShortcut)
         case .paste: L(.actionPaste)
         case .copy: L(.actionCopy)
-        case .pasteSpecial: L(.pasteSpecialTitle)
+        case .pasteSpecialLatest: L(.shortcutPasteSpecial)
+        case .pasteSpecial: L(.shortcutPasteSpecialSelected)
         case .actions: L(.actionsTitle)
         case .open: L(.actionOpen)
         case .annotate: L(.actionAnnotate)
@@ -117,13 +128,33 @@ nonisolated enum Shortcut: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// The sections of Settings › Shortcuts: where a shortcut works, and what it acts on.
+nonisolated enum ShortcutGroup: CaseIterable, Sendable {
+    /// Global: in any app.
+    case anywhere
+    /// In the clipboard window: pasting and copying.
+    case window
+    /// In the clipboard window, on the selected entry.
+    case entry
+
+    var title: String {
+        switch self {
+        case .anywhere: L(.shortcutGroupAnywhere)
+        case .window: L(.shortcutGroupWindow)
+        case .entry: L(.shortcutGroupEntry)
+        }
+    }
+
+    var shortcuts: [Shortcut] { Shortcut.allCases.filter { $0.group == self } }
+}
+
 /// The shortcuts as set in Settings. Stored per Mac, not in the vault.
 @Observable
 final class HotKeyStore {
     static let shared = HotKeyStore()
 
     private var bindings: [Shortcut: HotKeyBinding] = [:]
-    /// Called after a change, to register the new global combination.
+    /// Called after a change, to register the new global combinations.
     @ObservationIgnored var onChange: (() -> Void)?
     @ObservationIgnored private let defaults: UserDefaults
 

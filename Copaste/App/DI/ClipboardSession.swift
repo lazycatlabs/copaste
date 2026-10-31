@@ -177,27 +177,36 @@ final class ClipboardSession {
         return item.kind == .image ? blobURL(item.blob) : item.files?.first.map { URL(filePath: $0.path) }
     }
 
-    /// Puts a converted copy of the entry on the clipboard as a file, so apps receive it in the chosen format.
-    /// The file goes in a temporary folder that's emptied each time. `pasting` counts a paste instead of a copy.
-    /// - Returns: whether it's on the clipboard; a failed write is reported to the user.
+    /// Puts converted copies of entries on the clipboard as files (one ⌘V pastes them all), so apps receive them in
+    /// the chosen format. The files go in a temporary folder that's emptied each time. `pasting` counts a paste
+    /// instead of a copy.
+    /// - Returns: whether they're on the clipboard; a failed write is reported to the user.
     @discardableResult
-    func writeConverted(_ image: ConvertedImage, format: ImageFormat, for item: ClipItem, pasting: Bool) -> Bool {
+    func writeConverted(_ images: [ConvertedImage], format: ImageFormat, for items: [ClipItem], pasting: Bool) -> Bool {
+        guard !images.isEmpty, images.count == items.count else { return false }
         let folder = FileManager.default.temporaryDirectory.appending(path: "PasteSpecial")
-        let name = item.kind == .file ? item.files?.first?.name ?? L(.imageFileName) : L(.imageFileName)
-        let url = folder.appending(path: (name as NSString).deletingPathExtension).appendingPathExtension(for: format.type)
+        let names = ClipUseCases.uniqueNames(items.map { item in
+            let name = (item.kind == .file ? item.files?.first?.name : nil) ?? L(.imageFileName)
+            return (name as NSString).deletingPathExtension
+        })
+        let urls = names.map { folder.appending(path: $0).appendingPathExtension(for: format.type) }
         do {
             try? FileManager.default.removeItem(at: folder)
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-            try image.data.write(to: url, options: .atomic)
+            for (image, url) in zip(images, urls) { try image.data.write(to: url, options: .atomic) }
         } catch {
             Log.storage.error("Paste Special write failed: \(error.localizedDescription, privacy: .public)")
             NSApp.presentError(error)
             return false
         }
-        pasteboard.write(.files([url]))
-        save(pasting ? ClipUseCases.markPasted(item) : ClipUseCases.markCopied(item))
+        pasteboard.write(.files(urls))
+        for item in items { save(pasting ? ClipUseCases.markPasted(item) : ClipUseCases.markCopied(item)) }
         SoundPlayer.play(pasting ? settings.pasteSound : settings.copySound)
-        announce(pasting ? L(.toastPasted(toastTitle(item))) : L(.toastCopied(toastTitle(item))))
+        if let item = items.first, items.count == 1 {
+            announce(pasting ? L(.toastPasted(toastTitle(item))) : L(.toastCopied(toastTitle(item))))
+        } else {
+            announce(pasting ? L(.toastPastedMany(items.count)) : L(.toastCopiedMany(items.count)))
+        }
         return true
     }
 

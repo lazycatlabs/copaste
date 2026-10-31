@@ -48,6 +48,26 @@ nonisolated enum ClipUseCases {
         return item
     }
 
+    /// The entry copied last, which is what's on the clipboard (copying an older entry again moves it here).
+    static func latest(_ items: [ClipItem]) -> ClipItem? {
+        items.max { $0.lastCopied < $1.lastCopied }
+    }
+
+    /// File names that don't clash: a repeated name gets " 2", " 3", … ("Image", "Image 2").
+    static func uniqueNames(_ names: [String]) -> [String] {
+        var used: Set<String> = []
+        return names.map { name in
+            var unique = name
+            var number = 2
+            while used.contains(unique) {
+                unique = "\(name) \(number)"
+                number += 1
+            }
+            used.insert(unique)
+            return unique
+        }
+    }
+
     static func markPasted(_ item: ClipItem, now: Date = .now) -> ClipItem {
         var item = markCopied(item, now: now)
         item.pasteCount += 1

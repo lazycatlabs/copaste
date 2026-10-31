@@ -63,7 +63,8 @@ enum SettingsPage: String, CaseIterable, Identifiable {
                         .settingsRecognitionMode, .storageTitle, .storageUsed, .cleanupTitle, .cleanupPeriod]
         case .pasting: [.settingsPasteDirectly, .settingsSounds, .settingsCopySound, .settingsPasteSound]
         case .appearance: [.settingsTextSize, .settingsShowToasts, .settingsWindowPosition]
-        case .shortcuts: [.settingsShortcut, .actionPaste, .actionCopy, .actionsTitle, .shortcutQuickPaste]
+        case .shortcuts: [.settingsShortcut, .actionPaste, .actionCopy, .actionsTitle, .shortcutQuickPaste, .pasteSpecialTitle,
+                          .shortcutGroupAnywhere, .shortcutGroupWindow, .shortcutGroupEntry]
         case .groups: [.groupAdd, .groupNewName]
         case .privacy: [.settingsIgnoredApps, .settingsAddApp]
         case .importing: [.importFromRaycast]
@@ -75,6 +76,17 @@ enum SettingsPage: String, CaseIterable, Identifiable {
 
     /// Pages about the open vault's history; without a vault only General and About apply.
     var needsVault: Bool { ![.general, .updates, .about].contains(self) }
+}
+
+/// A sidebar page's icon: accent-colored, but in the selected row's text color while that row is highlighted, so it
+/// doesn't vanish into the accent-colored selection.
+private struct SidebarIcon: View {
+    let symbol: String
+    @Environment(\.backgroundProminence) private var prominence
+
+    var body: some View {
+        Image(systemName: symbol).foregroundStyle(prominence == .increased ? AnyShapeStyle(.primary) : AnyShapeStyle(Color.accentColor))
+    }
 }
 
 /// Settings: a searchable sidebar of pages, and the chosen page.
@@ -96,7 +108,7 @@ struct SettingsView: View {
                 Label {
                     Text(page.title).font(.scaled(.body))
                 } icon: {
-                    Image(systemName: page.symbol).foregroundStyle(Color.accentColor)
+                    SidebarIcon(symbol: page.symbol)
                 }
                 .tag(page)
                 .accessibilityIdentifier("settings.nav.\(page.rawValue)")
@@ -283,9 +295,12 @@ private struct AppearancePage: View {
 
 private struct ShortcutsPage: View {
     var body: some View {
-        SettingsSection(L(.settingsShortcuts), footer: L(.settingsShortcutsFooter)) {
-            ForEach(Shortcut.allCases) { shortcut in
-                SettingsRow(shortcut.title, symbol: Self.symbol(of: shortcut)) { ShortcutRecorder(shortcut: shortcut) }
+        ForEach(ShortcutGroup.allCases, id: \.self) { group in
+            // How to change one, under the first section.
+            SettingsSection(group.title, footer: group == .anywhere ? L(.settingsShortcutsFooter) : nil) {
+                ForEach(group.shortcuts) { shortcut in
+                    SettingsRow(shortcut.title, symbol: Self.symbol(of: shortcut)) { ShortcutRecorder(shortcut: shortcut) }
+                }
             }
         }
         SettingsSection(L(.settingsFixedShortcuts)) {
@@ -305,6 +320,7 @@ private struct ShortcutsPage: View {
         case .openHistory: "command"
         case .paste: "doc.on.clipboard"
         case .copy: "doc.on.doc"
+        case .pasteSpecialLatest: "wand.and.stars.inverse"
         case .pasteSpecial: "wand.and.stars"
         case .actions: "ellipsis.circle"
         case .open: "arrow.up.forward.app"

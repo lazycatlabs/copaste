@@ -1,3 +1,4 @@
+import AppKit
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -49,6 +50,38 @@ struct PasteSpecialTests {
         let high = try #require(ImageConverter.convert(url, options: PasteSpecialOptions(format: .jpeg, quality: 1)))
         let low = try #require(ImageConverter.convert(url, options: PasteSpecialOptions(format: .jpeg, quality: 0.1)))
         #expect(low.data.count < high.data.count)
+    }
+
+    @Test func repeatedFileNamesGetANumber() {
+        #expect(ClipUseCases.uniqueNames(["Image", "Image", "Photo", "Image"]) == ["Image", "Image 2", "Photo", "Image 3"])
+    }
+
+    @MainActor @Test func severalImagesGoOnTheClipboardAsFiles() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let board = NSPasteboard(name: .init(UUID().uuidString))
+        let session = ClipboardSession(root: root, pasteboard: SystemPasteboard(pasteboard: board))
+        let url = try makePNG(width: 40, height: 20)
+        defer { try? FileManager.default.removeItem(at: url) }
+        let png = try Data(contentsOf: url)
+        session.handle(Capture(content: .image(png: png, width: 40, height: 20)))
+        session.handle(Capture(content: .files([ClipFile(path: url.path, name: "Chart.png")])))
+        let items = session.items.sorted { $0.kind.rawValue > $1.kind.rawValue }
+        let images = try items.map { try #require(session.imageURL(of: $0)) }
+            .map { try #require(ImageConverter.convert($0, options: PasteSpecialOptions(format: .jpeg))) }
+
+        #expect(session.writeConverted(images, format: .jpeg, for: items, pasting: false))
+        let files = board.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+        #expect(files.map(\.lastPathComponent).sorted() == ["Chart.jpeg", "Image.jpeg"])
+        #expect(session.items.allSatisfy { $0.copyCount == 2 }, "Each entry counts a copy")
+    }
+
+    @Test func latestIsTheLastCopied() {
+        let old = ClipItem(kind: .image, hash: "a", firstCopied: .distantPast, lastCopied: .distantPast)
+        let new = ClipItem(kind: .text, hash: "b", firstCopied: .now, lastCopied: .now)
+        #expect(ClipUseCases.latest([old, new])?.id == new.id)
+        #expect(ClipUseCases.latest([ClipUseCases.markCopied(old), new])?.id == old.id, "Copying again makes it the latest")
+        #expect(ClipUseCases.latest([]) == nil)
     }
 
     @Test func offeredForImagesAndImageFilesOnly() {
