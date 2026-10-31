@@ -20,6 +20,8 @@ struct TextFormatterTests {
         ("SELECT id, name\nFROM users\nWHERE active = 1;", .sql),
         (".card {\n  color: red;\n  padding: 4px;\n}", .css),
         ("git status", .shell),
+        ("```swift\nlet a = 1\n```", .swift),
+        ("```yaml\na: 1\n```", .other),
         ("brew install --cask copaste", .shell),
         ("if (a) {\n  b();\n}", .other),
     ])

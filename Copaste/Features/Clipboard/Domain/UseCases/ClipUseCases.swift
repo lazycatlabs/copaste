@@ -68,8 +68,9 @@ nonisolated enum ClipUseCases {
         }
     }
 
-    static func markPasted(_ item: ClipItem, now: Date = .now) -> ClipItem {
-        var item = markCopied(item, now: now)
+    /// - Parameter countsCopy: off when the copy was already counted, e.g. as the entry was recorded.
+    static func markPasted(_ item: ClipItem, now: Date = .now, countsCopy: Bool = true) -> ClipItem {
+        var item = countsCopy ? markCopied(item, now: now) : item
         item.pasteCount += 1
         item.firstPasted = item.firstPasted ?? now
         item.lastPasted = now

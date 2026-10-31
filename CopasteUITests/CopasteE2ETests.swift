@@ -595,6 +595,31 @@ final class CopasteE2ETests: XCTestCase {
                       "A Ruby code block: \(clipboard.string(forType: .string) ?? "nothing")")
     }
 
+    func test20jCopyButtonCopiesTheCodeBlock() {
+        _ = parkPointer()
+        copyInApp { $0.setString("targets:\n  $default:\n    builders:\n      enabled: true", forType: .string) }
+        send("pasteSpecial")
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout))
+        pick("Code Block", in: special)
+        element("pasteSpecial.language").click()
+        special.typeText("yaml")
+        special.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.language")).contains("YAML") })
+
+        element("pasteSpecial.copy").click()
+        XCTAssertTrue(waitUntil { !special.exists }, "Copy closes")
+        let expected = "```yaml\ntargets:\n  $default:\n    builders:\n      enabled: true\n```"
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == expected },
+                      "The code block is copied: \(clipboard.string(forType: .string) ?? "nothing")")
+
+        // It's in the history too, as the latest entry, tagged YAML.
+        send("panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        XCTAssertTrue(row(containing: "```yaml").waitForExistence(timeout: timeout), "The code block is a new entry")
+        screenshot(panel, "52-paste-special-result-in-history")
+    }
+
     func test20dPasteSpecialOpensForTheSelectedEntry() {
         launch(open: "panel:image")
         XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))

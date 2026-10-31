@@ -21,6 +21,26 @@ struct ClipboardSessionTests {
         #expect(item.sourceName == "Copaste")
         #expect(session.blobURL(item.blob).map { FileManager.default.fileExists(atPath: $0.path) } == true)
     }
+
+    @Test func formattedTextIsCopiedAndBecomesTheLatestEntry() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let clipboard = NSPasteboard(name: .init(UUID().uuidString))
+        let session = ClipboardSession(root: root, pasteboard: SystemPasteboard(pasteboard: clipboard))
+        session.importClip(.text("a: 1"), source: "Xcode", copiedAt: .distantPast)
+        let original = try #require(session.items.first)
+
+        session.writeFormatted("```yaml\na: 1\n```", monospaced: false, for: [original], pasting: false)
+        #expect(clipboard.string(forType: .string) == "```yaml\na: 1\n```")
+        let latest = try #require(ClipUseCases.latest(session.items))
+        #expect(latest.text == "```yaml\na: 1\n```" && latest.sourceName == "Xcode" && latest.copyCount == 1)
+        #expect(session.items.first { $0.id == original.id }?.copyCount == 1, "The original isn't counted again")
+
+        session.writeFormatted("```yaml\na: 1\n```", monospaced: true, for: [original], pasting: true)
+        let pasted = try #require(ClipUseCases.latest(session.items))
+        #expect(pasted.id == latest.id && pasted.copyCount == 2 && pasted.pasteCount == 1, "The same text is counted, not added again")
+        #expect(session.items.count == 2)
+    }
 }
 
 @MainActor

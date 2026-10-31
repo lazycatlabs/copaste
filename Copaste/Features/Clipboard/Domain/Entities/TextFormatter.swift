@@ -16,6 +16,11 @@ nonisolated enum TextFormatter {
         let value = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else { return nil }
         if isJSON(value) { return .json }
+        // A Markdown code block (e.g. one made by Paste Special): its tag names the language.
+        if value.hasPrefix("```"), value.hasSuffix("```"), value.contains(where: \.isNewline) {
+            let tag = value.drop { $0 == "`" }.prefix { !$0.isNewline }.trimmingCharacters(in: .whitespaces).lowercased()
+            return CodeLanguage(rawValue: tag) ?? .other
+        }
         if value.hasPrefix("<"), value.hasSuffix(">") {
             return value.lowercased().contains(/<(?:!doctype html|html|head|body|div|span|p|a|ul|li|table|script|style)[\s>]/)
                 ? .html : .xml
