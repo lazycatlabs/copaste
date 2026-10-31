@@ -618,6 +618,21 @@ final class CopasteE2ETests: XCTestCase {
         XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
         XCTAssertTrue(row(containing: "```yaml").waitForExistence(timeout: timeout), "The code block is a new entry")
         screenshot(panel, "52-paste-special-result-in-history")
+
+        // Paste Special on that code block again: another language replaces the tag instead of wrapping it again.
+        send("pasteSpecial")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout))
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.language")).contains("YAML") }, "It keeps its language")
+        element("pasteSpecial.language").click()
+        special.typeText("c#")
+        special.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.language")).contains("C#") })
+        screenshot(special, "53-paste-special-code-block-language-replaced")
+        element("pasteSpecial.copy").click()
+        XCTAssertTrue(waitUntil { !special.exists })
+        let replaced = "```csharp\ntargets:\n  $default:\n    builders:\n      enabled: true\n```"
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == replaced },
+                      "One block, tagged C#: \(clipboard.string(forType: .string) ?? "nothing")")
     }
 
     func test20dPasteSpecialOpensForTheSelectedEntry() {

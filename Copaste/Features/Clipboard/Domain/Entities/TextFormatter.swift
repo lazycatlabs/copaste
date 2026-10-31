@@ -16,10 +16,9 @@ nonisolated enum TextFormatter {
         let value = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else { return nil }
         if isJSON(value) { return .json }
-        // A Markdown code block (e.g. one made by Paste Special): its tag names the language.
-        if value.hasPrefix("```"), value.hasSuffix("```"), value.contains(where: \.isNewline) {
-            let tag = value.drop { $0 == "`" }.prefix { !$0.isNewline }.trimmingCharacters(in: .whitespaces).lowercased()
-            return CodeLanguage(rawValue: tag) ?? .other
+        // A Markdown code block (e.g. one made by Paste Special): its tag names the language, or else its code does.
+        if let block = unfenced(value) {
+            return CodeLanguage(rawValue: block.tag) ?? (block.tag.isEmpty ? language(of: block.code) : nil) ?? .other
         }
         if value.hasPrefix("<"), value.hasSuffix(">") {
             return value.lowercased().contains(/<(?:!doctype html|html|head|body|div|span|p|a|ul|li|table|script|style)[\s>]/)
@@ -173,6 +172,26 @@ nonisolated enum TextFormatter {
         }
         escaped = char == "\\"
         return char != "\""
+    }
+
+    /// The code inside a Markdown code block and the block's language tag (empty for none), or nil if the text isn't
+    /// one block. Blocks inside blocks are opened too, so wrapping an existing block again can be undone; the outer
+    /// tag, picked last, wins.
+    static func unfenced(_ text: String) -> (code: String, tag: String)? {
+        var code = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        var tag: String?
+        while true {
+            var lines = code.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
+            guard lines.count >= 2, let first = lines.first, let last = lines.last else { break }
+            let fence = first.prefix { $0 == "`" }
+            let info = first.dropFirst(fence.count).trimmingCharacters(in: .whitespaces)
+            guard fence.count >= 3, !info.contains("`"), last.trimmingCharacters(in: .whitespaces) == fence else { break }
+            lines.removeFirst()
+            lines.removeLast()
+            code = lines.joined(separator: "\n")
+            tag = tag ?? info.lowercased()
+        }
+        return tag.map { (code, $0) }
     }
 
     /// The text in a Markdown code fence, one backtick longer than any run of backticks inside it.

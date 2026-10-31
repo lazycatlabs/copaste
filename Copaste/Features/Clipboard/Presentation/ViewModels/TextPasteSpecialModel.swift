@@ -5,7 +5,11 @@ import Observation
 @Observable
 final class TextPasteSpecialModel {
     let items: [ClipItem]
+    /// The text to rewrite: for a text that's already a Markdown code block, the code inside it, so a new language
+    /// replaces the old tag instead of wrapping the block again.
     let text: String
+    /// The tag of the code block the copied text already was, if it was one.
+    let blockTag: String?
     /// The guessed language, or nil for prose.
     let language: CodeLanguage?
     var options: TextPasteOptions {
@@ -18,12 +22,24 @@ final class TextPasteSpecialModel {
 
     init(items: [ClipItem], text: String) {
         self.items = items
-        self.text = text
+        let block = TextFormatter.unfenced(text)
+        self.text = block?.code ?? text
+        blockTag = block?.tag
         let language = TextFormatter.language(of: text)
         self.language = language
-        let options = TextPasteOptions.defaults(for: language)
+        var options = TextPasteOptions.defaults(for: language)
+        if let block {
+            options.style = .codeBlock
+            options.fenceTag = block.tag
+        }
         self.options = options
-        result = TextFormatter.apply(options, to: text, language: language)
+        result = TextFormatter.apply(options, to: self.text, language: language)
+    }
+
+    /// What the text was taken for: a language, the code block's own tag (e.g. C#), or nil for prose.
+    var detectedName: String? {
+        guard let language else { return nil }
+        return language.name ?? blockTag.flatMap(FenceLanguage.named)?.name ?? L(.kindCode)
     }
 
     /// The reformats that fit: the JSON ones only for JSON.

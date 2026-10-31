@@ -76,6 +76,28 @@ struct TextFormatterTests {
         #expect(TextFormatter.codeBlock("a ``` b", tag: "") == "````\na ``` b\n````")
     }
 
+    @Test func opensExistingCodeBlocks() {
+        #expect(TextFormatter.unfenced("```yaml\na: 1\nb: 2\n```")! == ("a: 1\nb: 2", "yaml"))
+        #expect(TextFormatter.unfenced("````csharp\n```cpp\nint a;\n```\n````")! == ("int a;", "csharp"),
+                "Nested blocks are all opened; the outer tag wins")
+        #expect(TextFormatter.unfenced("```\nx\n```")! == ("x", ""))
+        #expect(TextFormatter.unfenced("```swift\nlet a = 1") == nil, "Not closed")
+        #expect(TextFormatter.unfenced("Use ``` for code") == nil)
+        #expect(TextFormatter.language(of: "```\nimport SwiftUI\n```") == .swift, "An untagged block: its code decides")
+    }
+
+    @Test func rewrappingACodeBlockReplacesItsLanguage() {
+        let model = TextPasteSpecialModel(items: [], text: "````csharp\n```cpp\ntargets:\n  a: 1\n```\n````")
+        #expect(model.options.style == .codeBlock && model.options.fenceTag == "csharp")
+        #expect(model.detectedName == "C#")
+        #expect(model.result == "```csharp\ntargets:\n  a: 1\n```", "One block, not three")
+
+        model.options.fenceTag = "yaml"
+        #expect(model.result == "```yaml\ntargets:\n  a: 1\n```")
+        model.options.style = .plain
+        #expect(model.result == "targets:\n  a: 1", "Plain text is the code alone")
+    }
+
     @Test func findsFenceLanguagesByNameTagOrAlias() {
         #expect(FenceLanguage.matching("").count == FenceLanguage.all.count)
         #expect(FenceLanguage.matching("ts").first?.tag == "typescript", "An exact alias before names starting with it (TSX)")
