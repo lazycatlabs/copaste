@@ -3,6 +3,23 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.8.1 — 2026-10-31
+
+### New
+
+- **Paste Special from anywhere**: copy an image (or an image file in Finder) and press ⌃⌘V in any app. Paste
+  Special opens at the pointer for that copy, without opening the clipboard window. If the last copy isn't an image,
+  a message says so.
+- **Several images at once**: in the clipboard window, pick images with ⌘-click or ⇧-click and press ⌥↩. They're
+  converted with the same options and pasted together with one ⌘V.
+- **Paste** is always offered in Paste Special.
+- **Shortcuts in groups**: Settings › Shortcuts lists them under In Any App, Clipboard Window and Selected Entry.
+
+### Fixed
+
+- The selected page's icon in the Settings sidebar was hidden by the selection color.
+- Paste Special showed "Converting…" forever when an image couldn't be read; it now says so.
+
 ## 0.8.0 — 2026-10-31
 
 ### New
