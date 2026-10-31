@@ -432,85 +432,128 @@ final class CopasteE2ETests: XCTestCase {
 
     // MARK: Paste Special
 
-    func test20PasteSpecialOpensAtPointerAndCopiesAConvertedFile() throws {
-        let clipboard = NSPasteboard(name: NSPasteboard.Name("com.lazycatlabs.copaste.e2e"))
-        clipboard.clearContents()
-        launch(open: "panel:image")
-        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
-        // Park the pointer over the window, then open Paste Special with ⌥↩.
-        let pointer = panel.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3))
-        pointer.hover()
-        let point = pointer.screenPoint
-        app.typeKey(.return, modifierFlags: .option)
+    func test20PasteSpecialShortcutOpensLatestImageAtPointer() throws {
+        let point = parkPointer()
+        let png = try Data(contentsOf: samplePNG())
+        copyInApp { $0.setData(png, forType: .png) }
+        send("pasteSpecial")
 
         let special = element("pasteSpecialPanel")
-        XCTAssertTrue(special.waitForExistence(timeout: timeout), "⌥↩ opens Paste Special")
-        XCTAssertTrue(waitUntil { !self.element("panel.search").exists }, "It replaces the clipboard window")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout), "The shortcut opens Paste Special for the copied image")
+        XCTAssertFalse(element("panel.search").exists, "Without opening the clipboard window")
         XCTAssertEqual(special.frame.minX, point.x, accuracy: 2, "Opens at the pointer")
         XCTAssertEqual(special.frame.minY, point.y, accuracy: 2, "Opens at the pointer")
+        XCTAssertTrue(element("pasteSpecial.paste").exists, "Paste is always offered")
         screenshot(special, "36-paste-special-at-pointer")
 
-        // HEIC at half size: the 1440 × 900 sample becomes 720 × 450.
-        special.radioButtons["HEIC"].click()
-        special.radioButtons["50%"].click()
-        let summary = element("pasteSpecial.summary")
-        XCTAssertTrue(waitUntil { self.text(of: summary).contains("720×450") }, "The preview shows the new size")
+        // HEIC at half size: the 800 × 500 image becomes 400 × 250.
+        pick("HEIC", in: special)
+        pick("50%", in: special)
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.summary")).contains("400×250") }, "The preview shows the new size")
         screenshot(special, "37-paste-special-heic-half-size")
 
         app.typeKey(.return, modifierFlags: .command)
         XCTAssertTrue(waitUntil { !special.exists }, "⌘↩ copies and closes")
-        let files = { clipboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? [] }
-        XCTAssertTrue(waitUntil { files().first?.pathExtension == "heic" }, "A HEIC file is on the clipboard")
-        let file = try XCTUnwrap(files().first)
-        let image = try XCTUnwrap(NSImage(contentsOf: file))
-        XCTAssertEqual(image.representations.first?.pixelsWide, 720)
+        XCTAssertTrue(waitUntil { self.copiedFiles().first?.pathExtension == "heic" }, "A HEIC file is on the clipboard")
+        let image = try XCTUnwrap(copiedFiles().first.flatMap(NSImage.init(contentsOf:)))
+        XCTAssertEqual(image.representations.first?.pixelsWide, 400)
         let attachment = XCTAttachment(image: image)
         attachment.name = "38-paste-special-copied-heic"
         attachment.lifetime = .keepAlways
         add(attachment)
     }
 
-    func test20bPasteSpecialCopiesAsSVGAndPDF() {
-        let clipboard = NSPasteboard(name: NSPasteboard.Name("com.lazycatlabs.copaste.e2e"))
-        let files = { clipboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? [] }
-        launch(open: "panel:image")
+    func test20bPasteSpecialConvertsACopiedImageFileToSVGAndPDF() {
+        _ = parkPointer()
+        send("copy:imageFile")
+        // Recorded on the app's next clipboard check.
+        RunLoop.current.run(until: .now.addingTimeInterval(1.5))
         for format in ["SVG", "PDF"] {
-            clipboard.clearContents()
-            if !element("panel.search").exists { send("panel:image") }
-            XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
-            // A pointer action first: an app-wide key press before any sets off an assertion inside XCTest.
-            panel.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3)).hover()
-            app.typeKey(.return, modifierFlags: .option)
+            send("pasteSpecial")
             let special = element("pasteSpecialPanel")
-            XCTAssertTrue(special.waitForExistence(timeout: timeout))
-            special.radioButtons[format].click()
+            XCTAssertTrue(special.waitForExistence(timeout: timeout), "The shortcut opens Paste Special for the copied file")
+            pick(format, in: special)
             XCTAssertFalse(element("pasteSpecial.quality").isEnabled, "\(format) has no quality setting")
-            XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.summary")).contains("1440×900") })
-            screenshot(special, "40-paste-special-\(format.lowercased())")
+            XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.summary")).contains("1440×900") },
+                          "Preview: \(text(of: element("pasteSpecial.summary")))")
+            screenshot(special, "40-paste-special-file-to-\(format.lowercased())")
             app.typeKey(.return, modifierFlags: .command)
-            XCTAssertTrue(waitUntil { files().first?.pathExtension == format.lowercased() }, "A \(format) file is on the clipboard")
+            XCTAssertTrue(waitUntil { !special.exists })
+            XCTAssertTrue(waitUntil { self.copiedFiles().first?.pathExtension == format.lowercased() }, "A \(format) file is on the clipboard")
+            XCTAssertEqual(copiedFiles().first?.deletingPathExtension().lastPathComponent, "Sample", "Named after the copied file")
         }
     }
 
-    func test21PasteSpecialShortcutCanBeChanged() {
+    func test20cPasteSpecialSaysWhenTheLatestCopyIsNotAnImage() {
+        // The sample history's latest entry is a link.
+        launch()
+        send("pasteSpecial")
+        let toast = element("toast")
+        XCTAssertTrue(toast.waitForExistence(timeout: timeout), "A toast explains why nothing opened")
+        XCTAssertTrue(text(of: toast).contains("isn’t an image") || toast.staticTexts["The last copy isn’t an image"].exists)
+        XCTAssertFalse(element("pasteSpecialPanel").exists)
+        screenshot(toast, "41-paste-special-not-an-image")
+    }
+
+    func test20dPasteSpecialOpensForTheSelectedEntry() {
+        launch(open: "panel:image")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        // A pointer action first: an app-wide key press before any sets off an assertion inside XCTest.
+        let pointer = panel.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3))
+        pointer.hover()
+        let point = pointer.screenPoint
+        app.typeKey(.return, modifierFlags: .option)
+
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout), "⌥↩ opens Paste Special for the selected image")
+        XCTAssertEqual(special.frame.minX, point.x, accuracy: 2, "Opens at the pointer")
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.summary")).contains("1440×900") },
+                      "It's the selected sample image, not the latest copy")
+        screenshot(special, "42-paste-special-selected-entry")
+        app.typeKey(.escape, modifierFlags: [])
+        XCTAssertTrue(waitUntil { !special.exists }, "esc closes it")
+    }
+
+    func test20eSeveralSelectedImagesAreConvertedTogether() throws {
+        launch()
+        let png = try Data(contentsOf: samplePNG())
+        copyInApp { $0.setData(png, forType: .png) }
+        send("panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        // Only images: the sample chart and the one just copied.
+        element("panel.filter").click()
+        app.menuItems["Image"].click()
+        let rows = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'row'"))
+        XCTAssertTrue(waitUntil { rows.count == 2 })
+        rows.element(boundBy: 0).click()
+        XCUIElement.perform(withKeyModifiers: .command) { rows.element(boundBy: 1).click() }
+        XCTAssertTrue(waitUntil { self.element("panel.primary").label.contains("2 Entries") })
+        app.typeKey(.return, modifierFlags: .option)
+
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout), "⌥↩ opens Paste Special for both")
+        pick("PNG", in: special)
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.summary")).contains("2 images") }, "The preview totals both")
+        screenshot(special, "43-paste-special-two-images")
+        app.typeKey(.return, modifierFlags: .command)
+        XCTAssertTrue(waitUntil { self.copiedFiles().count == 2 }, "Both converted files are on the clipboard")
+        XCTAssertEqual(Set(copiedFiles().map(\.lastPathComponent)), ["Image.png", "Image 2.png"])
+    }
+
+    func test21PasteSpecialShortcutsCanBeChanged() {
         launch(open: "settings")
         let settings = app.windows["settings"]
         XCTAssertTrue(settings.waitForExistence(timeout: timeout))
         openSettingsPage("shortcuts", in: settings)
-        let shortcut = settings.buttons["settings.shortcut.pasteSpecial"]
-        reveal(shortcut, in: settings)
-        XCTAssertEqual(text(of: shortcut), "⌥↩", "Paste Special defaults to ⌥↩")
-        shortcut.click()
+        let latest = settings.buttons["settings.shortcut.pasteSpecialLatest"]
+        let selected = settings.buttons["settings.shortcut.pasteSpecial"]
+        reveal(selected, in: settings)
+        XCTAssertEqual(text(of: latest), "⌃⌘V", "Paste Special of the latest copy defaults to ⌃⌘V")
+        XCTAssertEqual(text(of: selected), "⌥↩", "Paste Special of the selected entry defaults to ⌥↩")
+        latest.click()
         settings.typeKey("v", modifierFlags: [.command, .option])
-        XCTAssertTrue(waitUntil { self.text(of: shortcut) == "⌥⌘V" }, "Recorded ⌥⌘V")
-        screenshot(settings, "39-settings-paste-special-shortcut")
-
-        send("panel:image")
-        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
-        app.typeKey("v", modifierFlags: [.command, .option])
-        XCTAssertTrue(element("pasteSpecialPanel").waitForExistence(timeout: timeout), "⌥⌘V opens Paste Special")
-        app.typeKey(.escape, modifierFlags: [])
-        XCTAssertTrue(waitUntil { !self.element("pasteSpecialPanel").exists }, "esc closes it")
+        XCTAssertTrue(waitUntil { self.text(of: latest) == "⌥⌘V" }, "Recorded ⌥⌘V")
+        screenshot(settings, "39-settings-paste-special-shortcuts")
     }
 
     // MARK: Helpers
@@ -567,6 +610,65 @@ final class CopasteE2ETests: XCTestCase {
             list.scroll(byDeltaX: 0, deltaY: element.frame.midY > visible.midY ? -8 : 8)
         }
         XCTAssertTrue(window.frame.contains(element.frame), "Scrolled into view")
+    }
+
+    /// The app's private clipboard in E2E runs.
+    private var clipboard: NSPasteboard { NSPasteboard(name: NSPasteboard.Name("com.lazycatlabs.copaste.e2e")) }
+
+    private func copiedFiles() -> [URL] {
+        clipboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+    }
+
+    /// Copies something as another app would, then waits for Copaste to record it (it checks every half second).
+    private func copyInApp(_ write: (NSPasteboard) -> Void) {
+        clipboard.clearContents()
+        write(clipboard)
+        RunLoop.current.run(until: .now.addingTimeInterval(1.5))
+    }
+
+    /// Opens the clipboard window, rests the pointer on it and closes it again, so Paste Special has a known pointer
+    /// position. Also a pointer action before any app-wide key press, which otherwise trips an assertion in XCTest.
+    private func parkPointer() -> CGPoint {
+        launch(open: "panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        let pointer = panel.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3))
+        pointer.hover()
+        let point = pointer.screenPoint
+        send("hide")
+        XCTAssertTrue(waitUntil { !self.element("panel.search").exists })
+        return point
+    }
+
+    /// An 800 × 500 PNG file named Sample.png.
+    private func samplePNG() throws -> URL {
+        let rep = try XCTUnwrap(NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 800, pixelsHigh: 500, bitsPerSample: 8,
+                                                 samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+                                                 bytesPerRow: 0, bitsPerPixel: 0))
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        NSColor.systemOrange.setFill()
+        NSRect(x: 0, y: 0, width: 800, height: 500).fill()
+        NSColor.systemIndigo.setFill()
+        NSBezierPath(ovalIn: NSRect(x: 250, y: 100, width: 300, height: 300)).fill()
+        NSGraphicsContext.restoreGraphicsState()
+        let folder = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let url = folder.appending(path: "Sample.png")
+        try XCTUnwrap(rep.representation(using: .png, properties: [:])).write(to: url)
+        return url
+    }
+
+    /// Clicks one of Paste Special's choices until it's selected: a click right as the window appears can be lost.
+    private func pick(_ title: String, in special: XCUIElement) {
+        let button = special.radioButtons[title]
+        XCTAssertTrue(button.waitForExistence(timeout: timeout))
+        // Segments report their state as a value of 1 or 0, not as isSelected.
+        let isPicked = { (button.value as? NSNumber)?.boolValue == true || button.isSelected }
+        XCTAssertTrue(waitUntil {
+            if isPicked() { return true }
+            button.click()
+            return isPicked()
+        }, "Picked \(title) (value: \(String(describing: button.value)))")
     }
 
     /// A button's or text's visible text, whichever XCUITest fills in.
