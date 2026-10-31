@@ -3,6 +3,13 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.8.2 — 2026-10-31
+
+### Changed
+
+- Under the hood: the windows and Settings panes are reorganized into smaller pieces, following the same layout as
+  Masa. Nothing looks or works differently.
+
 ## 0.8.1 — 2026-10-31
 
 ### New
