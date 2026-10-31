@@ -5,7 +5,6 @@ struct PasteSpecialView: View {
     @Bindable var model: PasteSpecialModel
     let finish: (_ pasting: Bool) -> Void
     let cancel: () -> Void
-    let pastes: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xl) {
@@ -43,11 +42,9 @@ struct PasteSpecialView: View {
                 Button(L(.actionCancel), action: cancel)
                 button(L(.actionCopy), keys: HotKeyStore.shared[.copy].keys) { finish(false) }
                     .accessibilityIdentifier("pasteSpecial.copy")
-                if pastes {
-                    button(L(.actionPaste), keys: HotKeyStore.shared[.paste].keys) { finish(true) }
-                        .buttonStyle(.borderedProminent)
-                        .accessibilityIdentifier("pasteSpecial.paste")
-                }
+                button(L(.actionPaste), keys: HotKeyStore.shared[.paste].keys) { finish(true) }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("pasteSpecial.paste")
             }
         }
         .pickerStyle(.segmented)
@@ -61,9 +58,12 @@ struct PasteSpecialView: View {
     }
 
     private var summary: String {
-        guard model.isUpToDate, let result = model.result else { return L(.pasteSpecialConverting) }
+        if model.hasFailed { return L(.pasteSpecialFailed) }
+        guard model.isUpToDate, let results = model.results, let result = results.first else { return L(.pasteSpecialConverting) }
         let before = model.originalBytes?.formatted(.byteCount(style: .file)) ?? "—"
-        let after = Int64(result.data.count).formatted(.byteCount(style: .file))
+        let after = Int64(results.map(\.data.count).reduce(0, +)).formatted(.byteCount(style: .file))
+        // Several images: their total sizes, as their pixel sizes differ.
+        guard results.count == 1 else { return L(.pasteSpecialResultMany(results.count, before, after)) }
         return L(.pasteSpecialResult(before, after, String(result.width), String(result.height)))
     }
 

@@ -2,7 +2,8 @@ import AppKit
 import Carbon.HIToolbox
 import SwiftUI
 
-/// Copaste lives in the menu bar: a global shortcut (⇧⌘V unless changed in Settings) opens the floating clipboard window.
+/// Copaste lives in the menu bar: a global shortcut (⇧⌘V unless changed in Settings) opens the floating clipboard window,
+/// another (⌃⌘V) opens Paste Special for the latest copy. ⌥↩ in the window opens it for the selected entry.
 final class MacAppDelegate: NSObject, NSApplicationDelegate {
     let container: AppContainer = {
         #if DEBUG
@@ -11,7 +12,7 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
         return AppContainer()
     }()
     private(set) lazy var panel = ClipboardPanelController(container: container)
-    private var hotKey: GlobalHotKey?
+    private var hotKeys: [GlobalHotKey] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         panel.showSettings = { [weak self] in self?.showSettings() }
@@ -25,23 +26,30 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
         #if DEBUG
         if E2EMode.isActive { return E2EFixtures.start(self) }
         #endif
-        registerHotKey()
-        HotKeyStore.shared.onChange = { [weak self] in self?.registerHotKey() }
+        registerHotKeys()
+        HotKeyStore.shared.onChange = { [weak self] in self?.registerHotKeys() }
         if container.session == nil { showWelcome() }
     }
 
-    private func registerHotKey() {
-        hotKey?.unregister()
-        let binding = HotKeyStore.shared.binding
-        hotKey = GlobalHotKey(keyCode: Int(binding.keyCode), modifiers: binding.carbonModifiers) { [weak self] in
-            guard let self else { return }
-            // Before a vault is chosen, the introduction's "try the shortcut" page takes the press.
-            if container.session == nil, MacWindows.isVisible(id: "welcome") {
-                NotificationCenter.default.post(name: Onboarding.shortcutPressed, object: nil)
-            } else {
-                panel.toggle()
-            }
-        }
+    private func registerHotKeys() {
+        hotKeys.forEach { $0.unregister() }
+        hotKeys = [
+            register(.openHistory) { [weak self] in
+                guard let self else { return }
+                // Before a vault is chosen, the introduction's "try the shortcut" page takes the press.
+                if container.session == nil, MacWindows.isVisible(id: "welcome") {
+                    NotificationCenter.default.post(name: Onboarding.shortcutPressed, object: nil)
+                } else {
+                    panel.toggle()
+                }
+            },
+            register(.pasteSpecialLatest) { [weak self] in self?.panel.pasteSpecialLatest() },
+        ]
+    }
+
+    private func register(_ shortcut: Shortcut, action: @escaping () -> Void) -> GlobalHotKey {
+        let binding = HotKeyStore.shared[shortcut]
+        return GlobalHotKey(keyCode: Int(binding.keyCode), modifiers: binding.carbonModifiers, action: action)
     }
 
     func showSettings() {

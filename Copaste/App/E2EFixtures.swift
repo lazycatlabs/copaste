@@ -5,7 +5,7 @@ import SwiftUI
 
 /// Sets Copaste up for the E2E tests (`-e2e`): a fresh vault in a temporary folder with sample entries, a private
 /// clipboard, no global shortcut, and commands the tests send as distributed notifications
-/// ("panel", "panel:image", "settings", "welcome", "annotate", "hide").
+/// ("panel", "panel:image", "settings", "welcome", "annotate", "hide", "pasteSpecial", "copy:imageFile").
 enum E2EFixtures {
     private static var observer: Any?
 
@@ -39,6 +39,10 @@ enum E2EFixtures {
         case "welcome": delegate.showWelcome()
         case "annotate": if let image { delegate.panel.perform(.annotate, on: image) }
         case "hide": delegate.panel.hide()
+        // The global Paste Special shortcut (global shortcuts are off in E2E runs).
+        case "pasteSpecial": delegate.panel.pasteSpecialLatest()
+        // An image file copied in Finder. Written by the app: the test runner's own files are in its sandbox.
+        case "copy:imageFile": copyImageFile()
         // ⌘ pressed or released, through the app's own event queue (the test runner can't press keys system-wide).
         case "command:down", "command:up":
             let flags: NSEvent.ModifierFlags = command == "command:down" ? .command : []
@@ -78,6 +82,21 @@ enum E2EFixtures {
             session.setGroup(work.id, for: item)
         }
         Task { await session.recognizeTextInImages() }
+    }
+
+    /// Saves the sample chart as Sample.png and puts the file on the private clipboard, where the app records it.
+    private static func copyImageFile() {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "copaste-e2e-files-\(UUID().uuidString)")
+        let url = folder.appending(path: "Sample.png")
+        do {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try chartPNG()?.write(to: url)
+        } catch {
+            return Log.clipboard.error("E2E sample file: \(error.localizedDescription, privacy: .public)")
+        }
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name(E2EMode.defaultsSuite))
+        pasteboard.clearContents()
+        pasteboard.writeObjects([url as NSURL])
     }
 
     private static let chartSize = CGSize(width: 1440, height: 900)

@@ -2640,6 +2640,40 @@
         }
       }
     },
+    "pasteSpecialNoImage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The last copy isn’t an image"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salinan terakhir bukan gambar"
+          }
+        }
+      }
+    },
+    "pasteSpecialNoImageSelected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None of the selected entries is an image"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidak ada gambar di entri yang dipilih"
+          }
+        }
+      }
+    },
     "pasteSpecialQuality": {
       "extractionState": "manual",
       "localizations": {
@@ -2670,6 +2704,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ → %2$@ · %3$@×%4$@"
+          }
+        }
+      }
+    },
+    "pasteSpecialResultMany": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld images · %2$@ → %3$@"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld gambar · %2$@ → %3$@"
           }
         }
       }
@@ -3496,13 +3547,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Click a shortcut, then press the new keys (esc cancels). Shortcuts other than the first work inside the clipboard window."
+            "value": "These work in any app. To change a shortcut, click it and press the new keys (esc cancels)."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klik pintasan, lalu tekan tombol baru (esc membatalkan). Pintasan selain yang pertama berlaku di dalam jendela clipboard."
+            "value": "Ini berlaku di aplikasi mana pun. Untuk mengubah pintasan, klik lalu tekan tombol baru (esc membatalkan)."
           }
         }
       }
@@ -3813,6 +3864,57 @@
         }
       }
     },
+    "shortcutGroupAnywhere": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Any App"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Di Aplikasi Mana Pun"
+          }
+        }
+      }
+    },
+    "shortcutGroupEntry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected Entry"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entri yang Dipilih"
+          }
+        }
+      }
+    },
+    "shortcutGroupWindow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard Window"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jendela Clipboard"
+          }
+        }
+      }
+    },
     "shortcutNavigate": {
       "extractionState": "manual",
       "localizations": {
@@ -3826,6 +3928,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pindahkan pilihan"
+          }
+        }
+      }
+    },
+    "shortcutPasteSpecial": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste Special the latest image"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempel Khusus gambar terakhir"
+          }
+        }
+      }
+    },
+    "shortcutPasteSpecialSelected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste Special the selected image"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempel Khusus gambar terpilih"
           }
         }
       }

@@ -41,4 +41,10 @@ struct HotKeyBindingTests {
                                       context: nil, characters: characters, charactersIgnoringModifiers: characters,
                                       isARepeat: false, keyCode: UInt16(code)))
     }
+
+    @Test func settingsSectionsListEveryShortcutOnce() {
+        let listed = ShortcutGroup.allCases.flatMap(\.shortcuts)
+        #expect(listed.count == Shortcut.allCases.count && Set(listed) == Set(Shortcut.allCases))
+        #expect(ShortcutGroup.anywhere.shortcuts == Shortcut.allCases.filter(\.isGlobal), "Only the global ones are under In Any App")
+    }
 }

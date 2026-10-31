@@ -63,7 +63,8 @@ enum SettingsPage: String, CaseIterable, Identifiable {
                         .settingsRecognitionMode, .storageTitle, .storageUsed, .cleanupTitle, .cleanupPeriod]
         case .pasting: [.settingsPasteDirectly, .settingsSounds, .settingsCopySound, .settingsPasteSound]
         case .appearance: [.settingsTextSize, .settingsShowToasts, .settingsWindowPosition]
-        case .shortcuts: [.settingsShortcut, .actionPaste, .actionCopy, .actionsTitle, .shortcutQuickPaste]
+        case .shortcuts: [.settingsShortcut, .actionPaste, .actionCopy, .actionsTitle, .shortcutQuickPaste, .pasteSpecialTitle,
+                          .shortcutGroupAnywhere, .shortcutGroupWindow, .shortcutGroupEntry]
         case .groups: [.groupAdd, .groupNewName]
         case .privacy: [.settingsIgnoredApps, .settingsAddApp]
         case .importing: [.importFromRaycast]
@@ -294,9 +295,12 @@ private struct AppearancePage: View {
 
 private struct ShortcutsPage: View {
     var body: some View {
-        SettingsSection(L(.settingsShortcuts), footer: L(.settingsShortcutsFooter)) {
-            ForEach(Shortcut.allCases) { shortcut in
-                SettingsRow(shortcut.title, symbol: Self.symbol(of: shortcut)) { ShortcutRecorder(shortcut: shortcut) }
+        ForEach(ShortcutGroup.allCases, id: \.self) { group in
+            // How to change one, under the first section.
+            SettingsSection(group.title, footer: group == .anywhere ? L(.settingsShortcutsFooter) : nil) {
+                ForEach(group.shortcuts) { shortcut in
+                    SettingsRow(shortcut.title, symbol: Self.symbol(of: shortcut)) { ShortcutRecorder(shortcut: shortcut) }
+                }
             }
         }
         SettingsSection(L(.settingsFixedShortcuts)) {
@@ -316,6 +320,7 @@ private struct ShortcutsPage: View {
         case .openHistory: "command"
         case .paste: "doc.on.clipboard"
         case .copy: "doc.on.doc"
+        case .pasteSpecialLatest: "wand.and.stars.inverse"
         case .pasteSpecial: "wand.and.stars"
         case .actions: "ellipsis.circle"
         case .open: "arrow.up.forward.app"
