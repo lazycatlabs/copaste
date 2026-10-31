@@ -14,6 +14,8 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     private let container: AppContainer
     private let model = ClipboardViewModel()
     private var panel: FloatingPanel?
+    /// Paste Special's options, opened at the pointer in place of the clipboard window.
+    private var specialPanel: FloatingPanel?
     private var keyMonitor: Any?
     /// The app in front when the window opened, which gets the keyboard back when it closes.
     private var previousApp: NSRunningApplication?
@@ -29,8 +31,11 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
 
     private var session: ClipboardSession? { container.session }
 
+    /// The clipboard window or Paste Special is on screen.
+    private var isOpen: Bool { panel?.isVisible == true || specialPanel?.isVisible == true }
+
     func toggle() {
-        if panel?.isVisible == true { hide() } else { show() }
+        if isOpen { hide() } else { show() }
     }
 
     /// - Parameters:
@@ -38,7 +43,8 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     ///   - toast: a confirmation to show once the window is open.
     func show(selecting id: UUID? = nil, toast: String? = nil) {
         guard let session else { return showSettings() }
-        if panel?.isVisible != true {
+        specialPanel?.orderOut(nil)
+        if !isOpen {
             let front = NSWorkspace.shared.frontmostApplication
             previousApp = front == .current ? nil : front
         }
@@ -58,8 +64,6 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
             SettingsNavigation.shared.page = .groups
             self?.hide(restoringFocus: false)
             self?.showSettings()
-        } finishPasteSpecial: { [weak self] pasting in
-            self?.finishPasteSpecial(pasting: pasting)
         }
         .environment(session)
         panel.contentView = NSHostingView(rootView: view)
@@ -79,9 +83,11 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     /// - Parameter restoringFocus: give the keyboard back to the app the user was in. Off when another
     ///   Copaste window (Settings, the annotation editor, a save panel) or another app opens next.
     func hide(restoringFocus: Bool = true) {
-        guard panel?.isVisible == true else { return }
+        guard isOpen else { return }
         guides.hide()
         panel?.orderOut(nil)
+        specialPanel?.orderOut(nil)
+        model.pasteSpecial = nil
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
         // Hand the focus back to the app the user was in, so a paste (or ⌘V afterwards) lands in its window
@@ -94,11 +100,13 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     }
 
     func windowDidResignKey(_ notification: Notification) {
+        // The clipboard window handing over to Paste Special: keep the previous app and the key monitor.
+        if notification.object as? NSWindow === panel, model.pasteSpecial != nil { return }
         // Clicking another window: that window takes the focus, so don't pull it back.
         hide(restoringFocus: false)
     }
 
-    private func makePanel() -> FloatingPanel {
+    private func makePanel(identifier: String = "clipboardPanel") -> FloatingPanel {
         // Borderless, so the SwiftUI content draws the whole rounded shape; the shadow follows it.
         let panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: Metrics.Panel.size),
                                   styleMask: [.nonactivatingPanel, .borderless],
@@ -107,7 +115,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         panel.hasShadow = true
         // Moved by `drag(ended:)` instead, which snaps to the screen's center.
         panel.isMovableByWindowBackground = false
-        panel.setAccessibilityIdentifier("clipboardPanel")
+        panel.setAccessibilityIdentifier(identifier)
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isReleasedWhenClosed = false
@@ -160,7 +168,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
                 }
                 return event
             }
-            guard event.window === self.panel else { return event }
+            guard event.window === self.panel || event.window === self.specialPanel else { return event }
             return self.handle(event) ? nil : event
         }
     }
@@ -202,7 +210,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
 
     /// Paste Special open: esc closes it, the paste and copy shortcuts finish it, the rest go to its controls.
     private func handlePasteSpecial(_ event: NSEvent) -> Bool {
-        if Int(event.keyCode) == kVK_Escape { model.pasteSpecial = nil; return true }
+        if Int(event.keyCode) == kVK_Escape { hide(); return true }
         let store = HotKeyStore.shared
         guard store[.paste].matches(event) || store[.copy].matches(event) else { return false }
         finishPasteSpecial(pasting: store[.paste].matches(event))
@@ -245,7 +253,7 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         case .copy: session.copy(item); hide()
         case .pasteSpecial:
             model.showsActions = false
-            model.pasteSpecial = session.imageURL(of: item).map { PasteSpecialModel(item: item, source: $0) }
+            if let source = session.imageURL(of: item) { showPasteSpecial(PasteSpecialModel(item: item, source: source), session: session) }
         case .copyHex: copyColor(item) { $0.hex }
         case .copyRGB: copyColor(item) { $0.rgb }
         case .copyHSL: copyColor(item) { $0.hsl }
@@ -295,15 +303,34 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         pressCommandV(once: target)
     }
 
+    /// Swaps the clipboard window for Paste Special's options, with their top-left corner at the pointer.
+    private func showPasteSpecial(_ special: PasteSpecialModel, session: ClipboardSession) {
+        model.showsActions = false
+        model.pasteSpecial = special
+        let view = PasteSpecialView(model: special, finish: { [weak self] pasting in self?.finishPasteSpecial(pasting: pasting) },
+                                    cancel: { [weak self] in self?.hide() }, pastes: session.settings.pasteDirectly)
+        let hosting = NSHostingView(rootView: view)
+        let panel = specialPanel ?? makePanel(identifier: "pasteSpecialPanel")
+        specialPanel = panel
+        panel.contentView = hosting
+        let size = hosting.fittingSize
+        let pointer = NSEvent.mouseLocation
+        let visible = Self.screenUnderPointer?.visibleFrame ?? NSRect(origin: pointer, size: size)
+        panel.setFrame(NSRect(origin: PanelPlacement.origin(topLeftAt: pointer, size: size, in: visible), size: size), display: true)
+        panel.makeKeyAndOrderFront(nil)
+        panel.invalidateShadow()
+        guides.hide()
+        self.panel?.orderOut(nil)
+    }
+
     /// Puts the Paste Special conversion on the clipboard as a file and, when pasting, sends ⌘V to the previous app.
     /// Without paste access (or with pasting turned off) it's copied instead.
     private func finishPasteSpecial(pasting: Bool) {
         guard let session, let special = model.pasteSpecial else { return }
-        guard let image = special.converted() else { return model.showToast(L(.pasteSpecialFailed)) }
+        guard let image = special.converted() else { return ToastPresenter.shared.show(L(.pasteSpecialFailed)) }
         let wantsPaste = pasting && session.settings.pasteDirectly
         let pastes = wantsPaste && PasteSimulator.isTrusted
         guard session.writeConverted(image, format: special.options.format, for: special.item, pasting: pastes) else { return }
-        model.pasteSpecial = nil
         let target = previousApp
         hide()
         if pastes { pressCommandV(once: target) } else if wantsPaste { PasteSimulator.requestAccess() }

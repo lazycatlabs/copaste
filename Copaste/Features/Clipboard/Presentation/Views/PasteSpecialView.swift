@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Converts an image entry to another file type, optionally smaller, then pastes or copies it as a file.
+/// Shown in its own window at the pointer. Converts an image entry to another file type, optionally smaller, then pastes or copies it as a file.
 struct PasteSpecialView: View {
     @Bindable var model: PasteSpecialModel
     let finish: (_ pasting: Bool) -> Void
@@ -23,17 +23,17 @@ struct PasteSpecialView: View {
                 }
                 .accessibilityIdentifier("pasteSpecial.size")
             }
-            if model.options.format.isLossy {
-                row(L(.pasteSpecialQuality)) {
-                    HStack {
-                        Slider(value: $model.options.quality, in: PasteSpecialOptions.qualityRange)
-                            .accessibilityIdentifier("pasteSpecial.quality")
-                        Text(model.options.quality.formatted(.percent.precision(.fractionLength(0))))
-                            .monospacedDigit()
-                            .foregroundStyle(.secondary)
-                    }
+            // Always shown, so the window keeps its size; PNG and TIFF have no quality setting.
+            row(L(.pasteSpecialQuality)) {
+                HStack {
+                    Slider(value: $model.options.quality, in: PasteSpecialOptions.qualityRange)
+                        .accessibilityIdentifier("pasteSpecial.quality")
+                    Text(model.options.quality.formatted(.percent.precision(.fractionLength(0))))
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
                 }
             }
+            .disabled(!model.options.format.isLossy)
             Text(summary)
                 .font(.scaled(.callout))
                 .foregroundStyle(.secondary)
@@ -55,7 +55,6 @@ struct PasteSpecialView: View {
         .frame(width: Metrics.PasteSpecial.width)
         .background(.thickMaterial, in: .rect(cornerRadius: Radius.lg))
         .overlay(RoundedRectangle(cornerRadius: Radius.lg).strokeBorder(.primary.opacity(Opacity.fill)))
-        .shadow(radius: Spacing.xl)
         .task(id: model.options) { await model.update() }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("pasteSpecial")

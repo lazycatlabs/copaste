@@ -11,8 +11,6 @@ struct ClipboardPanelView: View {
     let onDrag: (_ ended: Bool) -> Void
     /// Opens Settings › Groups.
     let manageGroups: () -> Void
-    /// Pastes (`true`) or copies the Paste Special conversion.
-    let finishPasteSpecial: (_ pasting: Bool) -> Void
     @FocusState private var searchFocused: Bool
     @FocusState private var noteFocused: Bool
     @Environment(\.colorScheme) private var colorScheme
@@ -31,7 +29,6 @@ struct ClipboardPanelView: View {
         }
         .overlay(alignment: .bottom) { toast }
         .overlay(alignment: .bottomTrailing) { actionsMenu }
-        .overlay { pasteSpecialSheet }
         .frame(width: Metrics.Panel.size.width, height: Metrics.Panel.size.height)
         .background {
             // In dark mode the material lets the wallpaper show through behind the text; a dark layer keeps it readable.
@@ -277,19 +274,6 @@ struct ClipboardPanelView: View {
                 .padding(.bottom, Spacing.hero + Spacing.xl)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .accessibilityIdentifier("panel.toast")
-        }
-    }
-
-    // MARK: Paste Special
-
-    @ViewBuilder
-    private var pasteSpecialSheet: some View {
-        if let special = model.pasteSpecial {
-            ZStack {
-                Color.black.opacity(Opacity.strong).onTapGesture { model.pasteSpecial = nil }
-                PasteSpecialView(model: special, finish: finishPasteSpecial, cancel: { model.pasteSpecial = nil },
-                                 pastes: session.settings.pasteDirectly)
-            }
         }
     }
 
