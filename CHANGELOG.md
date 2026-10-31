@@ -3,6 +3,16 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.8.0 — 2026-10-31
+
+### New
+
+- **Paste Special**: select an image (or an image file copied in Finder) and press ⌥↩ to convert it before
+  pasting. Choose PNG, JPEG, HEIC, TIFF, SVG or PDF, shrink it to 75%, 50% or 25%, and set the quality for JPEG and
+  HEIC. A preview shows the new file size before you paste. The image is pasted as a file, so apps get the format
+  you picked. The options open right at the pointer.
+- The Paste Special shortcut can be changed in Settings › Shortcuts.
+
 ## 0.7.0 — 2026-10-30
 
 ### New
