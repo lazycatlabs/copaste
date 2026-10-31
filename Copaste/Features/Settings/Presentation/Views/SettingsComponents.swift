@@ -1,24 +1,24 @@
 import Observation
 import SwiftUI
 
-/// Which Settings page is shown. Shared, so other windows can open Settings on a given page.
+/// Which Settings pane is shown. Shared, so other windows can open Settings on a given pane.
 @Observable
 final class SettingsNavigation {
     static let shared = SettingsNavigation()
-    var page: SettingsPage? = .general
+    var pane: SettingsPane? = .general
 }
 
-/// A Settings page: big title and subtitle on top, then its sections.
-struct SettingsPageView<Content: View>: View {
-    let page: SettingsPage
+/// A Settings pane: big title and subtitle on top, then its groups.
+struct SettingsPaneLayout<Content: View>: View {
+    let pane: SettingsPane
     @ViewBuilder let content: Content
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.section) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text(page.title).font(.scaled(.largeTitle, weight: .bold))
-                    Text(page.subtitle).font(.scaled(.title3)).foregroundStyle(.secondary)
+                    Text(pane.title).font(.scaled(.largeTitle, weight: .bold))
+                    Text(pane.subtitle).font(.scaled(.title3)).foregroundStyle(.secondary)
                 }
                 content
             }
@@ -27,12 +27,12 @@ struct SettingsPageView<Content: View>: View {
             .frame(maxWidth: Metrics.Settings.pageMaxWidth, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityIdentifier("settings.page.\(page.rawValue)")
+        .accessibilityIdentifier("settings.page.\(pane.rawValue)")
     }
 }
 
 /// A titled card of rows, separated by lines; an optional note underneath.
-struct SettingsSection<Content: View, Header: View>: View {
+struct SettingsGroup<Content: View, Header: View>: View {
     let title: String
     var footer: String?
     @ViewBuilder let header: Header
@@ -102,5 +102,20 @@ struct SettingsRow<Control: View>: View {
         .padding(.horizontal, Spacing.xxl)
         .padding(.vertical, Spacing.xl)
         .accessibilityElement(children: .contain)
+    }
+}
+
+/// A setting's on/off switch. The title is hidden, as the row shows it, but VoiceOver still reads it.
+struct SettingsToggle: View {
+    let title: String
+    @Binding var isOn: Bool
+
+    init(_ title: String, isOn: Binding<Bool>) {
+        self.title = title
+        _isOn = isOn
+    }
+
+    var body: some View {
+        Toggle(title, isOn: $isOn).labelsHidden().toggleStyle(.switch)
     }
 }

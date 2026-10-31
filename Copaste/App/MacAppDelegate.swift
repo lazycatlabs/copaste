@@ -54,13 +54,13 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
 
     func showSettings() {
         MacWindows.show(id: "settings", title: L(.settingsTitle), size: Metrics.Settings.windowSize, fullSize: true) {
-            SettingsView().environment(container)
+            SettingsPage().environment(container)
         }
     }
 
     func showWelcome() {
         MacWindows.show(id: "welcome", title: L(.appName), size: Metrics.Settings.welcomeSize) {
-            VaultPickerView { MacWindows.close(id: "welcome") }.environment(container)
+            VaultPickerPage { MacWindows.close(id: "welcome") }.environment(container)
         }
     }
 }
