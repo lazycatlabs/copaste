@@ -32,10 +32,10 @@ jobs:
       - name: Upload DMG and zip
         uses: actions/upload-artifact@v4
         with:
-          name: Copaste-${{ github.event.pull_request.number }}
+          name: ReCopy-${{ github.event.pull_request.number }}
           path: |
-            build/Copaste-*.dmg
-            build/Copaste-*.zip
+            build/ReCopy-*.dmg
+            build/ReCopy-*.zip
           retention-days: 30
 
       - name: Delete branch if merged

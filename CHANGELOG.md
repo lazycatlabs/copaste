@@ -1,6 +1,6 @@
 # Changelog
 
-What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
+What changed in each version of ReCopy (called Copaste before). The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
 ## 0.9.1 — 2026-11-01

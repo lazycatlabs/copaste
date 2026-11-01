@@ -1,12 +1,12 @@
 #!/bin/zsh
-# Runs the end-to-end tests (CopasteE2E scheme) and collects their screenshots:
+# Runs the end-to-end tests (ReCopyE2E scheme) and collects their screenshots:
 #   e2e-output/screenshots/*.png   one per checked feature
 #   e2e-output/E2E.xcresult        the full report (open in Xcode)
 #
-#   scripts/e2e.sh [extra xcodebuild args, e.g. -only-testing:CopasteUITests/CopasteE2ETests/test01PanelHasNewLookAndAnyDayFilter]
+#   scripts/e2e.sh [extra xcodebuild args, e.g. -only-testing:ReCopyUITests/ReCopyE2ETests/test01PanelHasNewLookAndAnyDayFilter]
 #
 # The tests drive the real UI, so leave the Mac alone while they run (about 4 minutes): moving the mouse or
-# switching apps makes drag and menu tests fail. A running Copaste is quit
+# switching apps makes drag and menu tests fail. A running ReCopy is quit
 # first: it shares the bundle ID and would answer the test's commands.
 set -euo pipefail
 
@@ -15,11 +15,12 @@ OUT="$PWD/e2e-output"
 rm -rf "$OUT"
 mkdir -p "$OUT/screenshots"
 
-osascript -e 'tell application id "com.lazycatlabs.copaste" to quit' 2>/dev/null || true
+osascript -e 'tell application id "com.lazycatlabs.recopy" to quit' 2>/dev/null || true
+osascript -e 'tell application id "com.lazycatlabs.copaste" to quit' 2>/dev/null || true  # the app before its rename
 
 STATUS=0
 # No automatic screen recordings: they would capture whatever else is on screen.
-xcodebuild -project Copaste.xcodeproj -scheme CopasteE2E -destination 'platform=macOS' \
+xcodebuild -project ReCopy.xcodeproj -scheme ReCopyE2E -destination 'platform=macOS' \
   -resultBundlePath "$OUT/E2E.xcresult" -collect-test-diagnostics never test "$@" || STATUS=$?
 
 # The screenshots are attachments in the report; copy them out under the names the tests gave them.

@@ -1,22 +1,22 @@
 <div align="center">
 
-<img src="Copaste/App/Resources/Assets.xcassets/AppIcon.appiconset/icon-512.png" width="128" alt="Copaste icon">
+<img src="ReCopy/App/Resources/Assets.xcassets/AppIcon.appiconset/icon-512.png" width="128" alt="ReCopy icon">
 
-# Copaste
+# ReCopy
 
-**Everything you copied, one shortcut away.**
+**Copy once, paste anytime.**
 
 A clipboard history for macOS that remembers text, links, colours, e-mail addresses, images and files.<br>
 Your history lives in a folder you choose, so iCloud Drive, Google Drive or OneDrive can sync it between your Macs.
 
-[![Latest release](https://img.shields.io/github/v/release/lazycatlabs/copaste?label=release&color=FF8C3C)](https://github.com/lazycatlabs/copaste/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/lazycatlabs/copaste/total?label=downloads&color=34C759)](https://github.com/lazycatlabs/copaste/releases)
+[![Latest release](https://img.shields.io/github/v/release/lazycatlabs/recopy?label=release&color=FF8C3C)](https://github.com/lazycatlabs/recopy/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/lazycatlabs/recopy/total?label=downloads&color=34C759)](https://github.com/lazycatlabs/recopy/releases)
 ![macOS 26+](https://img.shields.io/badge/macOS-26%2B-111111?logo=apple)
 ![Swift 6](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
 ![SwiftUI + Observation](https://img.shields.io/badge/SwiftUI-Observation-0A84FF)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
-[**Download for Mac**](https://github.com/lazycatlabs/copaste/releases/latest) · [Features](#features) · [Install](#install) · [Shortcuts](#shortcuts) · [Your data](#your-data) · [FAQ](#faq) · [Development](#development) · [Sponsors](#sponsors) · [License](#license)
+[**Download for Mac**](https://github.com/lazycatlabs/recopy/releases/latest) · [Features](#features) · [Install](#install) · [Shortcuts](#shortcuts) · [Your data](#your-data) · [FAQ](#faq) · [Development](#development) · [Sponsors](#sponsors) · [License](#license)
 
 </div>
 
@@ -48,28 +48,28 @@ Requires macOS 26 Tahoe or later.
 **Homebrew**
 
 ```bash
-brew install --cask lazycatlabs/tap/copaste
+brew install --cask lazycatlabs/tap/recopy
 ```
 
-**Or download the DMG** from [Releases](https://github.com/lazycatlabs/copaste/releases/latest), open it and drag **Copaste** to Applications. A zip of the same app is there too.
+**Or download the DMG** from [Releases](https://github.com/lazycatlabs/recopy/releases/latest), open it and drag **ReCopy** to Applications. A zip of the same app is there too.
 
 > [!NOTE]
-> **First launch.** Copaste isn't notarized yet, so macOS blocks it the first time:
+> **First launch.** ReCopy isn't notarized yet, so macOS blocks it the first time:
 >
-> 1. Open Copaste.
+> 1. Open ReCopy.
 > 2. Go to **System Settings → Privacy & Security**.
 > 3. Click **Open Anyway**, once.
 
-Copaste lives in the menu bar. On first launch it asks for a folder for your history: pick one inside iCloud Drive, Google Drive or OneDrive to share it between Macs.
+ReCopy lives in the menu bar. On first launch it asks for a folder for your history: pick one inside iCloud Drive, Google Drive or OneDrive to share it between Macs.
 
 <details>
 <summary><b>Build from source</b></summary>
 
 ```bash
-open Copaste.xcodeproj
+open ReCopy.xcodeproj
 ```
 
-Choose the **Copaste** scheme and press **⌘R**. To build the DMG and zip a release uses:
+Choose the **ReCopy** scheme and press **⌘R**. To build the DMG and zip a release uses:
 
 ```bash
 scripts/make_release.sh
@@ -101,10 +101,10 @@ In the clipboard window:
 
 | Permission | Why |
 | --- | --- |
-| **Accessibility** | Send ⌘V to the app you were in, so ↩ pastes. Without it, Copaste copies and you paste yourself. |
+| **Accessibility** | Send ⌘V to the app you were in, so ↩ pastes. Without it, ReCopy copies and you paste yourself. |
 
 > [!IMPORTANT]
-> macOS ties the permission to the app's signature. If it stops working after an update, remove Copaste from **System Settings → Privacy & Security → Accessibility** and grant it again.
+> macOS ties the permission to the app's signature. If it stops working after an update, remove ReCopy from **System Settings → Privacy & Security → Accessibility** and grant it again.
 
 ## Your data
 
@@ -124,14 +124,14 @@ One file per entry keeps cloud sync quick and conflicts small. The shortcut, tex
 <details>
 <summary><b>Can I move my Raycast clipboard history?</b></summary>
 
-Partly. **Settings → Import → Import from Raycast…** brings in the images and rich-text copies Raycast keeps as files. Raycast encrypts the rest (plain text, copy counts, source apps), so those can't be moved. Entries already in Copaste are skipped, so you can run it again.
+Partly. **Settings → Import → Import from Raycast…** brings in the images and rich-text copies Raycast keeps as files. Raycast encrypts the rest (plain text, copy counts, source apps), so those can't be moved. Entries already in ReCopy are skipped, so you can run it again.
 
 </details>
 
 <details>
 <summary><b>Is there an iPhone app?</b></summary>
 
-Not now. Copaste is macOS only.
+Not now. ReCopy is macOS only.
 
 </details>
 
@@ -147,17 +147,17 @@ Use **Report a Bug** in the menu bar or in Settings → About. It opens an e-mai
 You'll need Xcode 26 or later. The app is built in the Swift 6 language mode with main-actor isolation by default, and the project uses synchronized folders, so new files are picked up automatically. [AGENTS.md](AGENTS.md) describes the architecture and conventions.
 
 ```bash
-git clone https://github.com/lazycatlabs/copaste.git
+git clone https://github.com/lazycatlabs/recopy.git
 ```
 
 ```bash
-cd copaste && open Copaste.xcodeproj
+cd recopy && open ReCopy.xcodeproj
 ```
 
 Unit tests:
 
 ```bash
-xcodebuild -project Copaste.xcodeproj -scheme Copaste -destination 'platform=macOS' test
+xcodebuild -project ReCopy.xcodeproj -scheme ReCopy -destination 'platform=macOS' test
 ```
 
 UI text comes from `scripts/strings.py` (English and Indonesian). After editing it:
@@ -172,7 +172,7 @@ python3 scripts/strings.py
 Clean Architecture, feature-first: **DataSource → Repository → UseCase / ClipboardSession → View**.
 
 ```
-Copaste/
+ReCopy/
   App/                 @main, menu bar, global shortcut, composition root (AppContainer, ClipboardSession)
   Core/                Design tokens, vault storage, logging, shortcut store, toasts, sounds
   Features/
@@ -181,7 +181,7 @@ Copaste/
     Settings/          Settings, support links
     Vault/             Choosing the history folder
     Migration/         Import from Raycast
-CopasteTests/          Swift Testing
+ReCopyTests/          Swift Testing
 scripts/               String catalog generator, release packaging
 ```
 
@@ -190,10 +190,10 @@ scripts/               String catalog generator, release packaging
 <details>
 <summary><b>Releasing</b></summary>
 
-1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `Copaste.xcodeproj/project.pbxproj` and add a section to `CHANGELOG.md`.
-2. `scripts/make_release.sh` builds `build/Copaste-<version>.dmg` and `.zip` and prints the zip's sha256.
-3. Tag and publish: `gh release create v<version> build/Copaste-<version>.dmg build/Copaste-<version>.zip --notes-file <notes>`.
-4. Update `version` and `sha256` in `Casks/copaste.rb` in [lazycatlabs/homebrew-tap](https://github.com/lazycatlabs/homebrew-tap).
+1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `ReCopy.xcodeproj/project.pbxproj` and add a section to `CHANGELOG.md`.
+2. `scripts/make_release.sh` builds `build/ReCopy-<version>.dmg` and `.zip` and prints the zip's sha256.
+3. Tag and publish: `gh release create v<version> build/ReCopy-<version>.dmg build/ReCopy-<version>.zip --notes-file <notes>`.
+4. Update `version` and `sha256` in `Casks/recopy.rb` in [lazycatlabs/homebrew-tap](https://github.com/lazycatlabs/homebrew-tap).
 
 </details>
 
@@ -201,14 +201,14 @@ scripts/               String catalog generator, release packaging
 <summary><b>Diagnostics</b></summary>
 
 ```bash
-/usr/bin/log show --last 5m --predicate 'subsystem == "com.lazycatlabs.copaste"'
+/usr/bin/log show --last 5m --predicate 'subsystem == "com.lazycatlabs.recopy"'
 ```
 
 </details>
 
 ## Sponsors
 
-Copaste is free and open source. If it saves you time, you can support its development on
+ReCopy is free and open source. If it saves you time, you can support its development on
 [GitHub Sponsors](https://github.com/sponsors/Lzyct) — or from Settings › About › Sponsor on GitHub in the app.
 
 <!-- sponsors --><!-- sponsors -->
@@ -219,9 +219,9 @@ Thank you to everyone above. Your avatar shows up here (updated daily) once you 
 
 Copyright © 2026 Lazycat Labs.
 
-Copaste is free software: you can redistribute it and/or modify it under the terms of the
+ReCopy is free software: you can redistribute it and/or modify it under the terms of the
 [GNU General Public License, version 3](LICENSE) or (at your option) any later version. It is distributed in the hope
 that it will be useful, but **without any warranty**; without even the implied warranty of merchantability or fitness
 for a particular purpose. See [LICENSE](LICENSE) for the full text.
 
-Website: [copaste.lazycatlabs.com](https://copaste.lazycatlabs.com)
+Website: [recopy.lazycatlabs.com](https://recopy.lazycatlabs.com)
