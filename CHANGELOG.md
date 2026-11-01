@@ -3,6 +3,13 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.9.1 — 2026-11-01
+
+### Changed
+
+- Under the hood: the code block language list in Paste Special is cleaned up for Swift 6. Nothing looks or works
+  differently.
+
 ## 0.9.0 — 2026-11-01
 
 ### New
