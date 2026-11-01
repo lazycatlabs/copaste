@@ -3,6 +3,17 @@
 What changed in each version of ReCopy (called Copaste before). The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.9.2 — 2026-11-02
+
+### Changed
+
+- **Copaste is now ReCopy.** Same app, new name. Your vault opens as before, and your shortcuts, text size and window
+  position are copied over on first launch.
+- Homebrew: the cask is now `recopy` (`brew install --cask lazycatlabs/tap/recopy`). `brew upgrade` moves you over
+  from `copaste`.
+- macOS sees ReCopy as a new app, so grant Accessibility again (for pasting into other apps). You can remove the old
+  Copaste app afterwards.
+
 ## 0.9.1 — 2026-11-01
 
 ### Changed
