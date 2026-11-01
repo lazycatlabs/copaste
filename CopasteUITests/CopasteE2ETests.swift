@@ -210,8 +210,8 @@ final class CopasteE2ETests: XCTestCase {
         // XCUITest's own modifier holding doesn't send the ⌘ key-down the app listens for, so it's sent through the app.
         send("command:down")
         XCTAssertTrue(element("row.quickKey").waitForExistence(timeout: timeout), "⌘ shows ⌘1…⌘9 on the rows")
-        // All eight sample entries fit within ⌘1…⌘9.
-        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "row.quickKey").count, 8)
+        // Ten sample entries: the first nine get ⌘1…⌘9.
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "row.quickKey").count, 9)
         screenshot(panel, "15-hold-command-quick-paste-keys")
         send("command:up")
         XCTAssertTrue(waitUntil { !self.element("row.quickKey").exists }, "Releasing ⌘ hides them")
