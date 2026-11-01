@@ -193,7 +193,13 @@ nonisolated enum TextFormatter {
             guard lines.count >= 2, let first = lines.first, let last = lines.last else { break }
             let fence = first.prefix { $0 == "`" }
             let info = first.dropFirst(fence.count).trimmingCharacters(in: .whitespaces)
-            guard fence.count >= 3, !info.contains("`"), last.trimmingCharacters(in: .whitespaces) == fence else { break }
+            // A closing fence is only backticks, at least as many as the opener's; the first one must end the text.
+            let closes = { (line: Substring) in
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                return trimmed.count >= fence.count && trimmed.allSatisfy { $0 == "`" }
+            }
+            guard fence.count >= 3, !info.contains("`"), closes(last),
+                  lines.dropFirst().firstIndex(where: closes) == lines.count - 1 else { break }
             lines.removeFirst()
             lines.removeLast()
             code = lines.joined(separator: "\n")

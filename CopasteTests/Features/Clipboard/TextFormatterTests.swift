@@ -83,6 +83,8 @@ struct TextFormatterTests {
         #expect(TextFormatter.unfenced("```\nx\n```")! == ("x", ""))
         #expect(TextFormatter.unfenced("```swift\nlet a = 1") == nil, "Not closed")
         #expect(TextFormatter.unfenced("Use ``` for code") == nil)
+        #expect(TextFormatter.unfenced("```swift\na\n```\nText\n```python\nb\n```") == nil, "Two blocks aren't one")
+        #expect(TextFormatter.unfenced("```swift\nlet a = 1\n````")! == ("let a = 1", "swift"), "A longer closing fence")
         #expect(TextFormatter.language(of: "```\nimport SwiftUI\n```") == .swift, "An untagged block: its code decides")
         #expect(TextFormatter.languageName(.other, of: "```yaml\na: 1\n```") == "YAML", "The block's own tag names it")
         #expect(TextFormatter.languageName(.other, of: "```cpp\nint a;\n```") == "C++")
