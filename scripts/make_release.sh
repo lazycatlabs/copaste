@@ -1,7 +1,7 @@
 #!/bin/zsh
-# Builds Copaste in Release and packages it for a GitHub release and the Homebrew cask:
-#   build/Copaste-<version>.dmg   drag-to-Applications disk image
-#   build/Copaste-<version>.zip   the same app, for `brew install --cask`
+# Builds ReCopy in Release and packages it for a GitHub release and the Homebrew cask:
+#   build/ReCopy-<version>.dmg   drag-to-Applications disk image
+#   build/ReCopy-<version>.zip   the same app, for `brew install --cask`
 #
 #   scripts/make_release.sh
 #   ADHOC_SIGN=1 scripts/make_release.sh   (CI: no certificate, signed ad hoc)
@@ -14,14 +14,14 @@ cd "$(dirname "$0")/.."
 ROOT=$PWD
 BUILD="$ROOT/build"
 DERIVED="$BUILD/DerivedData"
-APP="$DERIVED/Build/Products/Release/Copaste.app"
+APP="$DERIVED/Build/Products/Release/ReCopy.app"
 
 # ADHOC_SIGN=1 builds and signs ad hoc, without the project's team, e.g. on CI without a certificate.
 SIGNING=()
 [[ "${ADHOC_SIGN:-}" == 1 ]] && SIGNING=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=)
 
-echo "→ Building Copaste (Release)…"
-xcodebuild -project Copaste.xcodeproj -scheme Copaste -configuration Release \
+echo "→ Building ReCopy (Release)…"
+xcodebuild -project ReCopy.xcodeproj -scheme ReCopy -configuration Release \
   -destination 'generic/platform=macOS' -derivedDataPath "$DERIVED" "${SIGNING[@]}" -quiet build
 [[ -d "$APP" ]] || { echo "✗ Build finished but $APP is missing" >&2; exit 1; }
 
@@ -34,16 +34,16 @@ codesign --force --deep --options runtime --timestamp=none --sign "${IDENTITY:--
 codesign --verify --deep --strict "$APP"
 
 VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Contents/Info.plist")
-DMG="$BUILD/Copaste-$VERSION.dmg"
-ZIP="$BUILD/Copaste-$VERSION.zip"
+DMG="$BUILD/ReCopy-$VERSION.dmg"
+ZIP="$BUILD/ReCopy-$VERSION.zip"
 
-echo "→ Packaging Copaste $VERSION…"
+echo "→ Packaging ReCopy $VERSION…"
 STAGING=$(mktemp -d)
 trap 'rm -rf "$STAGING"' EXIT
-ditto "$APP" "$STAGING/Copaste.app"
+ditto "$APP" "$STAGING/ReCopy.app"
 ln -s /Applications "$STAGING/Applications"
 rm -f "$DMG" "$ZIP"
-hdiutil create -volname "Copaste $VERSION" -srcfolder "$STAGING" -fs HFS+ -format UDZO -ov "$DMG" -quiet
+hdiutil create -volname "ReCopy $VERSION" -srcfolder "$STAGING" -fs HFS+ -format UDZO -ov "$DMG" -quiet
 hdiutil verify "$DMG" -quiet
 ditto -c -k --keepParent "$APP" "$ZIP"
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Source of truth for Copaste's UI text. Generates Copaste/App/Resources/Localizable.xcstrings.
+"""Source of truth for ReCopy's UI text. Generates ReCopy/App/Resources/Localizable.xcstrings.
 
 Each key maps to (English, Indonesian). English may be a dict {"one": ..., "other": ...} for plurals.
 Xcode turns every key into a type-safe symbol, e.g. "appName" -> LocalizedStringResource.appName,
@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 
 S = {
-    "appName": ("Copaste", "Copaste"),
+    "appName": ("ReCopy", "ReCopy"),
 
     # Actions
     "actionAnnotate": ("Annotate", "Anotasi"),
@@ -157,11 +157,11 @@ S = {
     "menuOpenHistory": ("Open Clipboard History  %@", "Buka Riwayat Clipboard  %@"),
     "menuPause": ("Pause Recording", "Jeda Perekaman"),
     "menuSettings": ("Settings…", "Pengaturan…"),
-    "menuQuit": ("Quit Copaste", "Keluar dari Copaste"),
+    "menuQuit": ("Quit ReCopy", "Keluar dari ReCopy"),
 
     # Onboarding
-    "onboardingTitle": ("Welcome to Copaste", "Selamat datang di Copaste"),
-    "onboardingSubtitle": ("Everything you copy, one shortcut away.", "Semua yang Anda salin, cukup satu pintasan."),
+    "onboardingTitle": ("Welcome to ReCopy", "Selamat datang di ReCopy"),
+    "onboardingSubtitle": ("Copy once, paste anytime.", "Salin sekali, tempel kapan saja."),
     "onboardingShortcut": (
         "Press %@ in any app to open your clipboard history.",
         "Tekan %@ di aplikasi mana pun untuk membuka riwayat clipboard.",
@@ -207,14 +207,14 @@ S = {
     # Settings
     "settingsTitle": ("Settings", "Pengaturan"),
     "settingsGeneral": ("General", "Umum"),
-    "settingsGeneralSubtitle": ("Where your history is kept, and starting Copaste.", "Tempat riwayat disimpan, dan saat Copaste dimulai."),
+    "settingsGeneralSubtitle": ("Where your history is kept, and starting ReCopy.", "Tempat riwayat disimpan, dan saat ReCopy dimulai."),
     "settingsStartup": ("Startup", "Saat Mulai"),
-    "settingsHistorySubtitle": ("What Copaste keeps, and for how long.", "Apa yang disimpan Copaste, dan berapa lama."),
+    "settingsHistorySubtitle": ("What ReCopy keeps, and for how long.", "Apa yang disimpan ReCopy, dan berapa lama."),
     "settingsPastingSubtitle": ("How entries reach your apps, and the sounds.", "Cara entri sampai ke aplikasi Anda, dan suaranya."),
     "settingsAppearanceSubtitle": ("Text size, toasts and the clipboard window.", "Ukuran teks, toast dan jendela clipboard."),
     "settingsTextSizeFooter": (
-        "Changes the text in Copaste's windows. System uses the same sizes as other Mac apps and follows macOS's text size.",
-        "Mengubah teks di jendela-jendela Copaste. Sistem memakai ukuran yang sama dengan aplikasi Mac lain dan mengikuti ukuran teks macOS.",
+        "Changes the text in ReCopy's windows. System uses the same sizes as other Mac apps and follows macOS's text size.",
+        "Mengubah teks di jendela-jendela ReCopy. Sistem memakai ukuran yang sama dengan aplikasi Mac lain dan mengikuti ukuran teks macOS.",
     ),
     "settingsClipboardWindow": ("Clipboard Window", "Jendela Clipboard"),
     "settingsShortcutsSubtitle": ("Keys that open and use the clipboard window.", "Tombol untuk membuka dan memakai jendela clipboard."),
@@ -232,7 +232,7 @@ S = {
     "settingsPrivacySubtitle": ("Apps whose copies are never recorded.", "Aplikasi yang salinannya tidak pernah direkam."),
     "importSubtitle": ("Bring in history from another clipboard manager.", "Bawa riwayat dari pengelola clipboard lain."),
     "storageTitle": ("Storage", "Penyimpanan"),
-    "storageUsed": ("Used by Copaste", "Dipakai Copaste"),
+    "storageUsed": ("Used by ReCopy", "Dipakai ReCopy"),
     "storageEntries": ({"one": "%lld entry, including images and link previews", "other": "%lld entries, including images and link previews"}, "%lld entri, termasuk gambar dan pratinjau tautan"),
     "storageCalculating": ("Calculating…", "Menghitung…"),
     "cleanupTitle": ("Delete Entries", "Hapus Entri"),
@@ -262,14 +262,14 @@ S = {
     "settingsUpdatesSubtitle": ("New versions, and what changed in each.", "Versi baru, dan apa yang berubah di tiap versi."),
     "updateCheck": ("Check for Updates", "Periksa Pembaruan"),
     "updateChecking": ("Checking for updates…", "Memeriksa pembaruan…"),
-    "updateUpToDate": ("Copaste is up to date", "Copaste sudah versi terbaru"),
-    "updateAvailable": ("Copaste %@ is available", "Copaste %@ tersedia"),
+    "updateUpToDate": ("ReCopy is up to date", "ReCopy sudah versi terbaru"),
+    "updateAvailable": ("ReCopy %@ is available", "ReCopy %@ tersedia"),
     "updateFailed": ("Couldn't check for updates", "Tidak bisa memeriksa pembaruan"),
     "updateCurrent": ("You have version %@.", "Versi Anda %@."),
     "updateDownload": ("Download", "Unduh"),
     "updateBrewHint": (
-        "Installed with Homebrew? Update with: brew upgrade --cask copaste",
-        "Dipasang lewat Homebrew? Perbarui dengan: brew upgrade --cask copaste",
+        "Installed with Homebrew? Update with: brew upgrade --cask recopy",
+        "Dipasang lewat Homebrew? Perbarui dengan: brew upgrade --cask recopy",
     ),
     "changelogTitle": ("Changelog", "Catatan Perubahan"),
     "changelogInstalled": ("Installed", "Terpasang"),
@@ -361,9 +361,9 @@ S = {
     "aboutLicense": ("License", "Lisensi"),
     "aboutLicenseName": ("GNU GPL v3", "GNU GPL v3"),
     "aboutLicenseFooter": (
-        "Copyright © 2026 Lazycat Labs. Copaste is free software under the GNU General Public License v3: you can share "
+        "Copyright © 2026 Lazycat Labs. ReCopy is free software under the GNU General Public License v3: you can share "
         "and change it under its terms. It comes with no warranty.",
-        "Hak cipta © 2026 Lazycat Labs. Copaste adalah perangkat lunak bebas di bawah GNU General Public License v3: "
+        "Hak cipta © 2026 Lazycat Labs. ReCopy adalah perangkat lunak bebas di bawah GNU General Public License v3: "
         "Anda boleh membagikan dan mengubahnya sesuai ketentuannya. Tanpa jaminan apa pun.",
     ),
     "aboutSourceCode": ("Source Code", "Kode Sumber"),
@@ -371,11 +371,11 @@ S = {
     "supportFeedback": ("Send Feedback", "Kirim Masukan"),
     "supportBugReport": ("Report a Bug", "Laporkan Bug"),
     "supportWebsite": ("Website", "Situs Web"),
-    "feedbackSubject": ("Copaste Feedback", "Masukan untuk Copaste"),
-    "bugReportSubject": ("Copaste Bug Report", "Laporan Bug Copaste"),
+    "feedbackSubject": ("ReCopy Feedback", "Masukan untuk ReCopy"),
+    "bugReportSubject": ("ReCopy Bug Report", "Laporan Bug ReCopy"),
     "bugReportBody": (
-        "What happened?\n\n\nWhat did you expect?\n\n\nSteps to reproduce:\n1. \n\n—\nCopaste %1$@\n%2$@",
-        "Apa yang terjadi?\n\n\nApa yang Anda harapkan?\n\n\nLangkah untuk mengulanginya:\n1. \n\n—\nCopaste %1$@\n%2$@",
+        "What happened?\n\n\nWhat did you expect?\n\n\nSteps to reproduce:\n1. \n\n—\nReCopy %1$@\n%2$@",
+        "Apa yang terjadi?\n\n\nApa yang Anda harapkan?\n\n\nLangkah untuk mengulanginya:\n1. \n\n—\nReCopy %1$@\n%2$@",
     ),
     "retentionDay": ("1 Day", "1 Hari"),
     "retentionWeek": ("1 Week", "1 Minggu"),
@@ -410,6 +410,6 @@ catalog = {
     "version": "1.0",
 }
 
-out = Path(__file__).resolve().parent.parent / "Copaste" / "App" / "Resources" / "Localizable.xcstrings"
+out = Path(__file__).resolve().parent.parent / "ReCopy" / "App" / "Resources" / "Localizable.xcstrings"
 out.write_text(json.dumps(catalog, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
 print(f"wrote {len(S)} strings to {out}")

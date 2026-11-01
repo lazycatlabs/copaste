@@ -1,7 +1,7 @@
-# SwiftLint for Copaste. CI fails on errors; warnings are shown but don't block a PR.
+# SwiftLint for ReCopy. CI fails on errors; warnings are shown but don't block a PR.
 included:
-  - Copaste
-  - CopasteTests
+  - ReCopy
+  - ReCopyTests
 excluded:
   - build
   - DerivedData

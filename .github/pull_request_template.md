@@ -11,7 +11,7 @@
 ## Checklist
 
 - [ ] Strings added to `scripts/strings.py` (English, Indonesian) and `python3 scripts/strings.py` run
-- [ ] Unit tests (`CopasteTests`) and, for UI changes, an end-to-end test (`CopasteUITests`)
+- [ ] Unit tests (`ReCopyTests`) and, for UI changes, an end-to-end test (`ReCopyUITests`)
 - [ ] Follows [AGENTS.md](../AGENTS.md): layers, design tokens, no hardcoded text or sizes
 
 ## Screenshot

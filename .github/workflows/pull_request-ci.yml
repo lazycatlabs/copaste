@@ -39,7 +39,7 @@ jobs:
       - name: Check generated strings
         run: |
           python3 scripts/strings.py
-          git diff --exit-code -- Copaste/App/Resources/Localizable.xcstrings \
+          git diff --exit-code -- ReCopy/App/Resources/Localizable.xcstrings \
             || { echo "::error::Localizable.xcstrings is out of date. Run python3 scripts/strings.py and commit it."; exit 1; }
 
   test:
@@ -62,8 +62,8 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild test \
-            -project Copaste.xcodeproj -scheme Copaste -destination 'platform=macOS' \
-            -only-testing:CopasteTests -resultBundlePath build/UnitTests.xcresult \
+            -project ReCopy.xcodeproj -scheme ReCopy -destination 'platform=macOS' \
+            -only-testing:ReCopyTests -resultBundlePath build/UnitTests.xcresult \
             $SIGNING | xcbeautify --renderer github-actions
 
       - name: Upload test results
@@ -94,8 +94,8 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild test \
-            -project Copaste.xcodeproj -scheme CopasteE2E -destination 'platform=macOS' \
-            -only-testing:CopasteUITests -resultBundlePath build/UITests.xcresult \
+            -project ReCopy.xcodeproj -scheme ReCopyE2E -destination 'platform=macOS' \
+            -only-testing:ReCopyUITests -resultBundlePath build/UITests.xcresult \
             $SIGNING | xcbeautify --renderer github-actions
 
       - name: Upload test results
