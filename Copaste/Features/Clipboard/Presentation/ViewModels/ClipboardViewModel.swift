@@ -5,7 +5,7 @@ import Observation
 @Observable
 final class ClipboardViewModel {
     var query = ""
-    var kind: ClipKind?
+    var type: TypeFilter?
     var dateFilter = DateFilter.anyTime
     /// Only entries in this group; nil for all.
     var group: UUID?
@@ -20,15 +20,18 @@ final class ClipboardViewModel {
     @ObservationIgnored private var anchorID: UUID?
     @ObservationIgnored private var rangeIDs: Set<UUID> = []
     var showsActions = false
-    /// The Paste Special sheet, while it's open.
+    /// The Paste Special sheet for images or for text, while it's open.
     var pasteSpecial: PasteSpecialModel?
+    var textPasteSpecial: TextPasteSpecialModel?
+    var showsPasteSpecial: Bool { pasteSpecial != nil || textPasteSpecial != nil }
     /// A short confirmation shown at the bottom of the window, e.g. after copying an entry.
     private(set) var toast: String?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
 
     func sections(of session: ClipboardSession, now: Date = .now) -> [(TimeSection, [ClipItem])] {
         let group = session.settings.groups.contains { $0.id == self.group } ? self.group : nil
-        let items = ClipUseCases.filter(session.items, kind: kind, query: query, created: dateFilter, group: group, now: now)
+        let items = ClipUseCases.filter(session.items, type: type, query: query, created: dateFilter, group: group, now: now,
+                                        isCode: { session.codeLanguage(of: $0) != nil })
         return ClipUseCases.sections(items, now: now)
     }
 
@@ -122,6 +125,7 @@ final class ClipboardViewModel {
         anchorID = nil
         showsActions = false
         pasteSpecial = nil
+        textPasteSpecial = nil
         showsQuickPasteKeys = false
         toast = nil
     }

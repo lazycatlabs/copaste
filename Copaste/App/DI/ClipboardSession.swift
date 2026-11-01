@@ -18,6 +18,9 @@ final class ClipboardSession {
     var errorMessage: String?
     /// Receives "“…” copied" / "“…” pasted" confirmations when toasts are on; the app decides where to show them.
     @ObservationIgnored var onToast: ((String) -> Void)?
+    /// The code language of text entries, by content hash, so each text is looked at once.
+    @ObservationIgnored private var languages: [String: CodeLanguage?] = [:]
+    @ObservationIgnored private var languageNames: [String: String] = [:]
 
     @ObservationIgnored let repository: ClipRepository
     @ObservationIgnored let pasteboard: SystemPasteboard
@@ -171,6 +174,24 @@ final class ClipboardSession {
         announce(L(.toastPastedMany(items.count)))
     }
 
+    /// The language of a text entry that is code, or nil for prose and other kinds. Worked out once per text.
+    func codeLanguage(of item: ClipItem) -> CodeLanguage? {
+        guard item.kind == .text, let text = item.text else { return nil }
+        if let cached = languages[item.hash] { return cached }
+        let language = TextFormatter.language(of: text)
+        languages[item.hash] = language
+        return language
+    }
+
+    /// The language name the list shows for a code entry (e.g. a code block's own YAML tag), or nil for other entries.
+    func codeName(of item: ClipItem) -> String? {
+        guard let language = codeLanguage(of: item), let text = item.text else { return nil }
+        if let cached = languageNames[item.hash] { return cached }
+        let name = TextFormatter.languageName(language, of: text)
+        languageNames[item.hash] = name
+        return name
+    }
+
     /// The image file Paste Special reads: the entry's image, or the image file it points at.
     func imageURL(of item: ClipItem) -> URL? {
         guard item.isConvertibleImage else { return nil }
@@ -200,14 +221,37 @@ final class ClipboardSession {
             return false
         }
         pasteboard.write(.files(urls))
+        countUse(of: items, pasting: pasting)
+        return true
+    }
+
+    /// Puts text rewritten by Paste Special on the clipboard, in a monospaced font if asked, and adds it to the history
+    /// as its own entry: it's what was copied, so it's what the list should offer next. `pasting` also counts a paste.
+    func writeFormatted(_ text: String, monospaced: Bool, for items: [ClipItem], pasting: Bool) {
+        pasteboard.write(monospaced ? .monospaced(text) : .text(text))
+        let source = items.first
+        let capture = Capture(content: .text(text), sourceName: source?.sourceName, sourceBundleID: source?.sourceBundleID)
+        guard var entry = record(capture) else { return }
+        if pasting {
+            entry = ClipUseCases.markPasted(entry, countsCopy: false)
+            save(entry)
+        }
+        announceUse(of: [entry], pasting: pasting)
+    }
+
+    /// Counts a paste or a copy of each entry, with its sound and toast.
+    private func countUse(of items: [ClipItem], pasting: Bool) {
         for item in items { save(pasting ? ClipUseCases.markPasted(item) : ClipUseCases.markCopied(item)) }
+        announceUse(of: items, pasting: pasting)
+    }
+
+    private func announceUse(of items: [ClipItem], pasting: Bool) {
         SoundPlayer.play(pasting ? settings.pasteSound : settings.copySound)
         if let item = items.first, items.count == 1 {
             announce(pasting ? L(.toastPasted(toastTitle(item))) : L(.toastCopied(toastTitle(item))))
         } else {
             announce(pasting ? L(.toastPastedMany(items.count)) : L(.toastCopiedMany(items.count)))
         }
-        return true
     }
 
     /// The entry's title, cut short for a toast.

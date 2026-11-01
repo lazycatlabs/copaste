@@ -10,20 +10,20 @@ struct PasteSpecialPage: View {
         VStack(alignment: .leading, spacing: Spacing.xl) {
             Label(L(.pasteSpecialTitle), systemImage: ClipAction.pasteSpecial.symbolName)
                 .font(.scaled(.title3, weight: .semibold))
-            row(L(.pasteSpecialFormat)) {
+            PasteSpecialRow(title: L(.pasteSpecialFormat)) {
                 Picker(L(.pasteSpecialFormat), selection: $model.options.format) {
                     ForEach(ImageFormat.allCases) { Text($0.title).tag($0) }
                 }
                 .accessibilityIdentifier("pasteSpecial.format")
             }
-            row(L(.pasteSpecialSize)) {
+            PasteSpecialRow(title: L(.pasteSpecialSize)) {
                 Picker(L(.pasteSpecialSize), selection: $model.options.scale) {
                     ForEach(PasteSpecialOptions.scales, id: \.self) { Text($0.formatted(.percent)).tag($0) }
                 }
                 .accessibilityIdentifier("pasteSpecial.size")
             }
             // Always shown, so the window keeps its size; PNG and TIFF have no quality setting.
-            row(L(.pasteSpecialQuality)) {
+            PasteSpecialRow(title: L(.pasteSpecialQuality)) {
                 HStack {
                     Slider(value: $model.options.quality, in: PasteSpecialOptions.qualityRange)
                         .accessibilityIdentifier("pasteSpecial.quality")
@@ -37,24 +37,10 @@ struct PasteSpecialPage: View {
                 .font(.scaled(.callout))
                 .foregroundStyle(.secondary)
                 .accessibilityIdentifier("pasteSpecial.summary")
-            HStack(spacing: Spacing.md) {
-                Spacer()
-                Button(L(.actionCancel), action: cancel)
-                button(L(.actionCopy), keys: HotKeyStore.shared[.copy].keys) { finish(false) }
-                    .accessibilityIdentifier("pasteSpecial.copy")
-                button(L(.actionPaste), keys: HotKeyStore.shared[.paste].keys) { finish(true) }
-                    .buttonStyle(.borderedProminent)
-                    .accessibilityIdentifier("pasteSpecial.paste")
-            }
+            PasteSpecialButtons(finish: finish, cancel: cancel)
         }
-        .pickerStyle(.segmented)
-        .padding(Spacing.page)
-        .frame(width: Metrics.PasteSpecial.width)
-        .background(.thickMaterial, in: .rect(cornerRadius: Radius.lg))
-        .overlay(RoundedRectangle(cornerRadius: Radius.lg).strokeBorder(.primary.opacity(Opacity.fill)))
+        .pasteSpecialCard()
         .task(id: model.options) { await model.update() }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("pasteSpecial")
     }
 
     private var summary: String {
@@ -65,22 +51,5 @@ struct PasteSpecialPage: View {
         // Several images: their total sizes, as their pixel sizes differ.
         guard results.count == 1 else { return L(.pasteSpecialResultMany(results.count, before, after)) }
         return L(.pasteSpecialResult(before, after, String(result.width), String(result.height)))
-    }
-
-    /// The title on its own line, so the control below gets the full width (six file types side by side).
-    private func row(_ title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            Text(title).font(.scaled(.body, weight: .medium)).foregroundStyle(.secondary)
-            content().labelsHidden().frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    private func button(_ title: String, keys: [String], action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: Spacing.sm) {
-                Text(title)
-                KeyCaps(keys: keys)
-            }
-        }
     }
 }

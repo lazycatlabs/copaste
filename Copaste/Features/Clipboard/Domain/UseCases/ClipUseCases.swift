@@ -68,8 +68,9 @@ nonisolated enum ClipUseCases {
         }
     }
 
-    static func markPasted(_ item: ClipItem, now: Date = .now) -> ClipItem {
-        var item = markCopied(item, now: now)
+    /// - Parameter countsCopy: off when the copy was already counted, e.g. as the entry was recorded.
+    static func markPasted(_ item: ClipItem, now: Date = .now, countsCopy: Bool = true) -> ClipItem {
+        var item = countsCopy ? markCopied(item, now: now) : item
         item.pasteCount += 1
         item.firstPasted = item.firstPasted ?? now
         item.lastPasted = now
@@ -95,12 +96,13 @@ nonisolated enum ClipUseCases {
     }
 
     /// - Parameter group: only entries in this group; nil for all.
-    static func filter(_ items: [ClipItem], kind: ClipKind?, query: String, created: DateFilter = .anyTime, group: UUID? = nil,
-                       now: Date = .now, calendar: Calendar = .current) -> [ClipItem] {
+    static func filter(_ items: [ClipItem], type: TypeFilter?, query: String, created: DateFilter = .anyTime, group: UUID? = nil,
+                       now: Date = .now, calendar: Calendar = .current,
+                       isCode: (ClipItem) -> Bool = { _ in false }) -> [ClipItem] {
         let query = query.trimmingCharacters(in: .whitespaces)
         let period = created.interval(now: now, calendar: calendar)
         return items.filter { item in
-            (kind == nil || item.kind == kind)
+            (type?.matches(item, isCode: isCode) ?? true)
                 && (group == nil || item.groupID == group)
                 && (period?.contains(item.firstCopied) ?? true)
                 && (query.isEmpty || item.searchableText.localizedStandardContains(query))

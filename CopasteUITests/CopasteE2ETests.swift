@@ -210,8 +210,8 @@ final class CopasteE2ETests: XCTestCase {
         // XCUITest's own modifier holding doesn't send the ⌘ key-down the app listens for, so it's sent through the app.
         send("command:down")
         XCTAssertTrue(element("row.quickKey").waitForExistence(timeout: timeout), "⌘ shows ⌘1…⌘9 on the rows")
-        // All eight sample entries fit within ⌘1…⌘9.
-        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "row.quickKey").count, 8)
+        // Ten sample entries: the first nine get ⌘1…⌘9.
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "row.quickKey").count, 9)
         screenshot(panel, "15-hold-command-quick-paste-keys")
         send("command:up")
         XCTAssertTrue(waitUntil { !self.element("row.quickKey").exists }, "Releasing ⌘ hides them")
@@ -343,7 +343,7 @@ final class CopasteE2ETests: XCTestCase {
         // esc leaves the note for the search field.
         panel.typeKey(.escape, modifierFlags: [])
         panel.typeText("quarterly")
-        let rows = app.descendants(matching: .any).matching(identifier: "row")
+        let rows = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'row'"))
         XCTAssertTrue(waitUntil { rows.count == 1 }, "Searching finds the entry by its note")
         screenshot(panel, "28-note-found-by-search")
         // The row's texts are combined into its accessibility value.
@@ -498,6 +498,145 @@ final class CopasteE2ETests: XCTestCase {
         screenshot(toast, "41-paste-special-not-an-image")
     }
 
+    func test20hPasteSpecialFormatsCopiedJSON() {
+        _ = parkPointer()
+        copyInApp { $0.setString(#"{"name":"Copaste","tags":["clipboard","mac"]}"#, forType: .string) }
+        send("pasteSpecial")
+
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout), "The shortcut opens Paste Special for copied text")
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.detected")).contains("JSON") }, "Detected as JSON")
+        screenshot(special, "44-paste-special-json")
+
+        pick("Code Block", in: special)
+        screenshot(special, "45-paste-special-json-code-block")
+        app.typeKey(.return, modifierFlags: .command)
+        XCTAssertTrue(waitUntil { !special.exists }, "⌘↩ copies and closes")
+        let expected = "```json\n{\n  \"name\": \"Copaste\",\n  \"tags\": [\n    \"clipboard\",\n    \"mac\"\n  ]\n}\n```"
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == expected },
+                      "Indented JSON in a code fence: \(clipboard.string(forType: .string) ?? "nothing")")
+    }
+
+    func test20fCodeFilterMarksCodeAndOpensTextPasteSpecial() {
+        launch(open: "panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        let rows = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'row'"))
+        let codeRows = app.descendants(matching: .any).matching(identifier: "row.code")
+        XCTAssertTrue(waitUntil { codeRows.count == 3 }, "The brew command, the Swift snippet and the JSON are marked as code")
+        screenshot(panel, "46-code-badges-in-list")
+
+        // Code: the pinned brew command, the Swift snippet and the JSON, but not the other text.
+        element("panel.filter").click()
+        app.menuItems["Code"].click()
+        XCTAssertTrue(waitUntil { rows.count == 3 }, "Only code entries: \(rows.count)")
+        XCTAssertTrue(text(of: element("panel.filter")).contains("Code"))
+        screenshot(panel, "47-code-filter")
+
+        // ⌥↩ on code opens the text dialog, with the same shortcut as for images.
+        // The pinned brew command is selected; the Swift snippet is next.
+        panel.typeKey(.downArrow, modifierFlags: [])
+        app.typeKey(.return, modifierFlags: .option)
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout), "⌥↩ opens Paste Special for the selected code")
+        screenshot(special, "48-paste-special-swift-code-block")
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.detected")).contains("Swift") },
+                      "Detected as Swift: \(text(of: element("pasteSpecial.detected")))")
+        XCTAssertFalse(element("pasteSpecial.format").exists, "The text dialog, not the image one")
+
+        app.typeKey(.return, modifierFlags: .command)
+        XCTAssertTrue(waitUntil { !special.exists }, "⌘↩ copies and closes")
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string)?.hasPrefix("```swift\nstruct ContentView") == true },
+                      "A Swift code block: \(clipboard.string(forType: .string) ?? "nothing")")
+    }
+
+    func test20gPasteSpecialRefusesSeveralEntriesOfMixedKinds() {
+        launch(open: "panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        row(containing: "Image (").click()
+        XCUIElement.perform(withKeyModifiers: .command) {
+            self.row(containing: "ContentView").click()
+        }
+        XCTAssertTrue(waitUntil { self.element("panel.primary").label.contains("2 Entries") })
+        app.typeKey(.return, modifierFlags: .option)
+
+        let toast = element("panel.toast")
+        XCTAssertTrue(toast.waitForExistence(timeout: timeout), "A toast explains why nothing opened")
+        XCTAssertTrue(waitUntil { self.text(of: toast).contains("several images") || toast.staticTexts.count > 0 })
+        XCTAssertFalse(element("pasteSpecialPanel").exists, "No dialog for an image and a text together")
+        screenshot(panel, "49-paste-special-mixed-selection")
+    }
+
+    func test20iCodeBlockLanguageCanBeSearched() {
+        _ = parkPointer()
+        copyInApp { $0.setString("puts 'Hello, Copaste'", forType: .string) }
+        send("pasteSpecial")
+
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout))
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.detected")) == "Plain text" }, "No language detected")
+        pick("Code Block", in: special)
+        let language = element("pasteSpecial.language")
+        XCTAssertEqual(text(of: language), "None", "No language until one is picked")
+        language.click()
+        let options = app.descendants(matching: .any).matching(identifier: "pasteSpecial.languageOption")
+        XCTAssertTrue(waitUntil { options.count > 1 }, "Clicking the field lists the languages")
+        special.typeText("rub")
+        XCTAssertTrue(waitUntil { options.count == 1 }, "Only Ruby matches: \(options.count), field: \(text(of: language))")
+        screenshot(special, "50-paste-special-language-search")
+
+        special.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.language")).contains("Ruby") }, "↩ picks Ruby")
+        XCTAssertTrue(special.exists, "↩ in the search picks a language instead of pasting")
+        screenshot(special, "51-paste-special-ruby-code-block")
+
+        app.typeKey(.return, modifierFlags: .command)
+        XCTAssertTrue(waitUntil { !special.exists }, "⌘↩ copies and closes")
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == "```ruby\nputs 'Hello, Copaste'\n```" },
+                      "A Ruby code block: \(clipboard.string(forType: .string) ?? "nothing")")
+    }
+
+    func test20jCopyButtonCopiesTheCodeBlock() {
+        _ = parkPointer()
+        copyInApp { $0.setString("targets:\n  $default:\n    builders:\n      enabled: true", forType: .string) }
+        send("pasteSpecial")
+        let special = element("pasteSpecialPanel")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout))
+        pick("Code Block", in: special)
+        element("pasteSpecial.language").click()
+        special.typeText("yaml")
+        special.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.language")).contains("YAML") })
+
+        element("pasteSpecial.copy").click()
+        XCTAssertTrue(waitUntil { !special.exists }, "Copy closes")
+        let expected = "```yaml\ntargets:\n  $default:\n    builders:\n      enabled: true\n```"
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == expected },
+                      "The code block is copied: \(clipboard.string(forType: .string) ?? "nothing")")
+
+        // It's in the history too, as the latest entry, tagged YAML.
+        send("panel")
+        XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
+        XCTAssertTrue(row(containing: "```yaml").waitForExistence(timeout: timeout), "The code block is a new entry")
+        XCTAssertTrue(text(of: row(containing: "```yaml")).contains("YAML"),
+                      "Its badge names the block's own language: \(text(of: row(containing: "```yaml")))")
+        screenshot(panel, "52-paste-special-result-in-history")
+
+        // Paste Special on that code block again: another language replaces the tag instead of wrapping it again.
+        send("pasteSpecial")
+        XCTAssertTrue(special.waitForExistence(timeout: timeout))
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.language")).contains("YAML") }, "It keeps its language")
+        element("pasteSpecial.language").click()
+        special.typeText("c#")
+        special.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(waitUntil { self.text(of: self.element("pasteSpecial.language")).contains("C#") })
+        screenshot(special, "53-paste-special-code-block-language-replaced")
+        element("pasteSpecial.copy").click()
+        XCTAssertTrue(waitUntil { !special.exists })
+        let replaced = "```csharp\ntargets:\n  $default:\n    builders:\n      enabled: true\n```"
+        XCTAssertTrue(waitUntil { self.clipboard.string(forType: .string) == replaced },
+                      "One block, tagged C#: \(clipboard.string(forType: .string) ?? "nothing")")
+    }
+
     func test20dPasteSpecialOpensForTheSelectedEntry() {
         launch(open: "panel:image")
         XCTAssertTrue(element("panel.search").waitForExistence(timeout: timeout))
@@ -569,6 +708,13 @@ final class CopasteE2ETests: XCTestCase {
     }
 
     private var panel: XCUIElement { app.dialogs["clipboardPanel"] }
+
+    /// The list entry whose text contains this.
+    private func row(containing text: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH 'row' AND (label CONTAINS %@ OR value CONTAINS %@)", text, text))
+            .firstMatch
+    }
 
     private func element(_ identifier: String) -> XCUIElement {
         app.descendants(matching: .any)[identifier].firstMatch

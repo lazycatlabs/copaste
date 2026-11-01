@@ -84,7 +84,7 @@ struct PasteSpecialTests {
         #expect(ClipUseCases.latest([]) == nil)
     }
 
-    @Test func offeredForImagesAndImageFilesOnly() {
+    @Test func offeredForImagesImageFilesAndText() {
         func item(_ kind: ClipKind, files: [String]? = nil) -> ClipItem {
             ClipItem(kind: kind, files: files?.map { ClipFile(path: "/tmp/\($0)", name: $0) }, hash: "",
                      firstCopied: .now, lastCopied: .now)
@@ -93,6 +93,7 @@ struct PasteSpecialTests {
         #expect(ClipAction.available(for: item(.file, files: ["a.jpg"])).contains(.pasteSpecial))
         #expect(!ClipAction.available(for: item(.file, files: ["a.pdf"])).contains(.pasteSpecial))
         #expect(!ClipAction.available(for: item(.file, files: ["a.jpg", "b.jpg"])).contains(.pasteSpecial))
-        #expect(!ClipAction.available(for: item(.text)).contains(.pasteSpecial))
+        #expect(ClipAction.available(for: item(.text)).contains(.pasteSpecial))
+        #expect(!ClipAction.available(for: item(.link)).contains(.pasteSpecial))
     }
 }

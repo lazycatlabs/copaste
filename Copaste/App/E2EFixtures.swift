@@ -69,6 +69,9 @@ enum E2EFixtures {
             ("#FF8C3C", now.addingTimeInterval(-200)),
             ("https://github.com/lazycatlabs/copaste", now.addingTimeInterval(-100)),
             ("brew install --cask lazycatlabs/tap/copaste", now.addingTimeInterval(-600)),
+            ("struct ContentView: View {\n    var body: some View {\n        Text(\"Hello, Copaste!\")\n    }\n}",
+             now.addingTimeInterval(-700)),
+            (#"{"name": "Copaste", "platform": "macOS", "tags": ["clipboard", "productivity"]}"#, yesterday.addingTimeInterval(-100)),
         ]
         for (text, date) in entries { session.importClip(.text(text), source: "Safari", copiedAt: date) }
         if let png = chartPNG() {

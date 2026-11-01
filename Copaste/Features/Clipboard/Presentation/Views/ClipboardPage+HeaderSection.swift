@@ -49,16 +49,16 @@ extension ClipboardPage {
 
         private var kindFilter: some View {
             Menu {
-                Picker(L(.filterAllTypes), selection: $model.kind) {
-                    Label(L(.filterAllTypes), systemImage: "square.grid.2x2").tag(ClipKind?.none)
+                Picker(L(.filterAllTypes), selection: $model.type) {
+                    Label(L(.filterAllTypes), systemImage: "square.grid.2x2").tag(TypeFilter?.none)
                     Divider()
-                    ForEach(ClipKind.allCases, id: \.self) { kind in
-                        Label(kind.title, systemImage: kind.symbolName).tag(ClipKind?.some(kind))
+                    ForEach(TypeFilter.all, id: \.self) { type in
+                        Label(type.title, systemImage: type.symbolName).tag(TypeFilter?.some(type))
                     }
                 }
                 .pickerStyle(.inline)
             } label: {
-                filterLabel(model.kind?.title ?? L(.filterAllTypes), systemImage: "line.3.horizontal.decrease")
+                filterLabel(model.type?.title ?? L(.filterAllTypes), systemImage: "line.3.horizontal.decrease")
             }
             .menuStyle(.button)
             .buttonStyle(.borderless)
