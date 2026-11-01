@@ -30,7 +30,9 @@ extension TextPasteSpecialPage {
         }
 
         private var field: some View {
-            TextField(L(.pasteSpecialSearchLanguage), text: $query)
+            // Read here, on the main actor: the alignment guide's closure below is Sendable.
+            let gap = Spacing.xs
+            return TextField(L(.pasteSpecialSearchLanguage), text: $query)
                 .textFieldStyle(.roundedBorder)
                 .focused($isFocused)
                 .onAppear { query = selectedName }
@@ -51,7 +53,7 @@ extension TextPasteSpecialPage {
                 // set inside an `if` is lost.
                 .overlay(alignment: .bottomLeading) {
                     ZStack { if model.searchesLanguage { dropdown } }
-                        .alignmentGuide(.bottom) { $0[.top] - Spacing.xs }
+                        .alignmentGuide(.bottom) { $0[.top] - gap }
                 }
                 .accessibilityIdentifier("pasteSpecial.language")
         }
