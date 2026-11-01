@@ -3,6 +3,31 @@
 What changed in each version of Copaste. The newest version is first. Each version's section is also the text for
 its GitHub release (tag `vX.Y.Z`).
 
+## 0.9.0 — 2026-11-01
+
+### New
+
+- **Paste Special for text**: the same shortcuts as for images (⌥↩ on the selected entry, ⌃⌘V for the latest copy)
+  open text options when the entry is text.
+  - **Reformat**: As Is, Tidy (shared indentation, trailing spaces and extra blank lines removed), and for JSON:
+    Indented or One Line.
+  - **Paste As**: Plain Text, Code Block (Markdown fence), or Monospaced (for Notes, Mail, Pages and web editors).
+  - **Code Block Language**: search about forty languages by name, tag or alias, or type a tag of your own. On text
+    that's already a code block, the new language replaces the old tag.
+  - The result is saved to the history as its own entry.
+- **Code detection**: JSON, HTML, XML and 15 languages (Swift, Dart, Kotlin, Java, Python, JavaScript, Go, Rust,
+  C/C++, SQL, CSS, Shell…). A Markdown code block is named by its own tag.
+- **Code filter and badges**: the type filter has **Code**, and code entries show their language.
+
+### Changed
+
+- Selecting several entries of different kinds, or several texts, shows a message instead of Paste Special. Several
+  images still convert together.
+
+### Fixed
+
+- A copy made just before opening Copaste or Paste Special is now always the latest entry.
+
 ## 0.8.2 — 2026-10-31
 
 ### Changed
